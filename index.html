@@ -91,19 +91,19 @@
     <h2>Silver Pricing</h2>
     
     <div class="input-group">
-      <label for="rate">Today's Silver Rate (₹ per 1 kg)</label>
+      <label for="rate">Fine Silver Rate (₹ per 1 kg)</label>
       <input type="number" id="rate" placeholder="e.g., 85000" inputmode="decimal">
-      <span class="hint">Saved automatically. Only change when market changes.</span>
+      <span class="hint">Saved automatically.</span>
     </div>
 
     <div class="input-group">
       <label for="grams">Weight (Grams)</label>
-      <input type="number" id="grams" placeholder="Enter grams" inputmode="decimal">
+      <input type="number" id="grams" placeholder="Enter total weight" inputmode="decimal">
     </div>
 
     <div class="input-group">
-      <label for="labour">Labour Charge (₹)</label>
-      <input type="number" id="labour" placeholder="Enter labour cost" inputmode="decimal">
+      <label for="labour">Labour Charge (₹ per Gram)</label>
+      <input type="number" id="labour" placeholder="e.g., 25" inputmode="decimal">
     </div>
 
     <div class="divider"></div>
@@ -113,11 +113,15 @@
       <span id="silverOut">₹ 0.00</span>
     </div>
     <div class="row">
-      <span>GST (3% on Silver+Labour)</span>
+      <span>Labour Value</span>
+      <span id="labourOut">₹ 0.00</span>
+    </div>
+    <div class="row">
+      <span>GST (3%)</span>
       <span id="gstOut">₹ 0.00</span>
     </div>
     <div class="row">
-      <span>Comm. (10% on Sil+Lab+GST)</span>
+      <span>Commission (10%)</span>
       <span id="commOut">₹ 0.00</span>
     </div>
 
@@ -139,6 +143,7 @@
     const labourInput = document.getElementById('labour');
     
     const silverOut = document.getElementById('silverOut');
+    const labourOut = document.getElementById('labourOut');
     const gstOut = document.getElementById('gstOut');
     const commOut = document.getElementById('commOut');
     const totalOut = document.getElementById('totalOut');
@@ -152,17 +157,19 @@
     function calculate() {
       const rate = parseFloat(rateInput.value) || 0;
       const grams = parseFloat(gramsInput.value) || 0;
-      const labour = parseFloat(labourInput.value) || 0;
+      const labourPerGram = parseFloat(labourInput.value) || 0;
 
       // Save rate to local storage automatically
       localStorage.setItem('savedSilverRateKG', rate);
 
       // Math Logic
       const silverCost = (rate / 1000) * grams;
-      const base = silverCost + labour;
+      const labourCost = labourPerGram * grams;
+      const base = silverCost + labourCost;
+      
       const gst = base * 0.03; 
       
-      // Subtotal is Silver + Labour + GST
+      // Subtotal is Silver + Total Labour + GST
       const subtotal = base + gst;
       
       // Commission is 10% on the subtotal
@@ -172,6 +179,7 @@
 
       // Update UI
       silverOut.textContent = `₹ ${silverCost.toFixed(2)}`;
+      labourOut.textContent = `₹ ${labourCost.toFixed(2)}`;
       gstOut.textContent = `₹ ${gst.toFixed(2)}`;
       commOut.textContent = `₹ ${comm.toFixed(2)}`;
       totalOut.textContent = `₹ ${total.toFixed(2)}`;
