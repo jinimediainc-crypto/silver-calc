@@ -91,9 +91,14 @@
     <h2>Silver Pricing</h2>
     
     <div class="input-group">
-      <label for="silver">Fine Silver Value (₹)</label>
-      <input type="number" id="silver" placeholder="Enter silver amount" inputmode="decimal">
-      <span class="hint">Saved automatically. Change only when rate changes.</span>
+      <label for="rate">Today's Silver Rate (₹ per 1 kg)</label>
+      <input type="number" id="rate" placeholder="e.g., 85000" inputmode="decimal">
+      <span class="hint">Saved automatically. Only change when market changes.</span>
+    </div>
+
+    <div class="input-group">
+      <label for="grams">Weight (Grams)</label>
+      <input type="number" id="grams" placeholder="Enter grams" inputmode="decimal">
     </div>
 
     <div class="input-group">
@@ -104,16 +109,16 @@
     <div class="divider"></div>
 
     <div class="row">
-      <span>Base (Silver + Labour)</span>
-      <span id="baseOut">₹ 0.00</span>
+      <span>Silver Value</span>
+      <span id="silverOut">₹ 0.00</span>
     </div>
     <div class="row">
-      <span>Commission (10%)</span>
-      <span id="commOut">₹ 0.00</span>
-    </div>
-    <div class="row">
-      <span>GST (3%)</span>
+      <span>GST (3% on Silver+Labour)</span>
       <span id="gstOut">₹ 0.00</span>
+    </div>
+    <div class="row">
+      <span>Comm. (10% on Sil+Lab+GST)</span>
+      <span id="commOut">₹ 0.00</span>
     </div>
 
     <div class="divider"></div>
@@ -125,55 +130,58 @@
   </div>
 
   <script>
-    // Register Service Worker for PWA installability
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js');
     }
 
-    const silverInput = document.getElementById('silver');
+    const rateInput = document.getElementById('rate');
+    const gramsInput = document.getElementById('grams');
     const labourInput = document.getElementById('labour');
     
-    const baseOut = document.getElementById('baseOut');
-    const commOut = document.getElementById('commOut');
+    const silverOut = document.getElementById('silverOut');
     const gstOut = document.getElementById('gstOut');
+    const commOut = document.getElementById('commOut');
     const totalOut = document.getElementById('totalOut');
 
-    // Load saved silver rate on startup
-    const savedSilver = localStorage.getItem('savedSilverRate');
-    if (savedSilver) {
-      silverInput.value = savedSilver;
+    // Load saved silver rate per kg on startup
+    const savedRate = localStorage.getItem('savedSilverRateKG');
+    if (savedRate) {
+      rateInput.value = savedRate;
     }
 
     function calculate() {
-      const silver = parseFloat(silverInput.value) || 0;
+      const rate = parseFloat(rateInput.value) || 0;
+      const grams = parseFloat(gramsInput.value) || 0;
       const labour = parseFloat(labourInput.value) || 0;
 
-      // Save silver rate to local storage whenever it changes
-      localStorage.setItem('savedSilverRate', silver);
+      // Save rate to local storage automatically
+      localStorage.setItem('savedSilverRateKG', rate);
 
       // Math Logic
-      const base = silver + labour;
-      const comm = base * 0.10; 
+      const silverCost = (rate / 1000) * grams;
+      const base = silverCost + labour;
+      const gst = base * 0.03; 
       
-      // Assuming GST is applied on the total (Base + Commission)
-      // If GST is only on Base, change to: const gst = base * 0.03;
-      const taxableAmount = base + comm;
-      const gst = taxableAmount * 0.03; 
+      // Subtotal is Silver + Labour + GST
+      const subtotal = base + gst;
       
-      const total = base + comm + gst;
+      // Commission is 10% on the subtotal
+      const comm = subtotal * 0.10; 
+      
+      const total = subtotal + comm;
 
       // Update UI
-      baseOut.textContent = `₹ ${base.toFixed(2)}`;
-      commOut.textContent = `₹ ${comm.toFixed(2)}`;
+      silverOut.textContent = `₹ ${silverCost.toFixed(2)}`;
       gstOut.textContent = `₹ ${gst.toFixed(2)}`;
+      commOut.textContent = `₹ ${comm.toFixed(2)}`;
       totalOut.textContent = `₹ ${total.toFixed(2)}`;
     }
 
     // Recalculate instantly as user types
-    silverInput.addEventListener('input', calculate);
+    rateInput.addEventListener('input', calculate);
+    gramsInput.addEventListener('input', calculate);
     labourInput.addEventListener('input', calculate);
 
-    // Initial calculation on load
     calculate();
   </script>
 </body>
