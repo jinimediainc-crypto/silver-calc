@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retail Cypher Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Hide arrows on number inputs */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        /* Custom gold accent */
+        .gold-accent {
+            color: #D4AF37;
+        }
+        .focus-gold:focus {
+            border-color: #D4AF37;
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-stone-50 flex justify-center items-start min-h-screen pt-10 px-4 font-sans text-gray-800 pb-12">
+
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100">
+        
+        <div class="bg-[#047857] p-6 text-center shadow-md relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-[#D4AF37]"></div>
+            <h1 class="text-2xl font-light text-white tracking-widest uppercase">Retail <span class="font-bold gold-accent">Pricing</span></h1>
+            <p class="text-emerald-100 text-xs tracking-wider mt-1 opacity-80">CYPHER DECODER SYSTEM</p>
+        </div>
+
+        <div class="p-6 space-y-6">
+            
+            <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
+                <label class="flex justify-between items-center text-sm font-bold text-emerald-800 mb-2">
+                    <span>Daily Silver Rate <span class="text-emerald-600 font-normal">(The 'F' Value)</span></span>
+                    <span class="text-[10px] bg-emerald-200 text-emerald-800 px-2 py-1 rounded-full uppercase tracking-wide">Auto-Saved</span>
+                </label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-emerald-600 font-bold">₹</span>
+                    <input type="number" id="dailySilverRate" class="w-full bg-white border border-emerald-200 rounded-xl py-2 pl-8 pr-4 text-emerald-900 font-bold outline-none focus:ring-2 focus:ring-emerald-400 transition-all" placeholder="e.g. 90" />
+                </div>
+            </div>
+
+            <div class="bg-stone-50 p-4 rounded-2xl border border-stone-200 shadow-inner">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Cypher Code</label>
+                        <input type="text" id="cypherCode" class="w-full bg-white border border-gray-300 rounded-xl p-3 text-lg font-bold text-center tracking-widest uppercase outline-none focus-gold transition-all" placeholder="e.g. FRSS" />
+                    </div>
+                    
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Base Rate (₹/g)</label>
+                        <input type="number" id="baseRate" class="w-full bg-gray-100 border border-gray-300 rounded-xl p-3 text-lg font-bold text-center text-[#047857] outline-none" placeholder="0" readonly />
+                        <p class="text-[10px] text-center text-gray-400 mt-1">Silver (F) + Labour</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Weight (Grams)</label>
+                    <input type="number" id="weight" class="w-full bg-white border border-gray-200 rounded-xl p-3 outline-none focus-gold transition-all" placeholder="Enter item weight" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Other Charges (₹)</label>
+                    <input type="number" id="otherCharges" class="w-full bg-white border border-gray-200 rounded-xl p-3 outline-none focus-gold transition-all" placeholder="Flat charges (packaging, extra etc.)" />
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gray-900 p-6 flex flex-col items-center border-t-4 border-[#D4AF37]">
+            <label class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Final Customer Price (₹)</label>
+            <div class="relative w-full max-w-[250px]">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-emerald-500 font-bold text-2xl">₹</span>
+                <input type="number" id="grandTotal" class="w-full bg-gray-800 border-none rounded-xl py-3 pl-10 pr-4 text-3xl font-extrabold text-white text-center outline-none focus:ring-2 focus:ring-[#D4AF37] transition-all" placeholder="0" />
+            </div>
+            <p class="text-[11px] text-gray-500 mt-3 text-center">Edit the Total to reverse-calculate the Cypher Code.</p>
+        </div>
+
+    </div>
+
+    <script>
+        // Mapping for SILVERBANK
+        // S=0, I=1, L=2, V=3, E=4, R=5, B=6, A=7, N=8, K=9
+        const decodeMap = { 's':'0', 'i':'1', 'l':'2', 'v':'3', 'e':'4', 'r':'5', 'b':'6', 'a':'7', 'n':'8', 'k':'9' };
+        const encodeMap = { '0':'s', '1':'i', '2':'l', '3':'v', '4':'e', '5':'r', '6':'b', '7':'a', '8':'n', '9':'k' };
+
+        // DOM Elements
+        const elDailySilverRate = document.getElementById('dailySilverRate');
+        const elCypherCode = document.getElementById('cypherCode');
+        const elBaseRate = document.getElementById('baseRate'); // Now Readonly
+        const elWeight = document.getElementById('weight');
+        const elOtherCharges = document.getElementById('otherCharges');
+        const elGrandTotal = document.getElementById('grandTotal');
+
+        let isCalculating = false;
+
+        // Load F value from cache
+        elDailySilverRate.value = localStorage.getItem('retail_dailySilverRate') || '';
+
+        // Save F value to cache on change
+        elDailySilverRate.addEventListener('input', (e) => {
+            localStorage.setItem('retail_dailySilverRate', e.target.value);
+            // Recalculate if a code is already typed
+            if (elCypherCode.value) processCypherInput();
+        });
+
+        // --- CORE LOGIC ---
+
+        const getSilverRate = () => parseFloat(elDailySilverRate.value) || 0;
+
+        // 1. Decode text to number (handling the 'F' variable)
+        const decodeCypher = (text) => {
+            let numStr = '';
+            const lowerText = text.toLowerCase();
+            let hasF = false;
+            let startIndex = 0;
+
+            if (lowerText.startsWith('f')) {
+                hasF = true;
+                startIndex = 1; // Skip the 'F' when decoding letters
+            }
+
+            for (let i = startIndex; i < lowerText.length; i++) {
+                let char = lowerText[i];
+                if (decodeMap[char] !== undefined) {
+                    numStr += decodeMap[char];
+                }
+            }
+            
+            let decodedLabour = parseInt(numStr) || 0;
+            
+            // If it starts with F, add the daily silver rate to the decoded labour
+            if (hasF) {
+                return getSilverRate() + decodedLabour;
+            }
+            
+            return decodedLabour;
+        };
+
+        // 2. Encode number to text (creating the 'F' structure)
+        const encodeNumber = (totalRatePerGram) => {
+            let silverRate = getSilverRate();
+            let labourRate = totalRatePerGram;
+            let includeF = false;
+
+            // If the total rate is greater than the silver rate, we construct an 'F' code
+            if (silverRate > 0 && totalRatePerGram >= silverRate) {
+                labourRate = totalRatePerGram - silverRate;
+                includeF = true;
+            }
+
+            let str = Math.round(labourRate).toString();
+            let cypherText = '';
+            for (let char of str) {
+                if (encodeMap[char] !== undefined) {
+                    cypherText += encodeMap[char];
+                }
+            }
+            
+            return (includeF ? 'F' : '') + cypherText.toUpperCase();
+        };
+
+        // 3. Forward Calculation (Code -> Rate -> Total)
+        const processCypherInput = () => {
+            if (isCalculating) return;
+            isCalculating = true;
+
+            const val = elCypherCode.value;
+            if (val) {
+                const calculatedRate = decodeCypher(val);
+                elBaseRate.value = calculatedRate;
+            } else {
+                elBaseRate.value = '';
+            }
+
+            calculateTotal();
+            isCalculating = false;
+        };
+
+        const calculateTotal = () => {
+            const rate = parseFloat(elBaseRate.value) || 0;
+            const weight = parseFloat(elWeight.value) || 0;
+            const charges = parseFloat(elOtherCharges.value) || 0;
+
+            const total = (rate * weight) + charges;
+            
+            if (weight > 0) {
+                elGrandTotal.value = Math.round(total);
+            } else {
+                elGrandTotal.value = '';
+            }
+        };
+
+        // 4. Reverse Calculation (Total -> Rate -> Code)
+        const calculateReverse = () => {
+            if (isCalculating) return;
+            isCalculating = true;
+
+            const total = parseFloat(elGrandTotal.value) || 0;
+            const weight = parseFloat(elWeight.value) || 0;
+            const charges = parseFloat(elOtherCharges.value) || 0;
+
+            if (weight > 0) {
+                // Work backward to find the total base rate per gram
+                let reverseRate = (total - charges) / weight;
+                reverseRate = Math.max(0, Math.round(reverseRate)); 
+                
+                // Update UI Base Rate
+                elBaseRate.value = reverseRate;
+                
+                // Update Code, dynamically determining the new Labour part
+                elCypherCode.value = encodeNumber(reverseRate);
+            }
+
+            isCalculating = false;
+        };
+
+
+        // --- EVENT LISTENERS ---
+
+        elCypherCode.addEventListener('input', processCypherInput);
+        
+        elWeight.addEventListener('input', () => {
+            if (!isCalculating) {
+                isCalculating = true;
+                calculateTotal();
+                isCalculating = false;
+            }
+        });
+        
+        elOtherCharges.addEventListener('input', () => {
+            if (!isCalculating) {
+                isCalculating = true;
+                calculateTotal();
+                isCalculating = false;
+            }
+        });
+
+        elGrandTotal.addEventListener('input', calculateReverse);
+
+    </script>
+</body>
+</html>
