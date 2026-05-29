@@ -190,7 +190,7 @@
             outputs.commLabel.innerText = `Commission (${commRateValue}%)`;
 
             // Update Total Label Helper Text
-            let breakdownText = "Silver + Labour";
+            let breakdownText = "";
             if (isGstOn) breakdownText += " + GST";
             if (isCommOn) breakdownText += " + Comm";
             outputs.totalLabel.innerText = breakdownText;
