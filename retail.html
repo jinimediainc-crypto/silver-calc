@@ -28,14 +28,14 @@
                     <label class="block text-[10px] font-bold text-emerald-800 uppercase mb-1">Global 'F' Rate</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-2 text-emerald-600 text-sm font-bold">₹</span>
-                        <input type="number" id="dailySilverRate" class="w-full bg-white border border-emerald-200 rounded-md py-1.5 pl-6 pr-2 text-sm font-bold outline-none focus-ring" placeholder="275" />
+                        <input type="number" id="dailySilverRate" class="w-full bg-white border border-emerald-200 rounded-md py-1.5 pl-6 pr-2 text-sm font-bold outline-none focus-ring" placeholder="0" />
                     </div>
                 </div>
                 <div class="bg-blue-50 p-2 rounded-lg border border-blue-100">
                     <label class="block text-[10px] font-bold text-blue-800 uppercase mb-1">Item 'F' (Override)</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-2 text-blue-600 text-sm font-bold">₹</span>
-                        <input type="number" id="itemSilverRate" class="w-full bg-white border border-blue-200 rounded-md py-1.5 pl-6 pr-2 text-sm font-bold outline-none focus-ring" placeholder="275" />
+                        <input type="number" id="itemSilverRate" class="w-full bg-white border border-blue-200 rounded-md py-1.5 pl-6 pr-2 text-sm font-bold outline-none focus-ring" placeholder="0" />
                     </div>
                 </div>
             </div>
@@ -44,11 +44,11 @@
                 <div class="grid grid-cols-2 gap-3 mb-2">
                     <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Cypher Code</label>
-                        <input type="text" id="cypherCode" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-center font-bold tracking-widest uppercase outline-none focus-ring" placeholder="FRSS" />
+                        <input type="text" id="cypherCode" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-center font-bold tracking-widest uppercase outline-none focus-ring" placeholder="e.g. FRSS" />
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Labour (₹/g)</label>
-                        <input type="number" id="labourCharge" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-center font-bold outline-none focus-ring" placeholder="500" />
+                        <input type="number" id="labourCharge" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-center font-bold outline-none focus-ring" placeholder="0" />
                     </div>
                 </div>
                 
@@ -61,7 +61,7 @@
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1">Weight (g)</label>
-                    <input type="number" id="weight" class="w-full bg-white border border-gray-300 rounded-lg p-2 font-semibold outline-none focus-ring text-center" placeholder="e.g. 10" />
+                    <input type="number" id="weight" class="w-full bg-white border border-gray-300 rounded-lg p-2 font-semibold outline-none focus-ring text-center" placeholder="0" />
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1">Other (₹)</label>
@@ -72,8 +72,7 @@
 
         <div class="bg-gray-900 p-4 flex justify-between items-center border-t-4 border-[#D4AF37]">
             <div class="flex flex-col">
-                <span class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Final MRP</span>
-                <span class="text-gray-500 text-[9px] mt-0.5">Edit to reverse calculate</span>
+                <span class="text-gray-400 text-[11px] font-bold uppercase tracking-widest">Final MRP</span>
             </div>
             <div class="relative w-1/2">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-500 font-bold text-xl">₹</span>
@@ -124,4 +123,122 @@
             let str = Math.round(num).toString();
             let text = '';
             for (let char of str) {
-                if (encodeMap[char] !== undefined)
+                if (encodeMap[char] !== undefined) text += encodeMap[char];
+            }
+            return text.toUpperCase();
+        };
+
+        // Decode Letters to Number
+        const decodeCypher = (text) => {
+            let numStr = '';
+            const lowerText = text.toLowerCase();
+            let startIndex = lowerText.startsWith('f') ? 1 : 0; // Skip F if present
+
+            for (let i = startIndex; i < lowerText.length; i++) {
+                if (decodeMap[lowerText[i]] !== undefined) {
+                    numStr += decodeMap[lowerText[i]];
+                }
+            }
+            return parseInt(numStr) || 0;
+        };
+
+        // Update the Base Rate UI
+        const updateBaseRateDisplay = (labourVal) => {
+            const silver = getSilverRate();
+            const hasF = els.code.value.toLowerCase().startsWith('f') || (!els.code.value && labourVal > 0);
+            
+            let totalBase = 0;
+            // Only calculate a base rate if there's actually a code or labour entered
+            if (els.code.value || labourVal > 0) {
+                totalBase = (hasF ? silver : 0) + labourVal;
+            }
+            
+            els.baseRateDisplay.innerText = totalBase;
+            return totalBase;
+        };
+
+        // --- CALCULATION WORKFLOWS ---
+
+        // 1. Forward calculation (from Inputs -> Total)
+        function triggerForwardCalc() {
+            if (isCalculating) return;
+            isCalculating = true;
+
+            const labour = parseFloat(els.labour.value) || 0;
+            const baseRate = updateBaseRateDisplay(labour);
+            
+            const weight = parseFloat(els.weight.value) || 0;
+            const other = parseFloat(els.other.value) || 0;
+
+            if (weight > 0 && baseRate > 0) {
+                els.total.value = Math.round((baseRate * weight) + other);
+            } else {
+                els.total.value = ''; // Keep total clear if no valid calculation is ready
+            }
+
+            isCalculating = false;
+        }
+
+        // 2. When Cypher is typed -> Update Labour -> Calc Forward
+        els.code.addEventListener('input', () => {
+            if (isCalculating) return;
+            isCalculating = true;
+            
+            const decodedLabour = decodeCypher(els.code.value);
+            els.labour.value = decodedLabour || '';
+            
+            isCalculating = false;
+            triggerForwardCalc();
+        });
+
+        // 3. When Labour is typed -> Update Cypher -> Calc Forward
+        els.labour.addEventListener('input', () => {
+            if (isCalculating) return;
+            isCalculating = true;
+            
+            const labourVal = parseFloat(els.labour.value) || 0;
+            if (labourVal > 0) {
+                // Always prepend 'F' assuming standard retail structure
+                els.code.value = 'F' + encodeNumber(labourVal);
+            } else {
+                els.code.value = '';
+            }
+            
+            isCalculating = false;
+            triggerForwardCalc();
+        });
+
+        // 4. Reverse calculation (from Total -> Labour & Code)
+        els.total.addEventListener('input', () => {
+            if (isCalculating) return;
+            isCalculating = true;
+
+            const total = parseFloat(els.total.value) || 0;
+            const weight = parseFloat(els.weight.value) || 0;
+            const other = parseFloat(els.other.value) || 0;
+            const silver = getSilverRate();
+
+            if (weight > 0 && total > 0) {
+                let requiredBaseRate = (total - other) / weight;
+                let requiredLabour = Math.max(0, requiredBaseRate - silver); 
+                
+                // Update Inputs
+                els.labour.value = Math.round(requiredLabour);
+                els.code.value = 'F' + encodeNumber(requiredLabour);
+                
+                updateBaseRateDisplay(requiredLabour);
+            }
+
+            isCalculating = false;
+        });
+
+        // Basic listeners for weight and extras
+        els.weight.addEventListener('input', triggerForwardCalc);
+        els.other.addEventListener('input', triggerForwardCalc);
+
+        // Run an initial blank calculation on load to set up the zeros properly
+        triggerForwardCalc();
+
+    </script>
+</body>
+</html>
