@@ -225,6 +225,9 @@
                 totalBase = (hasF ? globalSilver : 0) + labourVal;
             }
             
+            // Failsafe: Ensure it always displays as a clean, rounded integer
+            totalBase = Math.round(totalBase);
+            
             els.baseRateDisplay.innerText = totalBase;
             return totalBase;
         };
@@ -300,7 +303,7 @@
             triggerForwardCalc();
         });
 
-        // Smart Reverse Calculator (Checks which mode is active)
+        // Smart Reverse Calculator
         els.total.addEventListener('input', () => {
             if (isCalculating) return;
             isCalculating = true;
@@ -322,17 +325,21 @@
                 if (solveMode === 'labour') {
                     // ON THE FLOOR: Discount the L-Val, keep Global F locked
                     let requiredLabour = Math.max(0, requiredBaseRate - globalSilver);
-                    els.labour.value = Math.round(requiredLabour);
+                    // Round the required labour so it displays clean in the Tag ID and Base Rate
+                    let roundedLabour = Math.round(requiredLabour);
+                    
+                    els.labour.value = roundedLabour;
                     updateCompoundTag();
-                    updateBaseRateDisplay(requiredLabour);
+                    updateBaseRateDisplay(roundedLabour);
                     
                 } else if (solveMode === 'f_rate') {
                     // BACK OFFICE: Solve for F, keep L-Val locked
                     let requiredF = Math.max(0, requiredBaseRate - currentLabour);
+                    let roundedF = Math.round(requiredF);
                     
-                    els.dailyRate.value = Math.round(requiredF);
-                    els.itemRate.value = Math.round(requiredF);
-                    localStorage.setItem('retail_compact_silverRate', Math.round(requiredF));
+                    els.dailyRate.value = roundedF;
+                    els.itemRate.value = roundedF;
+                    localStorage.setItem('retail_compact_silverRate', roundedF);
                     
                     updateCompoundTag(); 
                     updateBaseRateDisplay(currentLabour);
@@ -346,7 +353,7 @@
         els.weight.addEventListener('input', triggerForwardCalc);
         els.other.addEventListener('input', triggerForwardCalc);
         
-        // Retrigger forward calculation if they switch modes (just to be safe)
+        // Retrigger forward calculation if they switch modes
         for (const radio of els.solveModeInputs) {
             radio.addEventListener('change', triggerForwardCalc);
         }
