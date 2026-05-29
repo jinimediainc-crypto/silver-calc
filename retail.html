@@ -144,11 +144,20 @@
     </div>
 
     <script>
+        // ==========================================
+        // MARKET CALIBRATION SETTING
+        // ==========================================
+        // The international API provides the raw spot price. 
+        // This multiplier bakes in the Indian Customs Duty, Agri Cess, and local Surat premiums.
+        // 1.14 means "Add 14%". Adjust this decimal up or down slightly to match your local supplier.
+        const INDIAN_MARKET_MULTIPLIER = 1.14; 
+        // ==========================================
+
+
         // --- LIVE TICKER DATA FETCH (WITH OFFLINE FAILSAFE) ---
         async function fetchLiveRates() {
             try {
                 const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
-                
                 if (!res.ok) throw new Error("Network response was not ok");
                 
                 const data = await res.json();
@@ -164,20 +173,22 @@
                 document.getElementById('tick-eur-2').innerText = `EUR: ₹${eur.toFixed(2)}`;
                 document.getElementById('tick-gbp-2').innerText = `GBP: ₹${gbp.toFixed(2)}`;
 
+                // Apply the Indian Market Multiplier to the raw International Bullion rates
                 if(data.usd.xau) {
                     const goldOzUsd = 1 / data.usd.xau;
-                    const goldGramInr = (goldOzUsd * inr) / 31.1035;
-                    document.getElementById('tick-xau').innerText = `GOLD: ₹${Math.round(goldGramInr)}/g`;
-                    document.getElementById('tick-xau-2').innerText = `GOLD: ₹${Math.round(goldGramInr)}/g`;
+                    const goldGramInrRaw = (goldOzUsd * inr) / 31.1035;
+                    const goldGramInrIndian = goldGramInrRaw * INDIAN_MARKET_MULTIPLIER;
+                    document.getElementById('tick-xau').innerText = `GOLD: ₹${Math.round(goldGramInrIndian)}/g`;
+                    document.getElementById('tick-xau-2').innerText = `GOLD: ₹${Math.round(goldGramInrIndian)}/g`;
                 }
                 if(data.usd.xag) {
                     const silverOzUsd = 1 / data.usd.xag;
-                    const silverGramInr = (silverOzUsd * inr) / 31.1035;
-                    document.getElementById('tick-xag').innerText = `SILV: ₹${Math.round(silverGramInr)}/g`;
-                    document.getElementById('tick-xag-2').innerText = `SILV: ₹${Math.round(silverGramInr)}/g`;
+                    const silverGramInrRaw = (silverOzUsd * inr) / 31.1035;
+                    const silverGramInrIndian = silverGramInrRaw * INDIAN_MARKET_MULTIPLIER;
+                    document.getElementById('tick-xag').innerText = `SILV: ₹${Math.round(silverGramInrIndian)}/g`;
+                    document.getElementById('tick-xag-2').innerText = `SILV: ₹${Math.round(silverGramInrIndian)}/g`;
                 }
             } catch (error) {
-                // FAILSAFE: If offline, notify on the ticker without breaking the app
                 const offlineMsg = '<span class="text-red-400">LIVE MARKET DATA OFFLINE — CALCULATOR RUNNING LOCALLY</span>';
                 document.getElementById('ticker-container').innerHTML = offlineMsg + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + offlineMsg;
             }
