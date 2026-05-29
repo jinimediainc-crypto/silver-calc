@@ -32,7 +32,7 @@
                     </div>
                 </div>
                 <div class="bg-blue-50 p-2 rounded-lg border border-blue-100">
-                    <label class="block text-[10px] font-bold text-blue-800 uppercase mb-1">Item 'F'</label>
+                    <label class="block text-[10px] font-bold text-blue-800 uppercase mb-1">Item 'F' (Cost)</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-2 text-blue-600 text-sm font-bold">₹</span>
                         <input type="number" id="itemSilverRate" class="w-full bg-white border border-blue-200 rounded-md py-1.5 pl-6 pr-2 text-sm font-bold outline-none focus-ring" placeholder="0" />
@@ -44,7 +44,7 @@
                 <div class="grid grid-cols-2 gap-3 mb-2">
                     <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Tag ID</label>
-                        <input type="text" id="cypherCode" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-center font-bold tracking-widest uppercase outline-none focus-ring" placeholder="e.g. FRARXLAL" />
+                        <input type="text" id="cypherCode" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-center font-bold tracking-widest uppercase outline-none focus-ring" placeholder="e.g. FRSSXLAR" />
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">L-Val</label>
@@ -136,16 +136,20 @@
         
         updateToggleStyles();
 
+        // Global F changes: Save to memory and recalculate math
         els.dailyRate.addEventListener('input', (e) => {
             const val = e.target.value;
             localStorage.setItem('retail_compact_silverRate', val);
-            els.itemRate.value = val; 
+            
+            // Auto-sync Item F if it's currently empty, to save time when making new tags
+            if (!els.itemRate.value) els.itemRate.value = val; 
+            
             triggerForwardCalc();
         });
         
+        // Item F changes: Update the Tag String only
         els.itemRate.addEventListener('input', () => {
             updateCompoundTag();
-            triggerForwardCalc();
         });
 
         els.hmToggle.addEventListener('change', (e) => {
@@ -169,7 +173,8 @@
         }
 
         // --- CORE LOGIC ---
-        const getSilverRate = () => parseFloat(els.itemRate.value) || 0;
+        const getGlobalSilverRate = () => parseFloat(els.dailyRate.value) || 0;
+        const getItemSilverRate = () => parseFloat(els.itemRate.value) || 0;
 
         const encodeNumber = (num) => {
             let str = Math.round(num).toString();
@@ -192,28 +197,29 @@
             return parseInt(numStr) || 0;
         };
 
+        // UI Base Rate is driven entirely by Global F (What the customer pays)
         const updateBaseRateDisplay = (labourVal) => {
-            const silver = getSilverRate();
+            const globalSilver = getGlobalSilverRate();
             const hasF = els.code.value.toLowerCase().startsWith('f') || (!els.code.value && labourVal > 0);
             
             let totalBase = 0;
             if (els.code.value || labourVal > 0) {
-                totalBase = (hasF ? silver : 0) + labourVal;
+                totalBase = (hasF ? globalSilver : 0) + labourVal;
             }
             
             els.baseRateDisplay.innerText = totalBase;
             return totalBase;
         };
 
-        // Generates the combined Tag (e.g. FRAR + X + LAL)
+        // Generates the combined Tag (e.g. FRAR + X + LAL) using the Historical Item F
         const updateCompoundTag = () => {
             const labourVal = parseFloat(els.labour.value) || 0;
-            const silverVal = parseFloat(els.itemRate.value) || 0;
+            const itemSilverVal = getItemSilverRate();
             
             if (labourVal > 0) {
                 let newTag = 'F' + encodeNumber(labourVal);
-                if (silverVal > 0) {
-                    newTag += 'X' + encodeNumber(silverVal);
+                if (itemSilverVal > 0) {
+                    newTag += 'X' + encodeNumber(itemSilverVal);
                 }
                 els.code.value = newTag;
             } else {
@@ -229,7 +235,7 @@
             isCalculating = true;
 
             const labour = parseFloat(els.labour.value) || 0;
-            const baseRate = updateBaseRateDisplay(labour);
+            const baseRate = updateBaseRateDisplay(labour); // Uses Global F
             const weight = parseFloat(els.weight.value) || 0;
             const other = parseFloat(els.other.value) || 0;
             const hm = els.hmToggle.checked ? (parseFloat(els.hmCharge.value) || 0) : 0;
@@ -245,7 +251,7 @@
             isCalculating = false;
         }
 
-        // When Tag is typed: Handle the "X" split
+        // When Tag is typed: Split at X, set L-Val and Item 'F', then calculate using Global 'F'
         els.code.addEventListener('input', () => {
             if (isCalculating) return;
             isCalculating = true;
@@ -253,7 +259,6 @@
             const fullTag = els.code.value.toLowerCase();
             let labourPart = fullTag;
             
-            // If the tag contains an X, split it and grab the historical silver rate
             if (fullTag.includes('x')) {
                 const parts = fullTag.split('x');
                 labourPart = parts[0];
@@ -280,7 +285,7 @@
             triggerForwardCalc();
         });
 
-        // Reverse calculation (from Total -> Silver Rate & Tag Generation)
+        // Reverse calculation: Discounts L-Val based on Global F, leaves historical Item F alone
         els.total.addEventListener('input', () => {
             if (isCalculating) return;
             isCalculating = true;
@@ -289,22 +294,18 @@
             const weight = parseFloat(els.weight.value) || 0;
             const other = parseFloat(els.other.value) || 0;
             const hm = els.hmToggle.checked ? (parseFloat(els.hmCharge.value) || 0) : 0;
-            const currentLabour = parseFloat(els.labour.value) || 0;
+            const globalSilver = getGlobalSilverRate();
 
-            if (weight > 0 && total > 0 && currentLabour > 0) {
-                // Strip GST if applied
+            if (weight > 0 && total > 0) {
                 let targetSubTotal = els.gstToggle.checked ? (total / 1.03) : total;
-                
-                // Subtract Other and Hallmark, then divide by weight to find required Base Rate
                 let requiredBaseRate = (targetSubTotal - other - hm) / weight;
                 
-                // Since Labour is locked, solve for the Historical Silver Rate
-                let historicalSilver = Math.max(0, requiredBaseRate - currentLabour);
+                // Solve for required Labour based on Today's Global Market Rate
+                let requiredLabour = Math.max(0, requiredBaseRate - globalSilver);
                 
-                // Update Inputs
-                els.itemRate.value = Math.round(historicalSilver);
-                updateCompoundTag(); // This creates the [Labour]X[Silver] tag
-                updateBaseRateDisplay(currentLabour);
+                els.labour.value = Math.round(requiredLabour);
+                updateCompoundTag(); 
+                updateBaseRateDisplay(requiredLabour);
             }
 
             isCalculating = false;
