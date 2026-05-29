@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compact Cypher Calculator</title>
+    <title>Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Hide arrows on number inputs */
@@ -18,21 +18,21 @@
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border border-gray-200">
         
         <div class="bg-[#047857] p-3 text-center border-b-2 border-[#D4AF37]">
-            <h1 class="text-lg font-bold text-white tracking-widest uppercase">Retail Pricing</h1>
+            <h1 class="text-lg font-bold text-white tracking-widest uppercase">Calculator</h1>
         </div>
 
         <div class="p-4 space-y-4">
             
             <div class="grid grid-cols-2 gap-3">
                 <div class="bg-emerald-50 p-2 rounded-lg border border-emerald-100">
-                    <label class="block text-[10px] font-bold text-emerald-800 uppercase mb-1">Global 'F' Rate</label>
+                    <label class="block text-[10px] font-bold text-emerald-800 uppercase mb-1">Global 'F'</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-2 text-emerald-600 text-sm font-bold">₹</span>
                         <input type="number" id="dailySilverRate" class="w-full bg-white border border-emerald-200 rounded-md py-1.5 pl-6 pr-2 text-sm font-bold outline-none focus-ring" placeholder="0" />
                     </div>
                 </div>
                 <div class="bg-blue-50 p-2 rounded-lg border border-blue-100">
-                    <label class="block text-[10px] font-bold text-blue-800 uppercase mb-1">Item 'F' (Override)</label>
+                    <label class="block text-[10px] font-bold text-blue-800 uppercase mb-1">Item 'F'</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-2 text-blue-600 text-sm font-bold">₹</span>
                         <input type="number" id="itemSilverRate" class="w-full bg-white border border-blue-200 rounded-md py-1.5 pl-6 pr-2 text-sm font-bold outline-none focus-ring" placeholder="0" />
@@ -43,28 +43,28 @@
             <div class="bg-stone-50 p-3 rounded-xl border border-stone-200 shadow-inner">
                 <div class="grid grid-cols-2 gap-3 mb-2">
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Cypher Code</label>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Tag ID</label>
                         <input type="text" id="cypherCode" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-center font-bold tracking-widest uppercase outline-none focus-ring" placeholder="e.g. FRSS" />
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Labour (₹/g)</label>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">L-Val</label>
                         <input type="number" id="labourCharge" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-center font-bold outline-none focus-ring" placeholder="0" />
                     </div>
                 </div>
                 
                 <div class="flex justify-between items-center bg-gray-200/50 rounded-lg px-3 py-1.5">
-                    <span class="text-xs font-bold text-gray-500 uppercase">Total Base Rate:</span>
-                    <span class="text-sm font-extrabold text-[#047857]">₹ <span id="baseRateDisplay">0</span> /g</span>
+                    <span class="text-xs font-bold text-gray-500 uppercase">Base:</span>
+                    <span class="text-sm font-extrabold text-[#047857]">₹ <span id="baseRateDisplay">0</span></span>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Weight (g)</label>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Weight</label>
                     <input type="number" id="weight" class="w-full bg-white border border-gray-300 rounded-lg p-2 font-semibold outline-none focus-ring text-center" placeholder="0" />
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Other (₹)</label>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Other</label>
                     <input type="number" id="otherCharges" class="w-full bg-white border border-gray-300 rounded-lg p-2 font-semibold outline-none focus-ring text-center" placeholder="0" />
                 </div>
             </div>
@@ -72,7 +72,7 @@
 
         <div class="bg-gray-900 p-4 flex justify-between items-center border-t-4 border-[#D4AF37]">
             <div class="flex flex-col">
-                <span class="text-gray-400 text-[11px] font-bold uppercase tracking-widest">Final MRP</span>
+                <span class="text-gray-400 text-[11px] font-bold uppercase tracking-widest">Total</span>
             </div>
             <div class="relative w-1/2">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-500 font-bold text-xl">₹</span>
@@ -148,7 +148,7 @@
             const hasF = els.code.value.toLowerCase().startsWith('f') || (!els.code.value && labourVal > 0);
             
             let totalBase = 0;
-            // Only calculate a base rate if there's actually a code or labour entered
+            // Only calculate a base if there's actually a code or labour entered
             if (els.code.value || labourVal > 0) {
                 totalBase = (hasF ? silver : 0) + labourVal;
             }
@@ -173,7 +173,7 @@
             if (weight > 0 && baseRate > 0) {
                 els.total.value = Math.round((baseRate * weight) + other);
             } else {
-                els.total.value = ''; // Keep total clear if no valid calculation is ready
+                els.total.value = ''; 
             }
 
             isCalculating = false;
