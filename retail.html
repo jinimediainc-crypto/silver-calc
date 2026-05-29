@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculator</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#047857">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         input[type=number]::-webkit-inner-spin-button, 
@@ -61,41 +68,44 @@
                         <input type="number" id="dailySilverRate" class="w-full bg-white border border-emerald-200 rounded-md py-1.5 pl-6 pr-2 text-sm font-bold outline-none focus-ring" placeholder="0" />
                     </div>
                 </div>
-                <div class="bg-blue-50 p-2 rounded-lg border border-blue-100">
-                    <label class="block text-[10px] font-bold text-blue-800 uppercase mb-1">Item 'F' (Cost)</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-2 text-blue-600 text-sm font-bold">₹</span>
-                        <input type="number" id="itemSilverRate" class="w-full bg-white border border-blue-200 rounded-md py-1.5 pl-6 pr-2 text-sm font-bold outline-none focus-ring" placeholder="0" />
-                    </div>
+                
+                <div class="bg-stone-50 p-2 rounded-lg border border-stone-200">
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Tag ID</label>
+                    <input type="text" id="cypherCode" class="w-full bg-white border border-gray-300 rounded-md py-1.5 px-2 text-center text-sm font-bold tracking-widest uppercase outline-none focus-ring" placeholder="e.g. FRARXLAR" />
                 </div>
             </div>
 
-            <div class="bg-stone-50 p-3 rounded-xl border border-stone-200 shadow-inner">
-                <div class="grid grid-cols-2 gap-3 mb-2">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Tag ID</label>
-                        <input type="text" id="cypherCode" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-center font-bold tracking-widest uppercase outline-none focus-ring" placeholder="e.g. FRARXLAR" />
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">L-Val</label>
-                        <input type="number" id="labourCharge" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-center font-bold outline-none focus-ring" placeholder="0" />
-                    </div>
-                </div>
+            <div class="grid grid-cols-3 gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-200 shadow-inner">
                 
-                <div class="flex justify-between items-center bg-gray-200/50 rounded-lg px-3 py-1.5">
-                    <span class="text-xs font-bold text-gray-500 uppercase">Base:</span>
-                    <span class="text-sm font-extrabold text-[#047857]">₹ <span id="baseRateDisplay">0</span></span>
+                <div>
+                    <label class="block text-[9px] font-bold text-blue-800 uppercase mb-1 text-center">Item 'F'</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-1.5 text-blue-600 text-xs font-bold">₹</span>
+                        <input type="number" id="itemSilverRate" class="w-full bg-white border border-blue-200 rounded-md py-1.5 pl-4 pr-1 text-sm font-bold text-center outline-none focus-ring" placeholder="0" />
+                    </div>
                 </div>
+
+                <div>
+                    <label class="block text-[9px] font-bold text-gray-600 uppercase mb-1 text-center">L-Val</label>
+                    <input type="number" id="labourCharge" class="w-full bg-white border border-gray-300 rounded-md py-1.5 px-1 text-sm font-bold text-center outline-none focus-ring" placeholder="0" />
+                </div>
+
+                <div>
+                    <label class="block text-[9px] font-bold text-gray-600 uppercase mb-1 text-center">Weight (g)</label>
+                    <input type="number" id="weight" class="w-full bg-white border border-gray-300 rounded-md py-1.5 px-1 text-sm font-bold text-center outline-none focus-ring" placeholder="0" />
+                </div>
+
             </div>
 
             <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Weight</label>
-                    <input type="number" id="weight" class="w-full bg-white border border-gray-300 rounded-lg p-2 font-semibold outline-none focus-ring text-center" placeholder="0" />
+                <div class="bg-stone-50 p-2 rounded-lg border border-stone-200">
+                    <label class="block text-[10px] font-bold text-gray-600 uppercase mb-1">Other (₹)</label>
+                    <input type="number" id="otherCharges" class="w-full bg-white border border-gray-300 rounded-md py-1.5 px-2 text-sm font-bold text-center outline-none focus-ring" placeholder="0" />
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">Other</label>
-                    <input type="number" id="otherCharges" class="w-full bg-white border border-gray-300 rounded-lg p-2 font-semibold outline-none focus-ring text-center" placeholder="0" />
+                
+                <div class="bg-emerald-50/50 p-2 rounded-lg border border-emerald-100 flex flex-col justify-center text-center">
+                    <span class="block text-[9px] font-bold text-emerald-800/60 uppercase mb-0.5">Total Base</span>
+                    <span class="text-lg font-extrabold text-[#047857]">₹ <span id="baseRateDisplay">0</span></span>
                 </div>
             </div>
 
@@ -148,10 +158,8 @@
         // CONFIGURATION: MARKET CALIBRATION
         // ==========================================
         const INDIAN_MARKET_MULTIPLIER = 1.14; 
-        
-        // Fine-tune the numbers here if bullion is slightly off from your supplier screen:
-        const GOLD_OFFSET_PER_GRAM = 0;     // e.g., +20 to increase by ₹20/gram, or -15 to lower it
-        const SILVER_OFFSET_PER_GRAM = 0;   // e.g., +1.50 to increase by ₹1.50/gram
+        const GOLD_OFFSET_PER_GRAM = 0;     
+        const SILVER_OFFSET_PER_GRAM = 0;   
         // ==========================================
 
         // --- LIVE TICKER DATA FETCH (DUAL API SYSTEM) ---
@@ -173,7 +181,7 @@
                 document.getElementById('tick-eur-2').innerText = `EUR: ₹${eur.toFixed(2)}`;
                 document.getElementById('tick-gbp-2').innerText = `GBP: ₹${gbp.toFixed(2)}`;
 
-                // 2. Fetch Bullion from FawazAhmed API (Only for metal spot prices)
+                // 2. Fetch Bullion from FawazAhmed API
                 const metalRes = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
                 if (metalRes.ok) {
                     const metalData = await metalRes.json();
@@ -202,7 +210,7 @@
         fetchLiveRates();
 
 
-        // --- CALCULATOR LOGIC (Runs perfectly offline) ---
+        // --- CALCULATOR LOGIC ---
         const decodeMap = { 's':'0', 'i':'1', 'l':'2', 'v':'3', 'e':'4', 'r':'5', 'b':'6', 'a':'7', 'n':'8', 'k':'9' };
         const encodeMap = { '0':'s', '1':'i', '2':'l', '3':'v', '4':'e', '5':'r', '6':'b', '7':'a', '8':'n', '9':'k' };
 
@@ -430,6 +438,17 @@
 
         triggerForwardCalc();
 
+        // --- PWA SERVICE WORKER REGISTRATION ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then((registration) => {
+                    console.log('ServiceWorker registered');
+                    registration.update(); 
+                }).catch((error) => {
+                    console.log('ServiceWorker registration failed: ', error);
+                });
+            });
+        }
     </script>
 </body>
 </html>
