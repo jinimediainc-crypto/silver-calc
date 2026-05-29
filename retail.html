@@ -11,6 +11,9 @@
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         /* Focus ring styling */
         .focus-ring:focus { border-color: #047857; box-shadow: 0 0 0 2px rgba(4, 120, 87, 0.2); }
+        /* Custom toggle styling */
+        .toggle-checkbox:checked { right: 0; border-color: #047857; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #047857; }
     </style>
 </head>
 <body class="bg-gray-100 flex justify-center items-center min-h-screen p-2 font-sans text-gray-800">
@@ -68,15 +71,35 @@
                     <input type="number" id="otherCharges" class="w-full bg-white border border-gray-300 rounded-lg p-2 font-semibold outline-none focus-ring text-center" placeholder="0" />
                 </div>
             </div>
+
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 flex justify-between items-center gap-2">
+                <div class="flex items-center gap-2">
+                    <div class="relative inline-block w-8 h-4 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" id="hmToggle" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer transition-all duration-300 z-10" />
+                        <label for="hmToggle" class="toggle-label block overflow-hidden h-4 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-600 uppercase">HUID</span>
+                    <input type="number" id="hmCharge" class="w-12 bg-white border border-gray-300 rounded text-center text-xs font-bold py-0.5 outline-none focus-ring transition-opacity" placeholder="50" value="50" style="opacity: 0.4;" />
+                </div>
+
+                <div class="flex items-center gap-2 border-l border-gray-300 pl-3">
+                    <div class="relative inline-block w-8 h-4 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" id="gstToggle" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer transition-all duration-300 z-10" />
+                        <label for="gstToggle" class="toggle-label block overflow-hidden h-4 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-600 uppercase" id="gstLabel" style="opacity: 0.4;">GST 3%</span>
+                </div>
+            </div>
+
         </div>
 
         <div class="bg-gray-900 p-4 flex justify-between items-center border-t-4 border-[#D4AF37]">
             <div class="flex flex-col">
                 <span class="text-gray-400 text-[11px] font-bold uppercase tracking-widest">Total</span>
             </div>
-            <div class="relative w-1/2">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-500 font-bold text-xl">₹</span>
-                <input type="number" id="grandTotal" class="w-full bg-gray-800 border-none rounded-lg py-2 pl-8 pr-2 text-2xl font-extrabold text-white text-right outline-none focus:ring-2 focus:ring-[#D4AF37] transition-all" placeholder="0" />
+            <div class="relative w-2/3 flex justify-end">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-500 font-bold text-2xl">₹</span>
+                <input type="number" id="grandTotal" class="w-full bg-transparent border-none rounded-lg py-1 pl-10 pr-2 text-3xl font-extrabold text-white text-right outline-none focus:ring-2 focus:ring-[#D4AF37] transition-all" placeholder="0" />
             </div>
         </div>
 
@@ -96,6 +119,10 @@
             baseRateDisplay: document.getElementById('baseRateDisplay'),
             weight: document.getElementById('weight'),
             other: document.getElementById('otherCharges'),
+            hmToggle: document.getElementById('hmToggle'),
+            hmCharge: document.getElementById('hmCharge'),
+            gstToggle: document.getElementById('gstToggle'),
+            gstLabel: document.getElementById('gstLabel'),
             total: document.getElementById('grandTotal')
         };
 
@@ -105,6 +132,13 @@
         const savedRate = localStorage.getItem('retail_compact_silverRate') || '';
         els.dailyRate.value = savedRate;
         els.itemRate.value = savedRate; 
+        
+        // Load toggle states
+        els.hmToggle.checked = localStorage.getItem('retail_hmToggle') === 'true';
+        els.gstToggle.checked = localStorage.getItem('retail_gstToggle') === 'true';
+        if (localStorage.getItem('retail_hmCharge')) els.hmCharge.value = localStorage.getItem('retail_hmCharge');
+        
+        updateToggleStyles();
 
         els.dailyRate.addEventListener('input', (e) => {
             const val = e.target.value;
@@ -115,10 +149,30 @@
         
         els.itemRate.addEventListener('input', triggerForwardCalc);
 
+        // Toggle Listeners
+        els.hmToggle.addEventListener('change', (e) => {
+            localStorage.setItem('retail_hmToggle', e.target.checked);
+            updateToggleStyles();
+            triggerForwardCalc();
+        });
+        els.hmCharge.addEventListener('input', (e) => {
+            localStorage.setItem('retail_hmCharge', e.target.value);
+            triggerForwardCalc();
+        });
+        els.gstToggle.addEventListener('change', (e) => {
+            localStorage.setItem('retail_gstToggle', e.target.checked);
+            updateToggleStyles();
+            triggerForwardCalc();
+        });
+
+        function updateToggleStyles() {
+            els.hmCharge.style.opacity = els.hmToggle.checked ? '1' : '0.4';
+            els.gstLabel.style.opacity = els.gstToggle.checked ? '1' : '0.4';
+        }
+
         // --- CORE LOGIC ---
         const getSilverRate = () => parseFloat(els.itemRate.value) || 0;
 
-        // Encode Number to Letters
         const encodeNumber = (num) => {
             let str = Math.round(num).toString();
             let text = '';
@@ -128,12 +182,10 @@
             return text.toUpperCase();
         };
 
-        // Decode Letters to Number
         const decodeCypher = (text) => {
             let numStr = '';
             const lowerText = text.toLowerCase();
-            let startIndex = lowerText.startsWith('f') ? 1 : 0; // Skip F if present
-
+            let startIndex = lowerText.startsWith('f') ? 1 : 0; 
             for (let i = startIndex; i < lowerText.length; i++) {
                 if (decodeMap[lowerText[i]] !== undefined) {
                     numStr += decodeMap[lowerText[i]];
@@ -142,13 +194,11 @@
             return parseInt(numStr) || 0;
         };
 
-        // Update the Base Rate UI
         const updateBaseRateDisplay = (labourVal) => {
             const silver = getSilverRate();
             const hasF = els.code.value.toLowerCase().startsWith('f') || (!els.code.value && labourVal > 0);
             
             let totalBase = 0;
-            // Only calculate a base if there's actually a code or labour entered
             if (els.code.value || labourVal > 0) {
                 totalBase = (hasF ? silver : 0) + labourVal;
             }
@@ -159,19 +209,20 @@
 
         // --- CALCULATION WORKFLOWS ---
 
-        // 1. Forward calculation (from Inputs -> Total)
         function triggerForwardCalc() {
             if (isCalculating) return;
             isCalculating = true;
 
             const labour = parseFloat(els.labour.value) || 0;
             const baseRate = updateBaseRateDisplay(labour);
-            
             const weight = parseFloat(els.weight.value) || 0;
             const other = parseFloat(els.other.value) || 0;
+            const hm = els.hmToggle.checked ? (parseFloat(els.hmCharge.value) || 0) : 0;
 
             if (weight > 0 && baseRate > 0) {
-                els.total.value = Math.round((baseRate * weight) + other);
+                let subTotal = (baseRate * weight) + other + hm;
+                let finalTotal = els.gstToggle.checked ? (subTotal * 1.03) : subTotal;
+                els.total.value = Math.round(finalTotal);
             } else {
                 els.total.value = ''; 
             }
@@ -179,36 +230,29 @@
             isCalculating = false;
         }
 
-        // 2. When Cypher is typed -> Update Labour -> Calc Forward
         els.code.addEventListener('input', () => {
             if (isCalculating) return;
             isCalculating = true;
-            
             const decodedLabour = decodeCypher(els.code.value);
             els.labour.value = decodedLabour || '';
-            
             isCalculating = false;
             triggerForwardCalc();
         });
 
-        // 3. When Labour is typed -> Update Cypher -> Calc Forward
         els.labour.addEventListener('input', () => {
             if (isCalculating) return;
             isCalculating = true;
-            
             const labourVal = parseFloat(els.labour.value) || 0;
             if (labourVal > 0) {
-                // Always prepend 'F' assuming standard retail structure
                 els.code.value = 'F' + encodeNumber(labourVal);
             } else {
                 els.code.value = '';
             }
-            
             isCalculating = false;
             triggerForwardCalc();
         });
 
-        // 4. Reverse calculation (from Total -> Labour & Code)
+        // Reverse calculation (from Total -> Labour & Code)
         els.total.addEventListener('input', () => {
             if (isCalculating) return;
             isCalculating = true;
@@ -217,9 +261,14 @@
             const weight = parseFloat(els.weight.value) || 0;
             const other = parseFloat(els.other.value) || 0;
             const silver = getSilverRate();
+            const hm = els.hmToggle.checked ? (parseFloat(els.hmCharge.value) || 0) : 0;
 
             if (weight > 0 && total > 0) {
-                let requiredBaseRate = (total - other) / weight;
+                // Strip GST if applied
+                let targetSubTotal = els.gstToggle.checked ? (total / 1.03) : total;
+                
+                // Subtract Other and Hallmark, then divide by weight to find Base
+                let requiredBaseRate = (targetSubTotal - other - hm) / weight;
                 let requiredLabour = Math.max(0, requiredBaseRate - silver); 
                 
                 // Update Inputs
@@ -232,11 +281,9 @@
             isCalculating = false;
         });
 
-        // Basic listeners for weight and extras
         els.weight.addEventListener('input', triggerForwardCalc);
         els.other.addEventListener('input', triggerForwardCalc);
 
-        // Run an initial blank calculation on load to set up the zeros properly
         triggerForwardCalc();
 
     </script>
