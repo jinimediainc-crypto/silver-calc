@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Silver Pricing</title>
+    <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#047857">
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Hide number input arrows for a cleaner look */
@@ -212,5 +219,21 @@
         loadCache();
         calculate();
     </script>
+<script>
+    // Register Service Worker to enable PWA install and forced updates
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').then((registration) => {
+                console.log('ServiceWorker registered');
+                // Force check for updates every time the app is opened
+                registration.update(); 
+            }).catch((error) => {
+                console.log('ServiceWorker registration failed: ', error);
+            });
+        });
+    }
+</script>
+
+    
 </body>
 </html>
