@@ -11,15 +11,42 @@
         .focus-ring:focus { border-color: #047857; box-shadow: 0 0 0 2px rgba(4, 120, 87, 0.2); }
         .toggle-checkbox:checked { right: 0; border-color: #047857; }
         .toggle-checkbox:checked + .toggle-label { background-color: #047857; }
-        
-        /* Custom styling for the Solve For toggle */
         .solve-radio:checked + label { background-color: #047857; color: white; border-color: #047857; }
+        
+        /* Ticker Animation */
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            display: flex;
+            width: max-content;
+            animation: marquee 15s linear infinite;
+        }
+        .animate-marquee:hover, .animate-marquee:active {
+            animation-play-state: paused;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex justify-center items-center min-h-screen p-2 font-sans text-gray-800">
 
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border border-gray-200">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border border-gray-200 flex flex-col">
         
+        <div class="bg-gray-900 border-b border-[#D4AF37] text-emerald-400 text-[10px] font-bold tracking-widest py-2 overflow-hidden flex relative">
+            <div class="animate-marquee whitespace-nowrap flex space-x-6 px-4" id="ticker-container">
+                <span id="tick-xau">GOLD: --</span>
+                <span id="tick-xag">SILV: --</span>
+                <span id="tick-usd">USD: --</span>
+                <span id="tick-eur">EUR: --</span>
+                <span id="tick-gbp">GBP: --</span>
+                <span id="tick-xau-2">GOLD: --</span>
+                <span id="tick-xag-2">SILV: --</span>
+                <span id="tick-usd-2">USD: --</span>
+                <span id="tick-eur-2">EUR: --</span>
+                <span id="tick-gbp-2">GBP: --</span>
+            </div>
+        </div>
+
         <div class="bg-[#047857] p-3 text-center border-b-2 border-[#D4AF37]">
             <h1 class="text-lg font-bold text-white tracking-widest uppercase">Calculator</h1>
         </div>
@@ -94,7 +121,6 @@
         </div>
 
         <div class="bg-gray-900 p-4 border-t-4 border-[#D4AF37]">
-            
             <div class="flex justify-between items-center mb-2 border-b border-gray-700 pb-2">
                 <span class="text-gray-400 text-[9px] font-bold uppercase tracking-widest">When Total Changes, Solve For:</span>
                 <div class="flex space-x-1 bg-gray-800 rounded p-0.5 border border-gray-700">
@@ -118,11 +144,52 @@
     </div>
 
     <script>
-        // Mapping for SILVERBANK
+        // --- LIVE TICKER DATA FETCH (WITH OFFLINE FAILSAFE) ---
+        async function fetchLiveRates() {
+            try {
+                const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
+                
+                if (!res.ok) throw new Error("Network response was not ok");
+                
+                const data = await res.json();
+                
+                const inr = data.usd.inr;
+                const eur = inr / data.usd.eur;
+                const gbp = inr / data.usd.gbp;
+                
+                document.getElementById('tick-usd').innerText = `USD: ₹${inr.toFixed(2)}`;
+                document.getElementById('tick-eur').innerText = `EUR: ₹${eur.toFixed(2)}`;
+                document.getElementById('tick-gbp').innerText = `GBP: ₹${gbp.toFixed(2)}`;
+                document.getElementById('tick-usd-2').innerText = `USD: ₹${inr.toFixed(2)}`;
+                document.getElementById('tick-eur-2').innerText = `EUR: ₹${eur.toFixed(2)}`;
+                document.getElementById('tick-gbp-2').innerText = `GBP: ₹${gbp.toFixed(2)}`;
+
+                if(data.usd.xau) {
+                    const goldOzUsd = 1 / data.usd.xau;
+                    const goldGramInr = (goldOzUsd * inr) / 31.1035;
+                    document.getElementById('tick-xau').innerText = `GOLD: ₹${Math.round(goldGramInr)}/g`;
+                    document.getElementById('tick-xau-2').innerText = `GOLD: ₹${Math.round(goldGramInr)}/g`;
+                }
+                if(data.usd.xag) {
+                    const silverOzUsd = 1 / data.usd.xag;
+                    const silverGramInr = (silverOzUsd * inr) / 31.1035;
+                    document.getElementById('tick-xag').innerText = `SILV: ₹${Math.round(silverGramInr)}/g`;
+                    document.getElementById('tick-xag-2').innerText = `SILV: ₹${Math.round(silverGramInr)}/g`;
+                }
+            } catch (error) {
+                // FAILSAFE: If offline, notify on the ticker without breaking the app
+                const offlineMsg = '<span class="text-red-400">LIVE MARKET DATA OFFLINE — CALCULATOR RUNNING LOCALLY</span>';
+                document.getElementById('ticker-container').innerHTML = offlineMsg + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + offlineMsg;
+            }
+        }
+        
+        fetchLiveRates();
+
+
+        // --- CALCULATOR LOGIC (Runs perfectly offline) ---
         const decodeMap = { 's':'0', 'i':'1', 'l':'2', 'v':'3', 'e':'4', 'r':'5', 'b':'6', 'a':'7', 'n':'8', 'k':'9' };
         const encodeMap = { '0':'s', '1':'i', '2':'l', '3':'v', '4':'e', '5':'r', '6':'b', '7':'a', '8':'n', '9':'k' };
 
-        // DOM Elements
         const els = {
             dailyRate: document.getElementById('dailySilverRate'),
             itemRate: document.getElementById('itemSilverRate'),
@@ -141,7 +208,6 @@
 
         let isCalculating = false;
 
-        // --- INIT & SYNC ---
         const savedRate = localStorage.getItem('retail_compact_silverRate') || '';
         els.dailyRate.value = savedRate;
         els.itemRate.value = savedRate; 
@@ -152,7 +218,6 @@
         
         updateToggleStyles();
 
-        // Get the current Solve Mode (Labour vs F_Rate)
         const getSolveMode = () => {
             for (const radio of els.solveModeInputs) {
                 if (radio.checked) return radio.value;
@@ -191,7 +256,6 @@
             els.gstLabel.style.opacity = els.gstToggle.checked ? '1' : '0.4';
         }
 
-        // --- CORE LOGIC ---
         const getGlobalSilverRate = () => parseFloat(els.dailyRate.value) || 0;
         const getItemSilverRate = () => parseFloat(els.itemRate.value) || 0;
 
@@ -225,9 +289,7 @@
                 totalBase = (hasF ? globalSilver : 0) + labourVal;
             }
             
-            // Failsafe: Ensure it always displays as a clean, rounded integer
             totalBase = Math.round(totalBase);
-            
             els.baseRateDisplay.innerText = totalBase;
             return totalBase;
         };
@@ -246,8 +308,6 @@
                 els.code.value = '';
             }
         };
-
-        // --- CALCULATION WORKFLOWS ---
 
         function triggerForwardCalc() {
             if (isCalculating) return;
@@ -303,7 +363,6 @@
             triggerForwardCalc();
         });
 
-        // Smart Reverse Calculator
         els.total.addEventListener('input', () => {
             if (isCalculating) return;
             isCalculating = true;
@@ -323,9 +382,7 @@
                 let requiredBaseRate = (targetSubTotal - other - hm) / weight;
                 
                 if (solveMode === 'labour') {
-                    // ON THE FLOOR: Discount the L-Val, keep Global F locked
                     let requiredLabour = Math.max(0, requiredBaseRate - globalSilver);
-                    // Round the required labour so it displays clean in the Tag ID and Base Rate
                     let roundedLabour = Math.round(requiredLabour);
                     
                     els.labour.value = roundedLabour;
@@ -333,7 +390,6 @@
                     updateBaseRateDisplay(roundedLabour);
                     
                 } else if (solveMode === 'f_rate') {
-                    // BACK OFFICE: Solve for F, keep L-Val locked
                     let requiredF = Math.max(0, requiredBaseRate - currentLabour);
                     let roundedF = Math.round(requiredF);
                     
@@ -349,11 +405,9 @@
             isCalculating = false;
         });
 
-        // Trigger forward calc when basic values change
         els.weight.addEventListener('input', triggerForwardCalc);
         els.other.addEventListener('input', triggerForwardCalc);
         
-        // Retrigger forward calculation if they switch modes
         for (const radio of els.solveModeInputs) {
             radio.addEventListener('change', triggerForwardCalc);
         }
