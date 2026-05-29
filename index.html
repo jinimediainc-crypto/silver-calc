@@ -6,13 +6,6 @@
     <title>Silver Pricing</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom checkbox color to match the theme */
-        input[type="checkbox"] {
-            accent-color: #23b586;
-            width: 1.1rem;
-            height: 1.1rem;
-            cursor: pointer;
-        }
         /* Hide number input arrows for a cleaner look */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
@@ -21,70 +14,89 @@
         }
     </style>
 </head>
-<body class="bg-[#f4f6f8] flex justify-center items-start min-h-screen pt-10 px-4 font-sans text-gray-800">
+<body class="bg-gray-100 flex justify-center items-start min-h-screen pt-8 px-4 font-sans text-gray-800 pb-12">
 
-    <div class="bg-white rounded-[20px] shadow-sm border border-gray-100 p-6 w-full max-w-sm">
-        <h1 class="text-2xl font-bold text-center text-[#23b586] mb-6">Silver Pricing</h1>
-
-        <div class="mb-4">
-            <label class="block text-sm font-bold text-gray-700 mb-1">Silver Rate (₹ per Gram)</label>
-            <input type="number" id="silverRate" class="w-full border border-gray-200 rounded-lg p-2.5 outline-none focus:border-[#23b586] transition-colors" placeholder="e.g., 90" />
-            <p class="text-[11px] text-gray-400 mt-1">Saved automatically.</p>
+    <div class="bg-white rounded-3xl shadow-xl w-full max-w-md overflow-hidden border border-gray-200">
+        
+        <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-6 text-center shadow-inner">
+            <h1 class="text-2xl font-extrabold text-white tracking-wide">Silver Calculator</h1>
         </div>
 
-        <div class="mb-4">
-            <label class="block text-sm font-bold text-gray-700 mb-1">Weight (Grams)</label>
-            <input type="number" id="weight" class="w-full border border-gray-200 rounded-lg p-2.5 outline-none focus:border-[#23b586] transition-colors" placeholder="Enter total weight" />
-        </div>
-
-        <div class="mb-6">
-            <label class="block text-sm font-bold text-gray-700 mb-1">Labour Charge (₹ per Gram)</label>
-            <input type="number" id="labourCharge" class="w-full border border-gray-200 rounded-lg p-2.5 outline-none focus:border-[#23b586] transition-colors" placeholder="e.g., 25" />
-        </div>
-
-        <div class="mb-6 space-y-3 border-t border-gray-100 pt-4">
-            <div class="flex items-center justify-between">
-                <label class="flex items-center space-x-2 cursor-pointer">
-                    <input type="checkbox" id="gstToggle">
-                    <span class="text-sm text-gray-600">Apply GST (3%)</span>
-                </label>
+        <div class="p-6 space-y-5">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Silver Rate <span class="text-gray-400 font-normal">(₹ per Gram)</span></label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 font-medium">₹</span>
+                    <input type="number" id="silverRate" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-8 pr-4 outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" placeholder="0.00" />
+                </div>
             </div>
-            
-            <div class="flex items-center justify-between">
-                <label class="flex items-center space-x-2 cursor-pointer">
-                    <input type="checkbox" id="commToggle">
-                    <span class="text-sm text-gray-600">Apply Commission</span>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Weight <span class="text-gray-400 font-normal">(Grams)</span></label>
+                <input type="number" id="weight" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" placeholder="Enter total weight" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Labour Charge <span class="text-gray-400 font-normal">(₹ per Gram)</span></label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 font-medium">₹</span>
+                    <input type="number" id="labourCharge" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-8 pr-4 outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" placeholder="0.00" />
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-gray-100 space-y-4">
+                
+                <label class="flex items-center justify-between cursor-pointer group">
+                    <span class="text-sm font-medium text-gray-700 group-hover:text-emerald-600 transition-colors">Apply GST (3%)</span>
+                    <div class="relative inline-flex items-center">
+                        <input type="checkbox" id="gstToggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    </div>
                 </label>
-                <div class="flex items-center space-x-1">
-                    <input type="number" id="commRate" class="w-12 border border-gray-200 rounded p-1 text-center text-sm outline-none focus:border-[#23b586]" placeholder="10" />
-                    <span class="text-sm text-gray-600">%</span>
+                
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center cursor-pointer group flex-1">
+                        <div class="relative inline-flex items-center mr-3">
+                            <input type="checkbox" id="commToggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700 group-hover:text-emerald-600 transition-colors">Commission</span>
+                    </label>
+                    <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500 transition-all">
+                        <input type="number" id="commRate" class="w-14 py-1.5 px-2 text-center text-sm font-semibold outline-none bg-transparent" placeholder="10" />
+                        <span class="bg-gray-200 text-gray-600 text-sm font-bold py-1.5 px-3">%</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="border-t border-gray-100 pt-4 space-y-2 text-[13px] text-gray-500">
-            <div class="flex justify-between">
+        <div class="bg-gray-50 p-6 space-y-3 border-t border-gray-200 text-sm font-medium text-gray-600">
+            <div class="flex justify-between items-center">
                 <span>Silver Value</span>
-                <span id="valSilver">₹ 0.00</span>
+                <span id="valSilver" class="text-gray-800">₹ 0.00</span>
             </div>
-            <div class="flex justify-between">
+            <div class="flex justify-between items-center">
                 <span>Labour Value</span>
-                <span id="valLabour">₹ 0.00</span>
+                <span id="valLabour" class="text-gray-800">₹ 0.00</span>
             </div>
-            <div class="flex justify-between">
+            <div class="flex justify-between items-center transition-opacity" id="rowGst">
                 <span>GST (3%)</span>
-                <span id="valGst">₹ 0.00</span>
+                <span id="valGst" class="text-gray-800">₹ 0.00</span>
             </div>
-            <div class="flex justify-between">
+            <div class="flex justify-between items-center transition-opacity" id="rowComm">
                 <span id="labelComm">Commission (10%)</span>
-                <span id="valComm">₹ 0.00</span>
+                <span id="valComm" class="text-gray-800">₹ 0.00</span>
             </div>
         </div>
 
-        <div class="border-t border-gray-100 mt-4 pt-4 flex justify-between items-center">
-            <span class="text-xl font-bold text-[#23b586]">Total</span>
-            <span id="valTotal" class="text-xl font-bold text-[#23b586]">₹ 0.00</span>
+        <div class="bg-gray-900 p-6 flex justify-between items-center">
+            <div class="flex flex-col">
+                <span class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Grand Total</span>
+                <span class="text-white text-sm font-medium opacity-80" id="totalBreakdownLabel">Silver + Labour</span>
+            </div>
+            <span id="valTotal" class="text-3xl font-extrabold text-emerald-400 tracking-tight">₹ 0.00</span>
         </div>
+
     </div>
 
     <script>
@@ -104,7 +116,10 @@
             gst: document.getElementById('valGst'),
             comm: document.getElementById('valComm'),
             total: document.getElementById('valTotal'),
-            commLabel: document.getElementById('labelComm')
+            commLabel: document.getElementById('labelComm'),
+            totalLabel: document.getElementById('totalBreakdownLabel'),
+            rowGst: document.getElementById('rowGst'),
+            rowComm: document.getElementById('rowComm')
         };
 
         // Format number to Indian Rupee format
@@ -152,32 +167,42 @@
             const labourValue = labour * weight;
             const subTotal = silverValue + labourValue;
 
-            // Optional Values
+            // GST on (Silver + Labour)
             const gstValue = isGstOn ? (subTotal * 0.03) : 0;
-            const commValue = isCommOn ? (subTotal * (commRateValue / 100)) : 0;
             
-            // Total
-            const totalValue = subTotal + gstValue + commValue;
+            // Base for Commission is now (Silver + Labour + GST)
+            const totalWithGst = subTotal + gstValue;
 
-            // Update UI
+            // Commission on (Silver + Labour + GST)
+            const commValue = isCommOn ? (totalWithGst * (commRateValue / 100)) : 0;
+            
+            // Final Total
+            const totalValue = totalWithGst + commValue;
+
+            // Update UI Numbers
             outputs.silver.innerText = formatINR(silverValue);
             outputs.labour.innerText = formatINR(labourValue);
             outputs.gst.innerText = formatINR(gstValue);
             outputs.comm.innerText = formatINR(commValue);
             outputs.total.innerText = formatINR(totalValue);
             
-            // Update Commission Label dynamically based on input
+            // Update Commission Label dynamically
             outputs.commLabel.innerText = `Commission (${commRateValue}%)`;
 
-            // Dim text if disabled for better UX
-            outputs.gst.style.opacity = isGstOn ? '1' : '0.3';
-            outputs.comm.style.opacity = isCommOn ? '1' : '0.3';
-            outputs.commLabel.style.opacity = isCommOn ? '1' : '0.3';
+            // Update Total Label Helper Text
+            let breakdownText = "Silver + Labour";
+            if (isGstOn) breakdownText += " + GST";
+            if (isCommOn) breakdownText += " + Comm";
+            outputs.totalLabel.innerText = breakdownText;
+
+            // Dim inactive rows for better UX
+            outputs.rowGst.style.opacity = isGstOn ? '1' : '0.3';
+            outputs.rowComm.style.opacity = isCommOn ? '1' : '0.3';
 
             saveCache();
         };
 
-        // Attach Event Listeners to trigger calculation on any change
+        // Attach Event Listeners
         Object.values(inputs).forEach(input => {
             input.addEventListener('input', calculate);
             input.addEventListener('change', calculate);
