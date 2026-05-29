@@ -145,26 +145,26 @@
 
     <script>
         // ==========================================
-        // MARKET CALIBRATION SETTING
+        // CONFIGURATION: MARKET CALIBRATION
         // ==========================================
-        // The international API provides the raw spot price. 
-        // This multiplier bakes in the Indian Customs Duty, Agri Cess, and local Surat premiums.
-        // 1.14 means "Add 14%". Adjust this decimal up or down slightly to match your local supplier.
         const INDIAN_MARKET_MULTIPLIER = 1.14; 
+        
+        // Fine-tune the numbers here if bullion is slightly off from your supplier screen:
+        const GOLD_OFFSET_PER_GRAM = 0;     // e.g., +20 to increase by ₹20/gram, or -15 to lower it
+        const SILVER_OFFSET_PER_GRAM = 0;   // e.g., +1.50 to increase by ₹1.50/gram
         // ==========================================
 
-
-        // --- LIVE TICKER DATA FETCH (WITH OFFLINE FAILSAFE) ---
+        // --- LIVE TICKER DATA FETCH (DUAL API SYSTEM) ---
         async function fetchLiveRates() {
             try {
-                const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
-                if (!res.ok) throw new Error("Network response was not ok");
+                // 1. Fetch Fiat Currencies from ExchangeRate-API (Matches XE.com perfectly)
+                const fiatRes = await fetch('https://open.er-api.com/v6/latest/USD');
+                if (!fiatRes.ok) throw new Error("Fiat API down");
+                const fiatData = await fiatRes.json();
                 
-                const data = await res.json();
-                
-                const inr = data.usd.inr;
-                const eur = inr / data.usd.eur;
-                const gbp = inr / data.usd.gbp;
+                const inr = fiatData.rates.INR;
+                const eur = inr / fiatData.rates.EUR;
+                const gbp = inr / fiatData.rates.GBP;
                 
                 document.getElementById('tick-usd').innerText = `USD: ₹${inr.toFixed(2)}`;
                 document.getElementById('tick-eur').innerText = `EUR: ₹${eur.toFixed(2)}`;
@@ -173,20 +173,25 @@
                 document.getElementById('tick-eur-2').innerText = `EUR: ₹${eur.toFixed(2)}`;
                 document.getElementById('tick-gbp-2').innerText = `GBP: ₹${gbp.toFixed(2)}`;
 
-                // Apply the Indian Market Multiplier to the raw International Bullion rates
-                if(data.usd.xau) {
-                    const goldOzUsd = 1 / data.usd.xau;
-                    const goldGramInrRaw = (goldOzUsd * inr) / 31.1035;
-                    const goldGramInrIndian = goldGramInrRaw * INDIAN_MARKET_MULTIPLIER;
-                    document.getElementById('tick-xau').innerText = `GOLD: ₹${Math.round(goldGramInrIndian)}/g`;
-                    document.getElementById('tick-xau-2').innerText = `GOLD: ₹${Math.round(goldGramInrIndian)}/g`;
-                }
-                if(data.usd.xag) {
-                    const silverOzUsd = 1 / data.usd.xag;
-                    const silverGramInrRaw = (silverOzUsd * inr) / 31.1035;
-                    const silverGramInrIndian = silverGramInrRaw * INDIAN_MARKET_MULTIPLIER;
-                    document.getElementById('tick-xag').innerText = `SILV: ₹${Math.round(silverGramInrIndian)}/g`;
-                    document.getElementById('tick-xag-2').innerText = `SILV: ₹${Math.round(silverGramInrIndian)}/g`;
+                // 2. Fetch Bullion from FawazAhmed API (Only for metal spot prices)
+                const metalRes = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
+                if (metalRes.ok) {
+                    const metalData = await metalRes.json();
+                    
+                    if(metalData.usd.xau) {
+                        const goldOzUsd = 1 / metalData.usd.xau;
+                        const goldGramInrRaw = (goldOzUsd * inr) / 31.1035;
+                        const goldGramInrIndian = (goldGramInrRaw * INDIAN_MARKET_MULTIPLIER) + GOLD_OFFSET_PER_GRAM;
+                        document.getElementById('tick-xau').innerText = `GOLD: ₹${Math.round(goldGramInrIndian)}/g`;
+                        document.getElementById('tick-xau-2').innerText = `GOLD: ₹${Math.round(goldGramInrIndian)}/g`;
+                    }
+                    if(metalData.usd.xag) {
+                        const silverOzUsd = 1 / metalData.usd.xag;
+                        const silverGramInrRaw = (silverOzUsd * inr) / 31.1035;
+                        const silverGramInrIndian = (silverGramInrRaw * INDIAN_MARKET_MULTIPLIER) + SILVER_OFFSET_PER_GRAM;
+                        document.getElementById('tick-xag').innerText = `SILV: ₹${Math.round(silverGramInrIndian)}/g`;
+                        document.getElementById('tick-xag-2').innerText = `SILV: ₹${Math.round(silverGramInrIndian)}/g`;
+                    }
                 }
             } catch (error) {
                 const offlineMsg = '<span class="text-red-400">LIVE MARKET DATA OFFLINE — CALCULATOR RUNNING LOCALLY</span>';
