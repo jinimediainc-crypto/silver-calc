@@ -6,12 +6,9 @@
     <title>Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Hide arrows on number inputs */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        /* Focus ring styling */
         .focus-ring:focus { border-color: #047857; box-shadow: 0 0 0 2px rgba(4, 120, 87, 0.2); }
-        /* Custom toggle styling */
         .toggle-checkbox:checked { right: 0; border-color: #047857; }
         .toggle-checkbox:checked + .toggle-label { background-color: #047857; }
     </style>
@@ -47,7 +44,7 @@
                 <div class="grid grid-cols-2 gap-3 mb-2">
                     <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Tag ID</label>
-                        <input type="text" id="cypherCode" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-center font-bold tracking-widest uppercase outline-none focus-ring" placeholder="e.g. FRSS" />
+                        <input type="text" id="cypherCode" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-center font-bold tracking-widest uppercase outline-none focus-ring" placeholder="e.g. FRARXLAL" />
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">L-Val</label>
@@ -133,7 +130,6 @@
         els.dailyRate.value = savedRate;
         els.itemRate.value = savedRate; 
         
-        // Load toggle states
         els.hmToggle.checked = localStorage.getItem('retail_hmToggle') === 'true';
         els.gstToggle.checked = localStorage.getItem('retail_gstToggle') === 'true';
         if (localStorage.getItem('retail_hmCharge')) els.hmCharge.value = localStorage.getItem('retail_hmCharge');
@@ -147,9 +143,11 @@
             triggerForwardCalc();
         });
         
-        els.itemRate.addEventListener('input', triggerForwardCalc);
+        els.itemRate.addEventListener('input', () => {
+            updateCompoundTag();
+            triggerForwardCalc();
+        });
 
-        // Toggle Listeners
         els.hmToggle.addEventListener('change', (e) => {
             localStorage.setItem('retail_hmToggle', e.target.checked);
             updateToggleStyles();
@@ -182,7 +180,7 @@
             return text.toUpperCase();
         };
 
-        const decodeCypher = (text) => {
+        const decodeStandard = (text) => {
             let numStr = '';
             const lowerText = text.toLowerCase();
             let startIndex = lowerText.startsWith('f') ? 1 : 0; 
@@ -207,6 +205,23 @@
             return totalBase;
         };
 
+        // Generates the combined Tag (e.g. FRAR + X + LAL)
+        const updateCompoundTag = () => {
+            const labourVal = parseFloat(els.labour.value) || 0;
+            const silverVal = parseFloat(els.itemRate.value) || 0;
+            
+            if (labourVal > 0) {
+                let newTag = 'F' + encodeNumber(labourVal);
+                if (silverVal > 0) {
+                    newTag += 'X' + encodeNumber(silverVal);
+                }
+                els.code.value = newTag;
+            } else {
+                els.code.value = '';
+            }
+        };
+
+
         // --- CALCULATION WORKFLOWS ---
 
         function triggerForwardCalc() {
@@ -230,11 +245,29 @@
             isCalculating = false;
         }
 
+        // When Tag is typed: Handle the "X" split
         els.code.addEventListener('input', () => {
             if (isCalculating) return;
             isCalculating = true;
-            const decodedLabour = decodeCypher(els.code.value);
+            
+            const fullTag = els.code.value.toLowerCase();
+            let labourPart = fullTag;
+            
+            // If the tag contains an X, split it and grab the historical silver rate
+            if (fullTag.includes('x')) {
+                const parts = fullTag.split('x');
+                labourPart = parts[0];
+                const silverPart = parts[1];
+                
+                if (silverPart) {
+                    const historicalSilver = decodeStandard(silverPart);
+                    if (historicalSilver > 0) els.itemRate.value = historicalSilver;
+                }
+            }
+            
+            const decodedLabour = decodeStandard(labourPart);
             els.labour.value = decodedLabour || '';
+            
             isCalculating = false;
             triggerForwardCalc();
         });
@@ -242,17 +275,12 @@
         els.labour.addEventListener('input', () => {
             if (isCalculating) return;
             isCalculating = true;
-            const labourVal = parseFloat(els.labour.value) || 0;
-            if (labourVal > 0) {
-                els.code.value = 'F' + encodeNumber(labourVal);
-            } else {
-                els.code.value = '';
-            }
+            updateCompoundTag();
             isCalculating = false;
             triggerForwardCalc();
         });
 
-        // Reverse calculation (from Total -> Labour & Code)
+        // Reverse calculation (from Total -> Silver Rate & Tag Generation)
         els.total.addEventListener('input', () => {
             if (isCalculating) return;
             isCalculating = true;
@@ -260,22 +288,23 @@
             const total = parseFloat(els.total.value) || 0;
             const weight = parseFloat(els.weight.value) || 0;
             const other = parseFloat(els.other.value) || 0;
-            const silver = getSilverRate();
             const hm = els.hmToggle.checked ? (parseFloat(els.hmCharge.value) || 0) : 0;
+            const currentLabour = parseFloat(els.labour.value) || 0;
 
-            if (weight > 0 && total > 0) {
+            if (weight > 0 && total > 0 && currentLabour > 0) {
                 // Strip GST if applied
                 let targetSubTotal = els.gstToggle.checked ? (total / 1.03) : total;
                 
-                // Subtract Other and Hallmark, then divide by weight to find Base
+                // Subtract Other and Hallmark, then divide by weight to find required Base Rate
                 let requiredBaseRate = (targetSubTotal - other - hm) / weight;
-                let requiredLabour = Math.max(0, requiredBaseRate - silver); 
+                
+                // Since Labour is locked, solve for the Historical Silver Rate
+                let historicalSilver = Math.max(0, requiredBaseRate - currentLabour);
                 
                 // Update Inputs
-                els.labour.value = Math.round(requiredLabour);
-                els.code.value = 'F' + encodeNumber(requiredLabour);
-                
-                updateBaseRateDisplay(requiredLabour);
+                els.itemRate.value = Math.round(historicalSilver);
+                updateCompoundTag(); // This creates the [Labour]X[Silver] tag
+                updateBaseRateDisplay(currentLabour);
             }
 
             isCalculating = false;
