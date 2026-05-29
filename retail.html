@@ -11,6 +11,9 @@
         .focus-ring:focus { border-color: #047857; box-shadow: 0 0 0 2px rgba(4, 120, 87, 0.2); }
         .toggle-checkbox:checked { right: 0; border-color: #047857; }
         .toggle-checkbox:checked + .toggle-label { background-color: #047857; }
+        
+        /* Custom styling for the Solve For toggle */
+        .solve-radio:checked + label { background-color: #047857; color: white; border-color: #047857; }
     </style>
 </head>
 <body class="bg-gray-100 flex justify-center items-center min-h-screen p-2 font-sans text-gray-800">
@@ -44,7 +47,7 @@
                 <div class="grid grid-cols-2 gap-3 mb-2">
                     <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Tag ID</label>
-                        <input type="text" id="cypherCode" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-center font-bold tracking-widest uppercase outline-none focus-ring" placeholder="e.g. FRSSXLAR" />
+                        <input type="text" id="cypherCode" class="w-full bg-white border border-gray-300 rounded-lg p-2 text-center font-bold tracking-widest uppercase outline-none focus-ring" placeholder="e.g. FRARXLAR" />
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">L-Val</label>
@@ -90,13 +93,25 @@
 
         </div>
 
-        <div class="bg-gray-900 p-4 flex justify-between items-center border-t-4 border-[#D4AF37]">
-            <div class="flex flex-col">
-                <span class="text-gray-400 text-[11px] font-bold uppercase tracking-widest">Total</span>
+        <div class="bg-gray-900 p-4 border-t-4 border-[#D4AF37]">
+            
+            <div class="flex justify-between items-center mb-2 border-b border-gray-700 pb-2">
+                <span class="text-gray-400 text-[9px] font-bold uppercase tracking-widest">When Total Changes, Solve For:</span>
+                <div class="flex space-x-1 bg-gray-800 rounded p-0.5 border border-gray-700">
+                    <input type="radio" id="solveLabour" name="solveMode" value="labour" class="solve-radio hidden" checked>
+                    <label for="solveLabour" class="text-[9px] font-bold uppercase px-2 py-1 rounded cursor-pointer text-gray-400 transition-colors">L-Val (Discount)</label>
+                    
+                    <input type="radio" id="solveF" name="solveMode" value="f_rate" class="solve-radio hidden">
+                    <label for="solveF" class="text-[9px] font-bold uppercase px-2 py-1 rounded cursor-pointer text-gray-400 transition-colors">'F' Rate (Old Tag)</label>
+                </div>
             </div>
-            <div class="relative w-2/3 flex justify-end">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-500 font-bold text-2xl">₹</span>
-                <input type="number" id="grandTotal" class="w-full bg-transparent border-none rounded-lg py-1 pl-10 pr-2 text-3xl font-extrabold text-white text-right outline-none focus:ring-2 focus:ring-[#D4AF37] transition-all" placeholder="0" />
+
+            <div class="flex justify-between items-center">
+                <span class="text-white text-sm font-bold uppercase tracking-widest">Total</span>
+                <div class="relative w-2/3 flex justify-end">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-500 font-bold text-2xl">₹</span>
+                    <input type="number" id="grandTotal" class="w-full bg-transparent border-none rounded-lg py-1 pl-10 pr-2 text-3xl font-extrabold text-white text-right outline-none focus:ring-2 focus:ring-[#D4AF37] transition-all" placeholder="0" />
+                </div>
             </div>
         </div>
 
@@ -120,7 +135,8 @@
             hmCharge: document.getElementById('hmCharge'),
             gstToggle: document.getElementById('gstToggle'),
             gstLabel: document.getElementById('gstLabel'),
-            total: document.getElementById('grandTotal')
+            total: document.getElementById('grandTotal'),
+            solveModeInputs: document.getElementsByName('solveMode')
         };
 
         let isCalculating = false;
@@ -136,18 +152,21 @@
         
         updateToggleStyles();
 
-        // Global F changes: Save to memory and recalculate math
+        // Get the current Solve Mode (Labour vs F_Rate)
+        const getSolveMode = () => {
+            for (const radio of els.solveModeInputs) {
+                if (radio.checked) return radio.value;
+            }
+            return 'labour';
+        };
+
         els.dailyRate.addEventListener('input', (e) => {
             const val = e.target.value;
             localStorage.setItem('retail_compact_silverRate', val);
-            
-            // Auto-sync Item F if it's currently empty, to save time when making new tags
             if (!els.itemRate.value) els.itemRate.value = val; 
-            
             triggerForwardCalc();
         });
         
-        // Item F changes: Update the Tag String only
         els.itemRate.addEventListener('input', () => {
             updateCompoundTag();
         });
@@ -197,7 +216,6 @@
             return parseInt(numStr) || 0;
         };
 
-        // UI Base Rate is driven entirely by Global F (What the customer pays)
         const updateBaseRateDisplay = (labourVal) => {
             const globalSilver = getGlobalSilverRate();
             const hasF = els.code.value.toLowerCase().startsWith('f') || (!els.code.value && labourVal > 0);
@@ -211,7 +229,6 @@
             return totalBase;
         };
 
-        // Generates the combined Tag (e.g. FRAR + X + LAL) using the Historical Item F
         const updateCompoundTag = () => {
             const labourVal = parseFloat(els.labour.value) || 0;
             const itemSilverVal = getItemSilverRate();
@@ -227,7 +244,6 @@
             }
         };
 
-
         // --- CALCULATION WORKFLOWS ---
 
         function triggerForwardCalc() {
@@ -235,7 +251,7 @@
             isCalculating = true;
 
             const labour = parseFloat(els.labour.value) || 0;
-            const baseRate = updateBaseRateDisplay(labour); // Uses Global F
+            const baseRate = updateBaseRateDisplay(labour); 
             const weight = parseFloat(els.weight.value) || 0;
             const other = parseFloat(els.other.value) || 0;
             const hm = els.hmToggle.checked ? (parseFloat(els.hmCharge.value) || 0) : 0;
@@ -251,7 +267,6 @@
             isCalculating = false;
         }
 
-        // When Tag is typed: Split at X, set L-Val and Item 'F', then calculate using Global 'F'
         els.code.addEventListener('input', () => {
             if (isCalculating) return;
             isCalculating = true;
@@ -285,7 +300,7 @@
             triggerForwardCalc();
         });
 
-        // Reverse calculation: Discounts L-Val based on Global F, leaves historical Item F alone
+        // Smart Reverse Calculator (Checks which mode is active)
         els.total.addEventListener('input', () => {
             if (isCalculating) return;
             isCalculating = true;
@@ -294,25 +309,47 @@
             const weight = parseFloat(els.weight.value) || 0;
             const other = parseFloat(els.other.value) || 0;
             const hm = els.hmToggle.checked ? (parseFloat(els.hmCharge.value) || 0) : 0;
+            
             const globalSilver = getGlobalSilverRate();
+            const currentLabour = parseFloat(els.labour.value) || 0;
+            
+            const solveMode = getSolveMode();
 
             if (weight > 0 && total > 0) {
                 let targetSubTotal = els.gstToggle.checked ? (total / 1.03) : total;
                 let requiredBaseRate = (targetSubTotal - other - hm) / weight;
                 
-                // Solve for required Labour based on Today's Global Market Rate
-                let requiredLabour = Math.max(0, requiredBaseRate - globalSilver);
-                
-                els.labour.value = Math.round(requiredLabour);
-                updateCompoundTag(); 
-                updateBaseRateDisplay(requiredLabour);
+                if (solveMode === 'labour') {
+                    // ON THE FLOOR: Discount the L-Val, keep Global F locked
+                    let requiredLabour = Math.max(0, requiredBaseRate - globalSilver);
+                    els.labour.value = Math.round(requiredLabour);
+                    updateCompoundTag();
+                    updateBaseRateDisplay(requiredLabour);
+                    
+                } else if (solveMode === 'f_rate') {
+                    // BACK OFFICE: Solve for F, keep L-Val locked
+                    let requiredF = Math.max(0, requiredBaseRate - currentLabour);
+                    
+                    els.dailyRate.value = Math.round(requiredF);
+                    els.itemRate.value = Math.round(requiredF);
+                    localStorage.setItem('retail_compact_silverRate', Math.round(requiredF));
+                    
+                    updateCompoundTag(); 
+                    updateBaseRateDisplay(currentLabour);
+                }
             }
 
             isCalculating = false;
         });
 
+        // Trigger forward calc when basic values change
         els.weight.addEventListener('input', triggerForwardCalc);
         els.other.addEventListener('input', triggerForwardCalc);
+        
+        // Retrigger forward calculation if they switch modes (just to be safe)
+        for (const radio of els.solveModeInputs) {
+            radio.addEventListener('change', triggerForwardCalc);
+        }
 
         triggerForwardCalc();
 
