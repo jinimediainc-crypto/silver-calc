@@ -1,10 +1,10 @@
 {
-  "name": "Calculator",
-  "short_name": "Calc",
+  "name": "Jini Jewels Hub",
+  "short_name": "Jini Jewels",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#047857",
+  "background_color": "#064e3b",
+  "theme_color": "#064e3b",
   "icons": [
     {
       "src": "icon.png",
