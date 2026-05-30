@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Back Office Calc</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Back Office Calculator</title>
     <link rel="manifest" href="manifest-index.json">
-    <meta name="theme-color" content="#047857">
+    <meta name="theme-color" content="#064e3b">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,154 +15,187 @@
     <style>
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        .focus-ring:focus { border-color: #047857; box-shadow: 0 0 0 2px rgba(4, 120, 87, 0.2); }
+        .focus-ring:focus { border-color: #047857; box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.3); }
         .toggle-checkbox:checked { right: 0; border-color: #047857; }
         .toggle-checkbox:checked + .toggle-label { background-color: #047857; }
     </style>
 </head>
-<body class="bg-gray-100 flex justify-center items-center h-[100dvh] p-2 font-sans text-gray-800 overflow-hidden">
+<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 flex justify-center items-center min-h-[100dvh] font-sans text-gray-800 p-3 md:p-6 overflow-hidden">
 
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm h-full max-h-[750px] flex flex-col border border-gray-200 overflow-hidden">
+    <div class="bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-[0_0_40px_rgba(0,0,0,0.5)] w-full max-w-md md:max-w-xl flex flex-col border border-white/20 overflow-hidden relative my-auto">
         
-        <div class="bg-[#047857] p-3 text-center border-b-2 border-[#D4AF37]">
-            <h1 class="text-lg font-bold text-white tracking-widest uppercase">Silver Calculator</h1>
-        </div>
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200/50 bg-white/50">
+            <a href="index.html" class="text-[#047857] p-1 bg-emerald-50 rounded-lg active:scale-90 transition-transform shadow-sm border border-emerald-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </a>
+            <h1 class="text-sm md:text-base font-black text-[#064e3b] tracking-widest uppercase">Back Office</h1>
+            <div class="w-8"></div> </div>
 
-        <div class="p-4 flex-1 flex flex-col justify-evenly space-y-2">
+        <div class="flex flex-col p-4 md:p-6 space-y-4">
             
-            <div class="space-y-3">
-                <div class="bg-gray-50 p-2 rounded-lg border border-gray-200">
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Silver Rate (₹ per Gram)</label>
+            <div class="grid grid-cols-2 gap-3 md:gap-4">
+                <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200 shadow-sm">
+                    <label class="block text-[10px] md:text-xs font-black text-emerald-800 uppercase mb-1 tracking-wide">Silver Rate (₹/g)</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 font-bold">₹</span>
-                        <input type="number" id="silverRate" class="w-full bg-white border border-gray-300 rounded-lg py-2 pl-8 pr-2 text-sm font-bold outline-none focus-ring" placeholder="0.00" />
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 p-2 rounded-lg border border-gray-200">
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Weight (Grams)</label>
-                    <input type="number" id="weight" class="w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm font-bold outline-none focus-ring" placeholder="Enter total weight" />
-                </div>
-
-                <div class="bg-gray-50 p-2 rounded-lg border border-gray-200">
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Labour Charge (₹ per Gram)</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 font-bold">₹</span>
-                        <input type="number" id="labour" class="w-full bg-white border border-gray-300 rounded-lg py-2 pl-8 pr-2 text-sm font-bold outline-none focus-ring" placeholder="0.00" />
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-3">
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-gray-700">Apply GST (3%)</span>
-                    <div class="relative inline-block w-10 h-5 align-middle select-none">
-                        <input type="checkbox" id="gstToggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer transition-all duration-300 z-10" checked/>
-                        <label for="gstToggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 text-emerald-700 text-lg font-bold">₹</span>
+                        <input type="number" id="boSilverRate" class="w-full bg-white border border-emerald-300 rounded-lg py-2 pl-7 pr-2 text-lg md:text-xl font-black text-gray-900 outline-none focus-ring" placeholder="0" />
                     </div>
                 </div>
                 
-                <div class="flex justify-between items-center border-t border-gray-200 pt-3">
-                    <div class="flex items-center gap-2">
+                <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 shadow-sm">
+                    <label class="block text-[10px] md:text-xs font-black text-gray-700 uppercase mb-1 tracking-wide">Weight (g)</label>
+                    <input type="number" id="boWeight" class="w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-center text-lg md:text-xl font-black text-gray-900 outline-none focus-ring" placeholder="0" />
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+                <label class="text-[10px] md:text-xs font-black text-gray-700 uppercase tracking-wide ml-1">Labour Charge (₹/g)</label>
+                <div class="relative w-32 md:w-40">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 font-bold">₹</span>
+                    <input type="number" id="boLabour" class="w-full bg-white border border-gray-300 rounded-lg py-2 pl-7 pr-2 text-center text-lg md:text-xl font-bold text-gray-900 outline-none focus-ring" placeholder="0" />
+                </div>
+            </div>
+
+            <div class="bg-stone-50 p-3.5 rounded-xl border border-stone-200 flex flex-col gap-3 shadow-inner">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
                         <div class="relative inline-block w-10 h-5 align-middle select-none">
-                            <input type="checkbox" id="commToggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer transition-all duration-300 z-10" />
-                            <label for="commToggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
+                            <input type="checkbox" id="boCommToggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
+                            <label for="boCommToggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
                         </div>
-                        <span class="text-xs font-bold text-gray-700">Commission</span>
+                        <span class="text-xs md:text-sm font-extrabold text-gray-700 uppercase tracking-wide">Commission</span>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <input type="number" id="commPercent" class="w-14 bg-white border border-gray-300 rounded-lg p-1 text-center text-sm font-bold outline-none focus-ring" value="10" />
-                        <span class="text-xs font-bold text-gray-500">%</span>
+                    <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden focus-within:border-[#047857] focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
+                        <input type="number" id="boCommPercent" class="w-14 md:w-16 text-center text-sm md:text-base font-bold py-1.5 outline-none" value="10" />
+                        <span class="bg-gray-100 text-gray-500 font-bold px-2 py-1.5 text-sm border-l border-gray-300">%</span>
+                    </div>
+                </div>
+                
+                <hr class="border-stone-200">
+
+                <div class="flex items-center gap-3">
+                    <div class="relative inline-block w-10 h-5 align-middle select-none">
+                        <input type="checkbox" id="boGstToggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
+                        <label for="boGstToggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
+                    </div>
+                    <span class="text-xs md:text-sm font-extrabold text-gray-700 uppercase tracking-wide">Apply GST (3%)</span>
+                </div>
+            </div>
+
+            <div class="bg-white border-2 border-emerald-50 rounded-xl p-4 shadow-sm">
+                <div class="space-y-2 text-xs md:text-sm font-bold text-gray-600">
+                    <div class="flex justify-between">
+                        <span>Silver Value</span>
+                        <span class="text-gray-900">₹ <span id="valSilver">0.00</span></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Labour Value</span>
+                        <span class="text-gray-900">₹ <span id="valLabour">0.00</span></span>
+                    </div>
+                    <div class="flex justify-between text-blue-700 hidden" id="rowComm">
+                        <span id="lblComm">Commission (10%)</span>
+                        <span>₹ <span id="valComm">0.00</span></span>
+                    </div>
+                    <div class="flex justify-between text-emerald-700 hidden" id="rowGst">
+                        <span>GST (3%)</span>
+                        <span>₹ <span id="valGst">0.00</span></span>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-stone-50 p-3 rounded-xl border border-stone-200 shadow-inner space-y-1.5 text-xs font-semibold text-gray-500">
-                <div class="flex justify-between"><span>Silver Value</span><span id="outSilver" class="text-gray-800">₹ 0</span></div>
-                <div class="flex justify-between"><span>Labour Value</span><span id="outLabour" class="text-gray-800">₹ 0</span></div>
-                <div class="flex justify-between"><span>GST (3%)</span><span id="outGst" class="text-gray-800">₹ 0</span></div>
-                <div class="flex justify-between"><span>Commission</span><span id="outComm" class="text-gray-800">₹ 0</span></div>
-            </div>
-
         </div>
 
-        <div class="bg-gray-900 p-4 flex justify-between items-center border-t-4 border-[#D4AF37]">
-            <span class="text-white text-sm font-bold uppercase tracking-widest">Total</span>
-            <span class="text-3xl font-extrabold text-emerald-400">₹ <span id="grandTotal">0</span></span>
+        <div class="bg-gray-900 px-5 py-5 border-t-[3px] border-[#D4AF37] mt-auto">
+            <div class="flex justify-between items-center">
+                <span class="text-white text-lg md:text-2xl font-black uppercase tracking-widest">Total</span>
+                <div class="flex items-center text-emerald-500 font-black text-3xl md:text-4xl">
+                    <span class="mr-1">₹</span>
+                    <span id="boGrandTotal" class="text-white">0</span>
+                </div>
+            </div>
         </div>
 
     </div>
 
     <script>
         const els = {
-            rate: document.getElementById('silverRate'),
-            weight: document.getElementById('weight'),
-            labour: document.getElementById('labour'),
-            gstToggle: document.getElementById('gstToggle'),
-            commToggle: document.getElementById('commToggle'),
-            commPercent: document.getElementById('commPercent'),
-            outSilver: document.getElementById('outSilver'),
-            outLabour: document.getElementById('outLabour'),
-            outGst: document.getElementById('outGst'),
-            outComm: document.getElementById('outComm'),
-            total: document.getElementById('grandTotal')
+            rate: document.getElementById('boSilverRate'),
+            weight: document.getElementById('boWeight'),
+            labour: document.getElementById('boLabour'),
+            commToggle: document.getElementById('boCommToggle'),
+            commPercent: document.getElementById('boCommPercent'),
+            gstToggle: document.getElementById('boGstToggle'),
+            vSilv: document.getElementById('valSilver'),
+            vLab: document.getElementById('valLabour'),
+            vComm: document.getElementById('valComm'),
+            vGst: document.getElementById('valGst'),
+            rComm: document.getElementById('rowComm'),
+            rGst: document.getElementById('rowGst'),
+            lComm: document.getElementById('lblComm'),
+            total: document.getElementById('boGrandTotal')
         };
 
-        // Load saved settings
-        els.rate.value = localStorage.getItem('index_rate') || '';
-        els.gstToggle.checked = localStorage.getItem('index_gst') !== 'false';
-        els.commToggle.checked = localStorage.getItem('index_comm') === 'true';
-        if (localStorage.getItem('index_comm_val')) els.commPercent.value = localStorage.getItem('index_comm_val');
+        // Load Saves (Defaults to TRUE if not set)
+        els.rate.value = localStorage.getItem('bo_rate') || '';
+        els.commToggle.checked = localStorage.getItem('bo_commToggle') !== 'false';
+        els.gstToggle.checked = localStorage.getItem('bo_gstToggle') !== 'false';
+        if (localStorage.getItem('bo_commPercent')) els.commPercent.value = localStorage.getItem('bo_commPercent');
 
-        function calculate() {
-            const rate = parseFloat(els.rate.value) || 0;
-            const weight = parseFloat(els.weight.value) || 0;
-            const labour = parseFloat(els.labour.value) || 0;
-            const commPercent = parseFloat(els.commPercent.value) || 0;
-
-            const silverVal = rate * weight;
-            const labourVal = labour * weight;
-            const subtotal = silverVal + labourVal;
-
-            let commVal = 0;
-            if (els.commToggle.checked) {
-                commVal = subtotal * (commPercent / 100);
-            }
-
-            let gstVal = 0;
-            if (els.gstToggle.checked) {
-                gstVal = (subtotal + commVal) * 0.03;
-            }
-
-            const grandTotal = subtotal + commVal + gstVal;
-
-            els.outSilver.innerText = `₹ ${Math.round(silverVal)}`;
-            els.outLabour.innerText = `₹ ${Math.round(labourVal)}`;
-            els.outComm.innerText = `₹ ${Math.round(commVal)}`;
-            els.outGst.innerText = `₹ ${Math.round(gstVal)}`;
-            els.total.innerText = Math.round(grandTotal);
-
-            // Save state
-            localStorage.setItem('index_rate', els.rate.value);
-            localStorage.setItem('index_gst', els.gstToggle.checked);
-            localStorage.setItem('index_comm', els.commToggle.checked);
-            localStorage.setItem('index_comm_val', els.commPercent.value);
+        function formatCurrency(num) {
+            return num.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
         }
 
-        ['input', 'change'].forEach(evt => {
-            els.rate.addEventListener(evt, calculate);
-            els.weight.addEventListener(evt, calculate);
-            els.labour.addEventListener(evt, calculate);
-            els.gstToggle.addEventListener(evt, calculate);
-            els.commToggle.addEventListener(evt, calculate);
-            els.commPercent.addEventListener(evt, calculate);
-        });
+        function calculate() {
+            const r = parseFloat(els.rate.value) || 0;
+            const w = parseFloat(els.weight.value) || 0;
+            const l = parseFloat(els.labour.value) || 0;
+            const cp = parseFloat(els.commPercent.value) || 0;
 
-        // PWA Registration
+            const silvVal = r * w;
+            const labVal = l * w;
+            const baseVal = silvVal + labVal;
+
+            let commAmt = 0;
+            if (els.commToggle.checked) {
+                commAmt = baseVal * (cp / 100);
+                els.rComm.classList.remove('hidden');
+                els.lComm.innerText = `Commission (${cp}%)`;
+            } else {
+                els.rComm.classList.add('hidden');
+            }
+
+            const subTotal = baseVal + commAmt;
+
+            let gstAmt = 0;
+            if (els.gstToggle.checked) {
+                gstAmt = subTotal * 0.03;
+                els.rGst.classList.remove('hidden');
+            } else {
+                els.rGst.classList.add('hidden');
+            }
+
+            const finalTotal = Math.round(subTotal + gstAmt);
+
+            els.vSilv.innerText = formatCurrency(silvVal);
+            els.vLab.innerText = formatCurrency(labVal);
+            els.vComm.innerText = formatCurrency(commAmt);
+            els.vGst.innerText = formatCurrency(gstAmt);
+            els.total.innerText = formatCurrency(finalTotal);
+        }
+
+        els.rate.addEventListener('input', (e) => { localStorage.setItem('bo_rate', e.target.value); calculate(); });
+        els.weight.addEventListener('input', calculate);
+        els.labour.addEventListener('input', calculate);
+        els.commPercent.addEventListener('input', (e) => { localStorage.setItem('bo_commPercent', e.target.value); calculate(); });
+        
+        els.commToggle.addEventListener('change', (e) => { localStorage.setItem('bo_commToggle', e.target.checked); calculate(); });
+        els.gstToggle.addEventListener('change', (e) => { localStorage.setItem('bo_gstToggle', e.target.checked); calculate(); });
+
+        calculate();
+
+        // PWA Update Check
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(reg => reg.update());
-            });
+            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(r => r.update()));
         }
     </script>
 </body>
