@@ -1,7 +1,7 @@
 {
   "name": "Retail Calc",
   "short_name": "Retail",
-  "start_url": "./retail.html",
+  "start_url": "retail.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#047857",
