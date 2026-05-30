@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>
-    // SECURITY CHECK: Kick back to Hub if not authenticated
-    if (sessionStorage.getItem('jini_auth') !== 'true') {
-        window.location.replace('index.html');
-    }
-</script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Back Office Calculator</title>
@@ -20,71 +13,76 @@
         .focus-ring:focus { border-color: #047857; box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.3); }
         .toggle-checkbox:checked { right: 0; border-color: #047857; }
         .toggle-checkbox:checked + .toggle-label { background-color: #047857; }
+        .scroll-area::-webkit-scrollbar { width: 6px; }
+        .scroll-area::-webkit-scrollbar-track { background: transparent; }
+        .scroll-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 flex justify-center items-center min-h-[100dvh] font-sans text-gray-800 p-2 md:p-6 overflow-hidden">
+<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 flex justify-center items-center min-h-[100dvh] font-sans text-gray-800 p-2 md:p-4">
 
-    <div class="bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-[0_0_40px_rgba(0,0,0,0.5)] w-[96%] max-w-md md:max-w-3xl lg:max-w-4xl flex flex-col border border-white/20 overflow-hidden relative my-auto">
+    <div class="bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-[0_0_40px_rgba(0,0,0,0.5)] w-[96%] max-w-xl md:max-w-2xl lg:max-w-4xl flex flex-col border border-white/20 overflow-hidden relative max-h-[96dvh]">
         
-        <div class="flex items-center justify-between px-4 md:px-8 py-3 md:py-5 border-b border-gray-200/50 bg-white/50">
+        <script>if (sessionStorage.getItem('jini_auth') !== 'true') { window.location.replace('index.html'); }</script>
+
+        <div class="flex-shrink-0 flex items-center justify-between px-4 md:px-8 py-3 md:py-4 border-b border-gray-200/50 bg-white/50">
             <a href="index.html" class="text-[#047857] p-2 md:p-3 bg-emerald-50 rounded-lg active:scale-90 transition-transform shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 md:h-8 md:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
             </a>
-            <h1 class="text-sm md:text-2xl font-black text-[#064e3b] tracking-widest uppercase">Back Office</h1>
+            <h1 class="text-base md:text-2xl font-black text-[#064e3b] tracking-widest uppercase">Back Office</h1>
             <div class="w-10 md:w-14"></div>
         </div>
 
-        <div class="flex flex-col p-4 md:p-8 space-y-4 md:space-y-8">
+        <div class="flex-1 overflow-y-auto scroll-area flex flex-col p-4 md:p-8 space-y-4 md:space-y-6">
             
             <div class="grid grid-cols-2 gap-3 md:gap-6">
-                <div class="bg-emerald-50 p-3 md:p-5 rounded-xl border border-emerald-200 shadow-sm">
+                <div class="bg-emerald-50 p-3 md:p-4 rounded-xl border border-emerald-200 shadow-sm">
                     <label class="block text-[10px] md:text-sm font-black text-emerald-800 uppercase mb-1 md:mb-2 tracking-wide">Silver Rate (₹/g)</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 md:pl-4 text-emerald-700 text-lg md:text-2xl font-bold">₹</span>
-                        <input type="number" id="boSilverRate" class="w-full bg-white border border-emerald-300 rounded-lg py-2 md:py-4 pl-7 md:pl-12 pr-2 text-lg md:text-3xl font-black text-gray-900 outline-none focus-ring" placeholder="0" />
+                        <input type="number" id="boSilverRate" class="w-full bg-white border border-emerald-300 rounded-lg py-2 md:py-3 pl-7 md:pl-10 pr-2 text-lg md:text-3xl font-black text-gray-900 outline-none focus-ring" placeholder="0" />
                     </div>
                 </div>
                 
-                <div class="bg-gray-50 p-3 md:p-5 rounded-xl border border-gray-200 shadow-sm">
+                <div class="bg-gray-50 p-3 md:p-4 rounded-xl border border-gray-200 shadow-sm">
                     <label class="block text-[10px] md:text-sm font-black text-gray-700 uppercase mb-1 md:mb-2 tracking-wide">Weight (g)</label>
-                    <input type="number" id="boWeight" class="w-full bg-white border border-gray-300 rounded-lg py-2 md:py-4 px-3 text-center text-lg md:text-3xl font-black text-gray-900 outline-none focus-ring" placeholder="0" />
+                    <input type="number" id="boWeight" class="w-full bg-white border border-gray-300 rounded-lg py-2 md:py-3 px-3 text-center text-lg md:text-3xl font-black text-gray-900 outline-none focus-ring" placeholder="0" />
                 </div>
             </div>
 
-            <div class="bg-gray-50 p-3 md:p-5 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
-                <label class="text-[10px] md:text-lg font-black text-gray-700 uppercase tracking-wide ml-1">Labour Charge (₹/g)</label>
-                <div class="relative w-32 md:w-56">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 md:pl-5 text-gray-500 font-bold md:text-2xl">₹</span>
-                    <input type="number" id="boLabour" class="w-full bg-white border border-gray-300 rounded-lg py-2 md:py-4 pl-7 md:pl-12 pr-2 text-center text-lg md:text-3xl font-bold text-gray-900 outline-none focus-ring" placeholder="0" />
+            <div class="bg-gray-50 p-3 md:p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+                <label class="text-[10px] md:text-base font-black text-gray-700 uppercase tracking-wide ml-1">Labour Charge (₹/g)</label>
+                <div class="relative w-32 md:w-48">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 md:pl-4 text-gray-500 font-bold md:text-xl">₹</span>
+                    <input type="number" id="boLabour" class="w-full bg-white border border-gray-300 rounded-lg py-2 md:py-3 pl-7 md:pl-10 pr-2 text-center text-lg md:text-2xl font-bold text-gray-900 outline-none focus-ring" placeholder="0" />
                 </div>
             </div>
 
-            <div class="bg-stone-50 p-4 md:p-6 rounded-xl border border-stone-200 flex flex-col gap-4 md:gap-6 shadow-inner">
+            <div class="bg-stone-50 p-4 md:p-6 rounded-xl border border-stone-200 flex flex-col gap-4 md:gap-5 shadow-inner">
                 <div class="flex items-center gap-3 md:gap-5">
-                    <div class="relative inline-block w-10 md:w-14 h-5 md:h-7 align-middle select-none">
-                        <input type="checkbox" id="boGstToggle" class="toggle-checkbox absolute block w-5 md:w-7 h-5 md:h-7 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
-                        <label for="boGstToggle" class="toggle-label block overflow-hidden h-5 md:h-7 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
+                    <div class="relative inline-block w-10 md:w-12 h-5 md:h-6 align-middle select-none">
+                        <input type="checkbox" id="boGstToggle" class="toggle-checkbox absolute block w-5 md:w-6 h-5 md:h-6 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
+                        <label for="boGstToggle" class="toggle-label block overflow-hidden h-5 md:h-6 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
                     </div>
-                    <span class="text-xs md:text-lg font-extrabold text-gray-700 uppercase tracking-wide">Apply GST (3%)</span>
+                    <span class="text-xs md:text-base font-extrabold text-gray-700 uppercase tracking-wide">Apply GST (3%)</span>
                 </div>
                 <hr class="border-stone-200">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3 md:gap-5">
-                        <div class="relative inline-block w-10 md:w-14 h-5 md:h-7 align-middle select-none">
-                            <input type="checkbox" id="boCommToggle" class="toggle-checkbox absolute block w-5 md:w-7 h-5 md:h-7 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
-                            <label for="boCommToggle" class="toggle-label block overflow-hidden h-5 md:h-7 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
+                        <div class="relative inline-block w-10 md:w-12 h-5 md:h-6 align-middle select-none">
+                            <input type="checkbox" id="boCommToggle" class="toggle-checkbox absolute block w-5 md:w-6 h-5 md:h-6 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
+                            <label for="boCommToggle" class="toggle-label block overflow-hidden h-5 md:h-6 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
                         </div>
-                        <span class="text-xs md:text-lg font-extrabold text-gray-700 uppercase tracking-wide">Commission</span>
+                        <span class="text-xs md:text-base font-extrabold text-gray-700 uppercase tracking-wide">Commission</span>
                     </div>
                     <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden focus-within:border-[#047857] transition-all">
-                        <input type="number" id="boCommPercent" class="w-14 md:w-24 text-center text-sm md:text-2xl font-bold py-1.5 md:py-3 outline-none" value="10" />
-                        <span class="bg-gray-100 text-gray-500 font-bold px-2 md:px-4 py-1.5 md:py-3 text-sm md:text-xl border-l border-gray-300">%</span>
+                        <input type="number" id="boCommPercent" class="w-14 md:w-20 text-center text-sm md:text-xl font-bold py-1.5 md:py-2 outline-none" value="10" />
+                        <span class="bg-gray-100 text-gray-500 font-bold px-2 md:px-4 py-1.5 md:py-2 text-sm md:text-xl border-l border-gray-300">%</span>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white border-2 border-emerald-50 rounded-xl p-4 md:p-6 shadow-sm">
-                <div class="space-y-2 md:space-y-4 text-xs md:text-xl font-bold text-gray-600">
+            <div class="bg-white border-2 border-emerald-50 rounded-xl p-4 md:p-5 shadow-sm">
+                <div class="space-y-2 md:space-y-3 text-xs md:text-base font-bold text-gray-600">
                     <div class="flex justify-between"><span>Silver Value</span><span class="text-gray-900">₹ <span id="valSilver">0.00</span></span></div>
                     <div class="flex justify-between"><span>Labour Value</span><span class="text-gray-900">₹ <span id="valLabour">0.00</span></span></div>
                     <div class="flex justify-between text-emerald-700 hidden" id="rowGst"><span>GST (3%)</span><span>₹ <span id="valGst">0.00</span></span></div>
@@ -94,11 +92,11 @@
 
         </div>
 
-        <div class="bg-gray-900 px-5 md:px-10 py-5 md:py-8 border-t-[3px] border-[#D4AF37]">
+        <div class="flex-shrink-0 bg-gray-900 px-5 md:px-8 py-4 md:py-5 border-t-[3px] border-[#D4AF37]">
             <div class="flex justify-between items-center">
-                <span class="text-white text-lg md:text-3xl font-black uppercase tracking-widest">Total</span>
-                <div class="flex items-center text-emerald-500 font-black text-3xl md:text-6xl">
-                    <span class="mr-1 md:mr-3">₹</span>
+                <span class="text-white text-lg md:text-2xl font-black uppercase tracking-widest">Total</span>
+                <div class="flex items-center text-emerald-500 font-black text-3xl md:text-5xl">
+                    <span class="mr-1 md:mr-2">₹</span>
                     <span id="boGrandTotal" class="text-white">0</span>
                 </div>
             </div>
