@@ -20,7 +20,6 @@
         .toggle-checkbox:checked + .toggle-label { background-color: #047857; }
         .solve-radio:checked + label { background-color: #047857; color: white; border-color: #047857; }
         
-        /* Ticker Animation */
         @keyframes marquee {
             0% { transform: translateX(0%); }
             100% { transform: translateX(-50%); }
@@ -37,9 +36,13 @@
 </head>
 <body class="bg-gray-100 flex justify-center items-center min-h-screen p-2 font-sans text-gray-800">
 
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden border border-gray-200 flex flex-col">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm md:max-w-lg lg:max-w-xl overflow-hidden border border-gray-200 flex flex-col transition-all duration-300">
         
-        <div class="bg-gray-900 border-b border-[#D4AF37] text-emerald-400 text-[10px] font-bold tracking-widest py-2 overflow-hidden flex relative">
+        <button id="installAppBtn" class="hidden w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 text-xs md:text-sm uppercase tracking-widest transition-colors cursor-pointer">
+            📲 Tap Here to Install App & Hide URL Bar
+        </button>
+
+        <div class="bg-gray-900 border-b border-[#D4AF37] text-emerald-400 text-[10px] md:text-xs font-bold tracking-widest py-2 overflow-hidden flex relative">
             <div class="animate-marquee whitespace-nowrap flex space-x-6 px-4" id="ticker-container">
                 <span id="tick-xau">GOLD: --</span>
                 <span id="tick-xag">SILV: --</span>
@@ -54,99 +57,97 @@
             </div>
         </div>
 
-        <div class="bg-[#047857] p-3 text-center border-b-2 border-[#D4AF37]">
-            <h1 class="text-lg font-bold text-white tracking-widest uppercase">Calculator</h1>
+        <div class="bg-[#047857] p-3 md:p-4 text-center border-b-2 border-[#D4AF37]">
+            <h1 class="text-lg md:text-xl font-bold text-white tracking-widest uppercase">Calculator</h1>
         </div>
 
-        <div class="p-4 space-y-4">
+        <div class="p-4 md:p-6 space-y-4 md:space-y-6">
             
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-emerald-50 p-2 rounded-lg border border-emerald-100">
-                    <label class="block text-[10px] font-bold text-emerald-800 uppercase mb-1">Global 'F'</label>
+            <div class="grid grid-cols-2 gap-3 md:gap-4">
+                <div class="bg-emerald-50 p-2 md:p-3 rounded-lg border border-emerald-100">
+                    <label class="block text-[10px] md:text-xs font-bold text-emerald-800 uppercase mb-1">Global 'F'</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-2 text-emerald-600 text-sm font-bold">₹</span>
-                        <input type="number" id="dailySilverRate" class="w-full bg-white border border-emerald-200 rounded-md py-1.5 pl-6 pr-2 text-sm font-bold outline-none focus-ring" placeholder="0" />
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-2 md:pl-3 text-emerald-600 text-sm md:text-base font-bold">₹</span>
+                        <input type="number" id="dailySilverRate" class="w-full bg-white border border-emerald-200 rounded-md py-1.5 md:py-2 pl-6 md:pl-8 pr-2 text-sm md:text-base font-bold outline-none focus-ring" placeholder="0" />
                     </div>
                 </div>
                 
-                <div class="bg-stone-50 p-2 rounded-lg border border-stone-200">
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Tag ID</label>
-                    <input type="text" id="cypherCode" class="w-full bg-white border border-gray-300 rounded-md py-1.5 px-2 text-center text-sm font-bold tracking-widest uppercase outline-none focus-ring" placeholder="e.g. FRARXLAR" />
+                <div class="bg-stone-50 p-2 md:p-3 rounded-lg border border-stone-200">
+                    <label class="block text-[10px] md:text-xs font-bold text-gray-500 uppercase mb-1">Tag ID</label>
+                    <input type="text" id="cypherCode" class="w-full bg-white border border-gray-300 rounded-md py-1.5 md:py-2 px-2 text-center text-sm md:text-base font-bold tracking-widest uppercase outline-none focus-ring" placeholder="FRARXLAR" />
                 </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-200 shadow-inner">
-                
+            <div class="grid grid-cols-3 gap-2 md:gap-4 bg-gray-50 p-2.5 md:p-4 rounded-xl border border-gray-200 shadow-inner">
                 <div>
-                    <label class="block text-[9px] font-bold text-blue-800 uppercase mb-1 text-center">Item 'F'</label>
+                    <label class="block text-[9px] md:text-[11px] font-bold text-blue-800 uppercase mb-1 text-center">Item 'F'</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-1.5 text-blue-600 text-xs font-bold">₹</span>
-                        <input type="number" id="itemSilverRate" class="w-full bg-white border border-blue-200 rounded-md py-1.5 pl-4 pr-1 text-sm font-bold text-center outline-none focus-ring" placeholder="0" />
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-1.5 md:pl-2.5 text-blue-600 text-xs md:text-sm font-bold">₹</span>
+                        <input type="number" id="itemSilverRate" class="w-full bg-white border border-blue-200 rounded-md py-1.5 md:py-2 pl-4 md:pl-6 pr-1 text-sm md:text-base font-bold text-center outline-none focus-ring" placeholder="0" />
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-[9px] font-bold text-gray-600 uppercase mb-1 text-center">L-Val</label>
-                    <input type="number" id="labourCharge" class="w-full bg-white border border-gray-300 rounded-md py-1.5 px-1 text-sm font-bold text-center outline-none focus-ring" placeholder="0" />
+                    <label class="block text-[9px] md:text-[11px] font-bold text-gray-600 uppercase mb-1 text-center">L-Val</label>
+                    <input type="number" id="labourCharge" class="w-full bg-white border border-gray-300 rounded-md py-1.5 md:py-2 px-1 text-sm md:text-base font-bold text-center outline-none focus-ring" placeholder="0" />
                 </div>
 
                 <div>
-                    <label class="block text-[9px] font-bold text-gray-600 uppercase mb-1 text-center">Weight (g)</label>
-                    <input type="number" id="weight" class="w-full bg-white border border-gray-300 rounded-md py-1.5 px-1 text-sm font-bold text-center outline-none focus-ring" placeholder="0" />
+                    <label class="block text-[9px] md:text-[11px] font-bold text-gray-600 uppercase mb-1 text-center">Weight (g)</label>
+                    <input type="number" id="weight" class="w-full bg-white border border-gray-300 rounded-md py-1.5 md:py-2 px-1 text-sm md:text-base font-bold text-center outline-none focus-ring" placeholder="0" />
                 </div>
-
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-stone-50 p-2 rounded-lg border border-stone-200">
-                    <label class="block text-[10px] font-bold text-gray-600 uppercase mb-1">Other (₹)</label>
-                    <input type="number" id="otherCharges" class="w-full bg-white border border-gray-300 rounded-md py-1.5 px-2 text-sm font-bold text-center outline-none focus-ring" placeholder="0" />
+            <div class="grid grid-cols-2 gap-3 md:gap-4">
+                <div class="bg-stone-50 p-2 md:p-3 rounded-lg border border-stone-200">
+                    <label class="block text-[10px] md:text-xs font-bold text-gray-600 uppercase mb-1">Other (₹)</label>
+                    <input type="number" id="otherCharges" class="w-full bg-white border border-gray-300 rounded-md py-1.5 md:py-2 px-2 text-sm md:text-base font-bold text-center outline-none focus-ring" placeholder="0" />
                 </div>
                 
-                <div class="bg-emerald-50/50 p-2 rounded-lg border border-emerald-100 flex flex-col justify-center text-center">
-                    <span class="block text-[9px] font-bold text-emerald-800/60 uppercase mb-0.5">Total Base</span>
-                    <span class="text-lg font-extrabold text-[#047857]">₹ <span id="baseRateDisplay">0</span></span>
+                <div class="bg-emerald-50/50 p-2 md:p-3 rounded-lg border border-emerald-100 flex flex-col justify-center text-center">
+                    <span class="block text-[9px] md:text-[11px] font-bold text-emerald-800/60 uppercase mb-0.5">Total Base</span>
+                    <span class="text-lg md:text-xl font-extrabold text-[#047857]">₹ <span id="baseRateDisplay">0</span></span>
                 </div>
             </div>
 
-            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 flex justify-between items-center gap-2">
+            <div class="bg-gray-50 p-3 md:p-4 rounded-xl border border-gray-200 flex justify-between items-center gap-2">
                 <div class="flex items-center gap-2">
-                    <div class="relative inline-block w-8 h-4 align-middle select-none transition duration-200 ease-in">
-                        <input type="checkbox" id="hmToggle" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer transition-all duration-300 z-10" />
-                        <label for="hmToggle" class="toggle-label block overflow-hidden h-4 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
+                    <div class="relative inline-block w-8 md:w-10 h-4 md:h-5 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" id="hmToggle" class="toggle-checkbox absolute block w-4 md:w-5 h-4 md:h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer transition-all duration-300 z-10" />
+                        <label for="hmToggle" class="toggle-label block overflow-hidden h-4 md:h-5 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
                     </div>
-                    <span class="text-[10px] font-bold text-gray-600 uppercase">HUID</span>
-                    <input type="number" id="hmCharge" class="w-12 bg-white border border-gray-300 rounded text-center text-xs font-bold py-0.5 outline-none focus-ring transition-opacity" placeholder="50" value="50" style="opacity: 0.4;" />
+                    <span class="text-[10px] md:text-xs font-bold text-gray-600 uppercase">HUID</span>
+                    <input type="number" id="hmCharge" class="w-12 md:w-16 bg-white border border-gray-300 rounded text-center text-xs md:text-sm font-bold py-0.5 md:py-1 outline-none focus-ring transition-opacity" placeholder="50" value="50" style="opacity: 0.4;" />
                 </div>
 
-                <div class="flex items-center gap-2 border-l border-gray-300 pl-3">
-                    <div class="relative inline-block w-8 h-4 align-middle select-none transition duration-200 ease-in">
-                        <input type="checkbox" id="gstToggle" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer transition-all duration-300 z-10" />
-                        <label for="gstToggle" class="toggle-label block overflow-hidden h-4 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
+                <div class="flex items-center gap-2 border-l border-gray-300 pl-3 md:pl-4">
+                    <div class="relative inline-block w-8 md:w-10 h-4 md:h-5 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" id="gstToggle" class="toggle-checkbox absolute block w-4 md:w-5 h-4 md:h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer transition-all duration-300 z-10" />
+                        <label for="gstToggle" class="toggle-label block overflow-hidden h-4 md:h-5 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
                     </div>
-                    <span class="text-[10px] font-bold text-gray-600 uppercase" id="gstLabel" style="opacity: 0.4;">GST 3%</span>
+                    <span class="text-[10px] md:text-xs font-bold text-gray-600 uppercase" id="gstLabel" style="opacity: 0.4;">GST 3%</span>
                 </div>
             </div>
 
         </div>
 
-        <div class="bg-gray-900 p-4 border-t-4 border-[#D4AF37]">
-            <div class="flex justify-between items-center mb-2 border-b border-gray-700 pb-2">
-                <span class="text-gray-400 text-[9px] font-bold uppercase tracking-widest">When Total Changes, Solve For:</span>
-                <div class="flex space-x-1 bg-gray-800 rounded p-0.5 border border-gray-700">
+        <div class="bg-gray-900 p-4 md:p-6 border-t-4 border-[#D4AF37]">
+            <div class="flex justify-between items-center mb-2 md:mb-4 border-b border-gray-700 pb-2 md:pb-3">
+                <span class="text-gray-400 text-[9px] md:text-[11px] font-bold uppercase tracking-widest">When Total Changes:</span>
+                <div class="flex space-x-1 bg-gray-800 rounded p-0.5 md:p-1 border border-gray-700">
                     <input type="radio" id="solveLabour" name="solveMode" value="labour" class="solve-radio hidden" checked>
-                    <label for="solveLabour" class="text-[9px] font-bold uppercase px-2 py-1 rounded cursor-pointer text-gray-400 transition-colors">L-Val (Discount)</label>
+                    <label for="solveLabour" class="text-[9px] md:text-[10px] font-bold uppercase px-2 py-1 md:px-3 md:py-1.5 rounded cursor-pointer text-gray-400 transition-colors">Solve L-Val</label>
                     
                     <input type="radio" id="solveF" name="solveMode" value="f_rate" class="solve-radio hidden">
-                    <label for="solveF" class="text-[9px] font-bold uppercase px-2 py-1 rounded cursor-pointer text-gray-400 transition-colors">'F' Rate (Old Tag)</label>
+                    <label for="solveF" class="text-[9px] md:text-[10px] font-bold uppercase px-2 py-1 md:px-3 md:py-1.5 rounded cursor-pointer text-gray-400 transition-colors">Solve 'F'</label>
                 </div>
             </div>
 
-            <div class="flex justify-between items-center">
-                <span class="text-white text-sm font-bold uppercase tracking-widest">Total</span>
+            <div class="flex justify-between items-center mt-2">
+                <span class="text-white text-sm md:text-lg font-bold uppercase tracking-widest">Total</span>
                 <div class="relative w-2/3 flex justify-end">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-500 font-bold text-2xl">₹</span>
-                    <input type="number" id="grandTotal" class="w-full bg-transparent border-none rounded-lg py-1 pl-10 pr-2 text-3xl font-extrabold text-white text-right outline-none focus:ring-2 focus:ring-[#D4AF37] transition-all" placeholder="0" />
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-500 font-bold text-2xl md:text-3xl">₹</span>
+                    <input type="number" id="grandTotal" class="w-full bg-transparent border-none rounded-lg py-1 md:py-2 pl-10 pr-2 text-3xl md:text-4xl font-extrabold text-white text-right outline-none focus:ring-2 focus:ring-[#D4AF37] transition-all" placeholder="0" />
                 </div>
             </div>
         </div>
@@ -154,18 +155,36 @@
     </div>
 
     <script>
-        // ==========================================
-        // CONFIGURATION: MARKET CALIBRATION
-        // ==========================================
         const INDIAN_MARKET_MULTIPLIER = 1.14; 
         const GOLD_OFFSET_PER_GRAM = 0;     
         const SILVER_OFFSET_PER_GRAM = 0;   
-        // ==========================================
 
-        // --- LIVE TICKER DATA FETCH (DUAL API SYSTEM) ---
+        // --- PWA INSTALL BUTTON LOGIC ---
+        let deferredPrompt;
+        const installBtn = document.getElementById('installAppBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome from showing the default prompt
+            e.preventDefault();
+            deferredPrompt = e;
+            // Show our custom blue button
+            installBtn.classList.remove('hidden');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installBtn.classList.add('hidden');
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        // --- LIVE TICKER DATA FETCH ---
         async function fetchLiveRates() {
             try {
-                // 1. Fetch Fiat Currencies from ExchangeRate-API (Matches XE.com perfectly)
                 const fiatRes = await fetch('https://open.er-api.com/v6/latest/USD');
                 if (!fiatRes.ok) throw new Error("Fiat API down");
                 const fiatData = await fiatRes.json();
@@ -181,22 +200,18 @@
                 document.getElementById('tick-eur-2').innerText = `EUR: ₹${eur.toFixed(2)}`;
                 document.getElementById('tick-gbp-2').innerText = `GBP: ₹${gbp.toFixed(2)}`;
 
-                // 2. Fetch Bullion from FawazAhmed API
                 const metalRes = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json');
                 if (metalRes.ok) {
                     const metalData = await metalRes.json();
-                    
                     if(metalData.usd.xau) {
                         const goldOzUsd = 1 / metalData.usd.xau;
-                        const goldGramInrRaw = (goldOzUsd * inr) / 31.1035;
-                        const goldGramInrIndian = (goldGramInrRaw * INDIAN_MARKET_MULTIPLIER) + GOLD_OFFSET_PER_GRAM;
+                        const goldGramInrIndian = ((goldOzUsd * inr) / 31.1035 * INDIAN_MARKET_MULTIPLIER) + GOLD_OFFSET_PER_GRAM;
                         document.getElementById('tick-xau').innerText = `GOLD: ₹${Math.round(goldGramInrIndian)}/g`;
                         document.getElementById('tick-xau-2').innerText = `GOLD: ₹${Math.round(goldGramInrIndian)}/g`;
                     }
                     if(metalData.usd.xag) {
                         const silverOzUsd = 1 / metalData.usd.xag;
-                        const silverGramInrRaw = (silverOzUsd * inr) / 31.1035;
-                        const silverGramInrIndian = (silverGramInrRaw * INDIAN_MARKET_MULTIPLIER) + SILVER_OFFSET_PER_GRAM;
+                        const silverGramInrIndian = ((silverOzUsd * inr) / 31.1035 * INDIAN_MARKET_MULTIPLIER) + SILVER_OFFSET_PER_GRAM;
                         document.getElementById('tick-xag').innerText = `SILV: ₹${Math.round(silverGramInrIndian)}/g`;
                         document.getElementById('tick-xag-2').innerText = `SILV: ₹${Math.round(silverGramInrIndian)}/g`;
                     }
@@ -206,7 +221,6 @@
                 document.getElementById('ticker-container').innerHTML = offlineMsg + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + offlineMsg;
             }
         }
-        
         fetchLiveRates();
 
         // --- CALCULATOR LOGIC ---
@@ -255,9 +269,7 @@
             triggerForwardCalc();
         });
         
-        els.itemRate.addEventListener('input', () => {
-            updateCompoundTag();
-        });
+        els.itemRate.addEventListener('input', () => updateCompoundTag());
 
         els.hmToggle.addEventListener('change', (e) => {
             localStorage.setItem('retail_hmToggle', e.target.checked);
@@ -364,16 +376,13 @@
                 const parts = fullTag.split('x');
                 labourPart = parts[0];
                 const silverPart = parts[1];
-                
                 if (silverPart) {
                     const historicalSilver = decodeStandard(silverPart);
                     if (historicalSilver > 0) els.itemRate.value = historicalSilver;
                 }
             }
             
-            const decodedLabour = decodeStandard(labourPart);
-            els.labour.value = decodedLabour || '';
-            
+            els.labour.value = decodeStandard(labourPart) || '';
             isCalculating = false;
             triggerForwardCalc();
         });
@@ -397,7 +406,6 @@
             
             const globalSilver = getGlobalSilverRate();
             const currentLabour = parseFloat(els.labour.value) || 0;
-            
             const solveMode = getSolveMode();
 
             if (weight > 0 && total > 0) {
@@ -405,21 +413,15 @@
                 let requiredBaseRate = (targetSubTotal - other - hm) / weight;
                 
                 if (solveMode === 'labour') {
-                    let requiredLabour = Math.max(0, requiredBaseRate - globalSilver);
-                    let roundedLabour = Math.round(requiredLabour);
-                    
+                    let roundedLabour = Math.round(Math.max(0, requiredBaseRate - globalSilver));
                     els.labour.value = roundedLabour;
                     updateCompoundTag();
                     updateBaseRateDisplay(roundedLabour);
-                    
                 } else if (solveMode === 'f_rate') {
-                    let requiredF = Math.max(0, requiredBaseRate - currentLabour);
-                    let roundedF = Math.round(requiredF);
-                    
+                    let roundedF = Math.round(Math.max(0, requiredBaseRate - currentLabour));
                     els.dailyRate.value = roundedF;
                     els.itemRate.value = roundedF;
                     localStorage.setItem('retail_compact_silverRate', roundedF);
-                    
                     updateCompoundTag(); 
                     updateBaseRateDisplay(currentLabour);
                 }
@@ -430,10 +432,7 @@
 
         els.weight.addEventListener('input', triggerForwardCalc);
         els.other.addEventListener('input', triggerForwardCalc);
-        
-        for (const radio of els.solveModeInputs) {
-            radio.addEventListener('change', triggerForwardCalc);
-        }
+        for (const radio of els.solveModeInputs) radio.addEventListener('change', triggerForwardCalc);
 
         triggerForwardCalc();
 
@@ -441,11 +440,8 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').then((registration) => {
-                    console.log('ServiceWorker registered');
                     registration.update(); 
-                }).catch((error) => {
-                    console.log('ServiceWorker registration failed: ', error);
-                });
+                }).catch((error) => console.log('SW failed: ', error));
             });
         }
     </script>
