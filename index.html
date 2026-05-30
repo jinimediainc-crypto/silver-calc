@@ -7,20 +7,12 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ffffff">
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Shake animation for wrong PIN */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-10px); }
-            40%, 80% { transform: translateX(10px); }
-        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
         .shake-err { animation: shake 0.4s ease-in-out; }
-        .pin-dot { transition: all 0.2s; }
-        .pin-dot.filled { background-color: #10b981; border-color: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+        .pin-dot { transition: all 0.3s ease; }
+        .pin-dot.filled { background-color: #D4AF37; border-color: #D4AF37; box-shadow: 0 0 15px rgba(212, 175, 55, 0.6); transform: scale(1.2); }
     </style>
 </head>
 <body class="bg-gray-50 flex flex-col justify-center items-center min-h-[100dvh] font-sans text-gray-900 p-4 overflow-hidden relative">
@@ -31,8 +23,8 @@
     </div>
 
     <div class="w-full max-w-sm md:max-w-md flex flex-col gap-4 md:gap-6 transition-opacity duration-300" id="menuButtons">
-        <button id="installAppBtn" class="hidden bg-blue-600 border-2 border-blue-700 rounded-2xl p-4 md:p-6 shadow-md flex items-center justify-center text-center text-white hover:bg-blue-700 transition-all active:scale-95">
-            <span class="font-bold text-sm md:text-lg uppercase tracking-widest">📲 Install App to Home Screen</span>
+        <button id="installAppBtn" class="hidden bg-[#064e3b] border-2 border-[#047857] rounded-2xl p-4 md:p-6 shadow-xl flex items-center justify-center text-center text-white hover:bg-emerald-800 transition-all active:scale-95">
+            <span class="font-bold text-sm md:text-lg uppercase tracking-widest text-[#D4AF37]">📲 Install System App</span>
         </button>
 
         <button onclick="openLock('retail.html')" class="w-full bg-white border-2 border-[#047857] rounded-2xl p-5 md:p-8 shadow-md flex items-center justify-center text-center hover:bg-emerald-50 transition-all active:scale-95">
@@ -44,101 +36,73 @@
         </button>
     </div>
 
-    <div id="pinOverlay" class="fixed inset-0 bg-gray-900/95 backdrop-blur-lg z-50 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <div id="pinOverlay" class="fixed inset-0 bg-[#022c22]/90 backdrop-blur-xl z-50 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-all duration-500">
         
-        <button onclick="closeLock()" class="absolute top-8 right-8 p-3 text-gray-400 hover:text-white rounded-full bg-white/10 active:scale-90 transition-all">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        <button onclick="closeLock()" class="absolute top-8 right-8 p-3 text-white/50 hover:text-white rounded-full bg-white/5 hover:bg-white/10 active:scale-90 transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
 
-        <div class="mb-8 text-center" id="pinHeader">
-            <h2 class="text-white text-xl font-bold tracking-widest uppercase mb-6">Enter Passcode</h2>
+        <div class="mb-10 text-center" id="pinHeader">
+            <h2 class="text-[#D4AF37] text-xs md:text-sm tracking-[0.4em] font-bold mb-8 uppercase">Secure Access</h2>
             
-            <div class="flex justify-center gap-4 mb-4">
-                <div class="pin-dot w-4 h-4 rounded-full border-2 border-gray-500" id="dot1"></div>
-                <div class="pin-dot w-4 h-4 rounded-full border-2 border-gray-500" id="dot2"></div>
-                <div class="pin-dot w-4 h-4 rounded-full border-2 border-gray-500" id="dot3"></div>
-                <div class="pin-dot w-4 h-4 rounded-full border-2 border-gray-500" id="dot4"></div>
+            <div class="flex justify-center gap-6 mb-4">
+                <div class="pin-dot w-4 h-4 rounded-full border-2 border-[#D4AF37]/40" id="dot1"></div>
+                <div class="pin-dot w-4 h-4 rounded-full border-2 border-[#D4AF37]/40" id="dot2"></div>
+                <div class="pin-dot w-4 h-4 rounded-full border-2 border-[#D4AF37]/40" id="dot3"></div>
+                <div class="pin-dot w-4 h-4 rounded-full border-2 border-[#D4AF37]/40" id="dot4"></div>
             </div>
-            <p id="pinMsg" class="text-emerald-500 text-xs font-bold h-4 uppercase tracking-widest"></p>
+            <p id="pinMsg" class="text-white/80 text-[10px] md:text-xs font-bold h-4 uppercase tracking-widest mt-6"></p>
         </div>
 
-        <div class="grid grid-cols-3 gap-4 md:gap-6 w-full max-w-[280px] md:max-w-xs px-6">
-            <button onclick="addPin(1)" class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-emerald-500 active:scale-95 transition-all mx-auto">1</button>
-            <button onclick="addPin(2)" class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-emerald-500 active:scale-95 transition-all mx-auto">2</button>
-            <button onclick="addPin(3)" class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-emerald-500 active:scale-95 transition-all mx-auto">3</button>
+        <div class="grid grid-cols-3 gap-x-6 gap-y-6 md:gap-x-10 md:gap-y-8 w-full max-w-[280px] md:max-w-sm px-6">
+            <button onclick="addPin(1)" class="w-16 h-16 md:w-20 md:h-20 rounded-full border border-white/10 bg-white/5 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-[#D4AF37] active:text-black active:scale-95 transition-all mx-auto">1</button>
+            <button onclick="addPin(2)" class="w-16 h-16 md:w-20 md:h-20 rounded-full border border-white/10 bg-white/5 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-[#D4AF37] active:text-black active:scale-95 transition-all mx-auto">2</button>
+            <button onclick="addPin(3)" class="w-16 h-16 md:w-20 md:h-20 rounded-full border border-white/10 bg-white/5 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-[#D4AF37] active:text-black active:scale-95 transition-all mx-auto">3</button>
             
-            <button onclick="addPin(4)" class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-emerald-500 active:scale-95 transition-all mx-auto">4</button>
-            <button onclick="addPin(5)" class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-emerald-500 active:scale-95 transition-all mx-auto">5</button>
-            <button onclick="addPin(6)" class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-emerald-500 active:scale-95 transition-all mx-auto">6</button>
+            <button onclick="addPin(4)" class="w-16 h-16 md:w-20 md:h-20 rounded-full border border-white/10 bg-white/5 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-[#D4AF37] active:text-black active:scale-95 transition-all mx-auto">4</button>
+            <button onclick="addPin(5)" class="w-16 h-16 md:w-20 md:h-20 rounded-full border border-white/10 bg-white/5 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-[#D4AF37] active:text-black active:scale-95 transition-all mx-auto">5</button>
+            <button onclick="addPin(6)" class="w-16 h-16 md:w-20 md:h-20 rounded-full border border-white/10 bg-white/5 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-[#D4AF37] active:text-black active:scale-95 transition-all mx-auto">6</button>
             
-            <button onclick="addPin(7)" class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-emerald-500 active:scale-95 transition-all mx-auto">7</button>
-            <button onclick="addPin(8)" class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-emerald-500 active:scale-95 transition-all mx-auto">8</button>
-            <button onclick="addPin(9)" class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-emerald-500 active:scale-95 transition-all mx-auto">9</button>
+            <button onclick="addPin(7)" class="w-16 h-16 md:w-20 md:h-20 rounded-full border border-white/10 bg-white/5 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-[#D4AF37] active:text-black active:scale-95 transition-all mx-auto">7</button>
+            <button onclick="addPin(8)" class="w-16 h-16 md:w-20 md:h-20 rounded-full border border-white/10 bg-white/5 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-[#D4AF37] active:text-black active:scale-95 transition-all mx-auto">8</button>
+            <button onclick="addPin(9)" class="w-16 h-16 md:w-20 md:h-20 rounded-full border border-white/10 bg-white/5 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-[#D4AF37] active:text-black active:scale-95 transition-all mx-auto">9</button>
             
-            <div></div> <button onclick="addPin(0)" class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/10 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-emerald-500 active:scale-95 transition-all mx-auto">0</button>
+            <div></div> 
+            <button onclick="addPin(0)" class="w-16 h-16 md:w-20 md:h-20 rounded-full border border-white/10 bg-white/5 text-white text-2xl md:text-3xl font-light hover:bg-white/20 active:bg-[#D4AF37] active:text-black active:scale-95 transition-all mx-auto">0</button>
             
-            <button onclick="delPin()" class="w-16 h-16 md:w-20 md:h-20 rounded-full text-gray-400 hover:text-white active:scale-90 transition-all mx-auto flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z" /></svg>
+            <button onclick="delPin()" class="w-16 h-16 md:w-20 md:h-20 rounded-full text-white/50 hover:text-white active:scale-90 transition-all mx-auto flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 md:h-10 md:w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z" /></svg>
             </button>
         </div>
     </div>
 
     <script>
-        // ==========================================
-        // SECURITY SETTING
-        // Change this 4-digit code to whatever you want.
-        // ==========================================
         const MASTER_PIN = "1008"; 
-        // ==========================================
+        let currentPin = "", pendingUrl = "";
+        const overlay = document.getElementById('pinOverlay'), header = document.getElementById('pinHeader'), msg = document.getElementById('pinMsg');
 
-        let currentPin = "";
-        let pendingUrl = "";
-        const overlay = document.getElementById('pinOverlay');
-        const header = document.getElementById('pinHeader');
-        const msg = document.getElementById('pinMsg');
-
-        // Check if already authenticated this session
         if(sessionStorage.getItem('jini_auth') === 'true') {
-            // Unlocked state visual cue on the main menu
-            document.querySelector('p.text-gray-500').innerHTML = '<span class="text-emerald-500">🔓 UNLOCKED</span>';
+            document.querySelector('p.text-gray-500').innerHTML = '<span class="text-emerald-600">🔓 SYSTEM UNLOCKED</span>';
         }
 
         function openLock(url) {
-            // If already unlocked, skip the PIN pad entirely
-            if(sessionStorage.getItem('jini_auth') === 'true') {
-                window.location.href = url;
-                return;
-            }
-            pendingUrl = url;
-            currentPin = "";
-            updateDots();
-            msg.innerText = "";
+            if(sessionStorage.getItem('jini_auth') === 'true') { window.location.href = url; return; }
+            pendingUrl = url; currentPin = ""; updateDots(); msg.innerText = "ENTER PASSCODE";
+            msg.className = "text-white/80 text-[10px] md:text-xs font-bold h-4 uppercase tracking-widest mt-6";
             overlay.classList.remove('opacity-0', 'pointer-events-none');
         }
 
-        function closeLock() {
-            overlay.classList.add('opacity-0', 'pointer-events-none');
-            pendingUrl = "";
-            currentPin = "";
-        }
+        function closeLock() { overlay.classList.add('opacity-0', 'pointer-events-none'); pendingUrl = ""; currentPin = ""; }
 
         function addPin(num) {
             if(currentPin.length < 4) {
-                currentPin += num;
-                updateDots();
-                
-                if(currentPin.length === 4) {
-                    setTimeout(verifyPin, 150); // slight delay to show the 4th dot filling
-                }
+                currentPin += num; updateDots();
+                if(currentPin.length === 4) setTimeout(verifyPin, 150);
             }
         }
 
         function delPin() {
-            if(currentPin.length > 0) {
-                currentPin = currentPin.slice(0, -1);
-                updateDots();
-                msg.innerText = "";
-            }
+            if(currentPin.length > 0) { currentPin = currentPin.slice(0, -1); updateDots(); msg.innerText = "ENTER PASSCODE"; msg.className = "text-white/80 text-[10px] md:text-xs font-bold h-4 uppercase tracking-widest mt-6"; }
         }
 
         function updateDots() {
@@ -151,47 +115,25 @@
 
         function verifyPin() {
             if(currentPin === MASTER_PIN) {
-                // Grant Access Token to the session
                 sessionStorage.setItem('jini_auth', 'true');
-                msg.classList.remove('text-red-500');
-                msg.classList.add('text-emerald-500');
+                msg.className = "text-[#D4AF37] text-[10px] md:text-xs font-bold h-4 uppercase tracking-widest mt-6";
                 msg.innerText = "ACCESS GRANTED";
                 setTimeout(() => window.location.href = pendingUrl, 300);
             } else {
-                // Deny Access
-                msg.classList.remove('text-emerald-500');
-                msg.classList.add('text-red-500');
+                msg.className = "text-red-400 text-[10px] md:text-xs font-bold h-4 uppercase tracking-widest mt-6";
                 msg.innerText = "INCORRECT PIN";
                 header.classList.add('shake-err');
-                
-                // Vibrate device if supported
                 if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-
-                setTimeout(() => {
-                    header.classList.remove('shake-err');
-                    currentPin = "";
-                    updateDots();
-                }, 400);
+                setTimeout(() => { header.classList.remove('shake-err'); currentPin = ""; updateDots(); msg.innerText = "ENTER PASSCODE"; msg.className = "text-white/80 text-[10px] md:text-xs font-bold h-4 uppercase tracking-widest mt-6"; }, 400);
             }
         }
 
-        // PWA Update Check & Install Button
-        let deferredPrompt;
-        const installBtn = document.getElementById('installAppBtn');
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden');
-        });
+        let deferredPrompt; const installBtn = document.getElementById('installAppBtn');
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden'); });
         installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') installBtn.classList.add('hidden');
-                deferredPrompt = null;
-            }
+            if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') installBtn.classList.add('hidden'); deferredPrompt = null; }
         });
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(r => r.update()));
-        }
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(r => r.update())); }
     </script>
 </body>
 </html>
