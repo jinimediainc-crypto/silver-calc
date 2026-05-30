@@ -57,6 +57,16 @@
             </div>
 
             <div class="bg-stone-50 p-3.5 rounded-xl border border-stone-200 flex flex-col gap-3 shadow-inner">
+                <div class="flex items-center gap-3">
+                    <div class="relative inline-block w-10 h-5 align-middle select-none">
+                        <input type="checkbox" id="boGstToggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
+                        <label for="boGstToggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
+                    </div>
+                    <span class="text-xs md:text-sm font-extrabold text-gray-700 uppercase tracking-wide">Apply GST (3%)</span>
+                </div>
+
+                <hr class="border-stone-200">
+
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div class="relative inline-block w-10 h-5 align-middle select-none">
@@ -70,16 +80,6 @@
                         <span class="bg-gray-100 text-gray-500 font-bold px-2 py-1.5 text-sm border-l border-gray-300">%</span>
                     </div>
                 </div>
-                
-                <hr class="border-stone-200">
-
-                <div class="flex items-center gap-3">
-                    <div class="relative inline-block w-10 h-5 align-middle select-none">
-                        <input type="checkbox" id="boGstToggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
-                        <label for="boGstToggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
-                    </div>
-                    <span class="text-xs md:text-sm font-extrabold text-gray-700 uppercase tracking-wide">Apply GST (3%)</span>
-                </div>
             </div>
 
             <div class="bg-white border-2 border-emerald-50 rounded-xl p-4 shadow-sm">
@@ -92,13 +92,13 @@
                         <span>Labour Value</span>
                         <span class="text-gray-900">₹ <span id="valLabour">0.00</span></span>
                     </div>
-                    <div class="flex justify-between text-blue-700 hidden" id="rowComm">
-                        <span id="lblComm">Commission (10%)</span>
-                        <span>₹ <span id="valComm">0.00</span></span>
-                    </div>
                     <div class="flex justify-between text-emerald-700 hidden" id="rowGst">
                         <span>GST (3%)</span>
                         <span>₹ <span id="valGst">0.00</span></span>
+                    </div>
+                    <div class="flex justify-between text-blue-700 hidden" id="rowComm">
+                        <span id="lblComm">Commission (10%)</span>
+                        <span>₹ <span id="valComm">0.00</span></span>
                     </div>
                 </div>
             </div>
@@ -155,31 +155,33 @@
             const labVal = l * w;
             const baseVal = silvVal + labVal;
 
+            // 1. Calculate GST on Silver + Labour
+            let gstAmt = 0;
+            if (els.gstToggle.checked) {
+                gstAmt = baseVal * 0.03;
+                els.rGst.classList.remove('hidden');
+            } else {
+                els.rGst.classList.add('hidden');
+            }
+
+            const subTotalWithGst = baseVal + gstAmt;
+
+            // 2. Calculate Commission on Silver + Labour + GST
             let commAmt = 0;
             if (els.commToggle.checked) {
-                commAmt = baseVal * (cp / 100);
+                commAmt = subTotalWithGst * (cp / 100);
                 els.rComm.classList.remove('hidden');
                 els.lComm.innerText = `Commission (${cp}%)`;
             } else {
                 els.rComm.classList.add('hidden');
             }
 
-            const subTotal = baseVal + commAmt;
-
-            let gstAmt = 0;
-            if (els.gstToggle.checked) {
-                gstAmt = subTotal * 0.03;
-                els.rGst.classList.remove('hidden');
-            } else {
-                els.rGst.classList.add('hidden');
-            }
-
-            const finalTotal = Math.round(subTotal + gstAmt);
+            const finalTotal = Math.round(subTotalWithGst + commAmt);
 
             els.vSilv.innerText = formatCurrency(silvVal);
             els.vLab.innerText = formatCurrency(labVal);
-            els.vComm.innerText = formatCurrency(commAmt);
             els.vGst.innerText = formatCurrency(gstAmt);
+            els.vComm.innerText = formatCurrency(commAmt);
             els.total.innerText = formatCurrency(finalTotal);
         }
 
