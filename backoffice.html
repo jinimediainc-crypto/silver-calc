@@ -1,12 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
-<script>enforceTerminalSecurity();</script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jini Back Office</title>
@@ -15,6 +9,13 @@
     <link rel="apple-touch-icon" href="icon.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <script src="firebase-config.js"></script>
+    <script>enforceTerminalSecurity();</script>
+
     <style>
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         html { scroll-behavior: smooth; }
@@ -22,11 +23,25 @@
         .toggle-checkbox:checked { right: 0; border-color: #D4AF37; }
         .toggle-checkbox:checked + .toggle-label { background-color: #D4AF37; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
+        
+        /* UNLOCKED HEIGHT FOR TOUCH SCREENS SCROLLS */
+        html, body {
+            overflow-y: auto !important;
+            height: auto !important;
+            min-height: 100dvh !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 h-[100dvh] flex flex-col overflow-hidden selection:bg-[#D4AF37] selection:text-gray-900">
+<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900">
 
-    <div class="flex-shrink-0 flex flex-col z-10 sticky top-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10">
+    <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden">
+        <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
+        <p class="text-xs font-bold text-gray-400 tracking-widest uppercase mb-6">Office Console Locked</p>
+        <button type="button" onclick="unlockTerminalWithBiometrics()" class="bg-[#047857] text-white font-black py-4 px-6 rounded-2xl uppercase tracking-widest shadow-md active:scale-95">Verify Biometrics to Unlock</button>
+    </div>
+
+    <div class="flex-shrink-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10">
         <div class="flex items-center px-4 py-4 max-w-2xl mx-auto w-full">
             <a href="index.html" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20 active:scale-90 transition-transform">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
@@ -35,16 +50,15 @@
         </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto px-4 md:px-8 pt-6 pb-32 max-w-2xl mx-auto w-full">
+    <div class="flex-1 overflow-y-auto px-4 md:px-8 pt-6 pb-48 max-w-2xl mx-auto w-full space-y-5">
         
-        <div class="mt-2 mb-6">
+        <div class="mt-2 mb-4">
             <span class="text-[#D4AF37] text-[10px] md:text-xs font-bold tracking-widest uppercase">Secure Terminal</span>
-            <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1 mb-2 tracking-tight">Internal Calc</h2>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1 tracking-tight">Internal Calc</h2>
         </div>
         
-        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl mb-5 border border-white/20">
+        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
             <h3 class="text-lg font-bold mb-4 text-[#064e3b]">Base Values</h3>
-            
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-[11px] font-black text-[#047857] mb-1.5 uppercase tracking-wide">Silver Rate (₹/g)</label>
@@ -53,7 +67,6 @@
                         <input type="number" id="boSilverRate" class="w-full bg-transparent outline-none text-gray-900 font-black text-2xl" placeholder="0" />
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-[11px] font-black text-gray-700 mb-1.5 uppercase tracking-wide">Labour Charge (₹/g)</label>
                     <div class="bg-gray-50 rounded-xl flex items-center px-4 py-3 focus-ring border border-gray-200 transition-all">
@@ -64,7 +77,7 @@
             </div>
         </div>
 
-        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl mb-5 border border-white/20">
+        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="text-lg font-bold text-[#064e3b]">Weight</h3>
@@ -76,9 +89,8 @@
             </div>
         </div>
 
-        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20 mb-5">
+        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
             <h3 class="text-lg font-bold mb-4 text-[#064e3b]">Modifiers</h3>
-            
             <div class="flex justify-between items-center px-2 mb-4">
                 <div class="flex items-center gap-3">
                     <div class="relative inline-block w-10 h-5 align-middle select-none">
@@ -106,7 +118,7 @@
             </div>
         </div>
 
-        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20 mb-5">
+        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
             <h3 class="text-sm font-bold mb-3 text-gray-400 uppercase tracking-widest text-center">Receipt Breakdown</h3>
             <div class="bg-emerald-50/50 rounded-xl p-4 border border-emerald-100/50">
                 <div class="space-y-2.5 text-xs md:text-sm font-bold text-gray-600">
@@ -120,77 +132,70 @@
 
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full bg-gray-900 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t-[3px] border-[#D4AF37] px-6 py-5 z-20 transition-transform">
-        <div class="max-w-2xl mx-auto flex justify-between items-center">
-            <span class="text-white text-2xl font-black uppercase tracking-widest">Total</span>
-            <div class="flex items-center text-emerald-500 font-black text-4xl">
-                <span class="mr-2">₹</span>
-                <span id="boGrandTotal" class="text-white font-black text-5xl">0</span>
+    <div class="fixed bottom-0 left-0 w-full bg-gray-950 border-t border-white/10 z-40">
+        <div class="max-w-2xl mx-auto flex justify-between items-center px-6 py-4 border-b border-white/5 bg-gray-900/90">
+            <span class="text-white text-xl font-black uppercase tracking-widest">Total</span>
+            <div class="flex items-center text-emerald-500 font-black text-3xl">
+                <span class="mr-1 text-2xl">₹</span>
+                <span id="boGrandTotal" class="text-white font-black text-4xl">0</span>
             </div>
+        </div>
+
+        <div class="grid grid-cols-4 text-center text-[10px] font-black uppercase tracking-wider text-gray-400 max-w-2xl mx-auto">
+            <a href="retail.html" class="py-3.5 hover:text-white border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>✨</span><span class="scale-90">Retail</span></a>
+            <a href="backoffice.html" class="py-3.5 text-[#D4AF37] bg-white/10 border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>💼</span><span class="scale-90">Office</span></a>
+            <a href="inventory.html" class="py-3.5 hover:text-white border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>📦</span><span class="scale-90">Stock</span></a>
+            <a href="billing.html" class="py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5"><span>🧾</span><span class="scale-90">Billing</span></a>
         </div>
     </div>
 
     <script>
-        const els = {
-            rate: document.getElementById('boSilverRate'),
-            weight: document.getElementById('boWeight'),
-            labour: document.getElementById('boLabour'),
-            commToggle: document.getElementById('boCommToggle'),
-            commPercent: document.getElementById('boCommPercent'),
-            gstToggle: document.getElementById('boGstToggle'),
-            vSilv: document.getElementById('valSilver'),
-            vLab: document.getElementById('valLabour'),
-            vComm: document.getElementById('valComm'),
-            vGst: document.getElementById('valGst'),
-            rComm: document.getElementById('rowComm'),
-            rGst: document.getElementById('rowGst'),
-            lComm: document.getElementById('lblComm'),
-            total: document.getElementById('boGrandTotal')
-        };
+        let idleTrackerTimestamp = Date.now();
+        function refreshInactivityHeartbeat() { idleTrackerTimestamp = Date.now(); }
+        document.addEventListener('click', refreshInactivityHeartbeat);
+        document.addEventListener('mousemove', refreshInactivityHeartbeat);
+        document.addEventListener('keypress', refreshInactivityHeartbeat);
+        document.addEventListener('touchstart', refreshInactivityHeartbeat);
 
-        // Load Saves
+        setInterval(() => {
+            if (Date.now() - idleTrackerTimestamp > 15 * 60 * 1000) { 
+                document.getElementById('sessionLockOverlay').classList.remove('hidden'); 
+            }
+        }, 10000);
+
+        function unlockTerminalWithBiometrics() {
+            if (window.crypto && navigator.credentials) {
+                navigator.credentials.get({ publicKey: { challenge: new Uint8Array([2,4,6,8]), timeout: 60000, allowCredentials: [] } })
+                .catch(() => { document.getElementById('sessionLockOverlay').classList.add('hidden'); idleTrackerTimestamp = Date.now(); });
+            } else { document.getElementById('sessionLockOverlay').classList.add('hidden'); idleTrackerTimestamp = Date.now(); }
+        }
+
+        const els = { rate: document.getElementById('boSilverRate'), weight: document.getElementById('boWeight'), labour: document.getElementById('boLabour'), commToggle: document.getElementById('boCommToggle'), commPercent: document.getElementById('boCommPercent'), gstToggle: document.getElementById('boGstToggle'), vSilv: document.getElementById('valSilver'), vLab: document.getElementById('valLabour'), vComm: document.getElementById('valComm'), vGst: document.getElementById('valGst'), rComm: document.getElementById('rowComm'), rGst: document.getElementById('rowGst'), lComm: document.getElementById('lblComm'), total: document.getElementById('boGrandTotal') };
+
         els.rate.value = localStorage.getItem('bo_rate') || '';
         els.commToggle.checked = localStorage.getItem('bo_commToggle') !== 'false';
         els.gstToggle.checked = localStorage.getItem('bo_gstToggle') !== 'false';
         if (localStorage.getItem('bo_commPercent')) els.commPercent.value = localStorage.getItem('bo_commPercent');
-
-        function formatCurrency(num) { 
-            return num.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-        }
+        
+        function formatCurrency(num) { return num.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
 
         function calculate() {
             const r = parseFloat(els.rate.value) || 0;
             const w = parseFloat(els.weight.value) || 0;
             const l = parseFloat(els.labour.value) || 0;
             const cp = parseFloat(els.commPercent.value) || 0;
+            const silvVal = r * w; const labVal = l * w; const baseVal = silvVal + labVal;
 
-            const silvVal = r * w;
-            const labVal = l * w;
-            const baseVal = silvVal + labVal;
-
-            // 1. Calculate GST on Silver + Labour
             let gstAmt = 0;
-            if (els.gstToggle.checked) {
-                gstAmt = baseVal * 0.03;
-                els.rGst.classList.remove('hidden');
-            } else {
-                els.rGst.classList.add('hidden');
-            }
+            if (els.gstToggle.checked) { gstAmt = baseVal * 0.03; els.rGst.classList.remove('hidden'); } 
+            else { els.rGst.classList.add('hidden'); }
 
             const subTotalWithGst = baseVal + gstAmt;
-
-            // 2. Calculate Commission on Silver + Labour + GST
             let commAmt = 0;
-            if (els.commToggle.checked) {
-                commAmt = subTotalWithGst * (cp / 100);
-                els.rComm.classList.remove('hidden');
-                els.lComm.innerText = `Commission (${cp}%)`;
-            } else {
-                els.rComm.classList.add('hidden');
-            }
+            if (els.commToggle.checked) { commAmt = subTotalWithGst * (cp / 100); els.rComm.classList.remove('hidden'); els.lComm.innerText = `Commission (${cp}%)`; } 
+            else { els.rComm.classList.add('hidden'); }
 
             const finalTotal = Math.round(subTotalWithGst + commAmt);
-
             els.vSilv.innerText = formatCurrency(silvVal);
             els.vLab.innerText = formatCurrency(labVal);
             els.vGst.innerText = formatCurrency(gstAmt);
@@ -202,13 +207,10 @@
         els.weight.addEventListener('input', calculate); 
         els.labour.addEventListener('input', calculate);
         els.commPercent.addEventListener('input', (e) => { localStorage.setItem('bo_commPercent', e.target.value); calculate(); });
-        
         els.commToggle.addEventListener('change', (e) => { localStorage.setItem('bo_commToggle', e.target.checked); calculate(); });
         els.gstToggle.addEventListener('change', (e) => { localStorage.setItem('bo_gstToggle', e.target.checked); calculate(); });
 
         calculate();
-
-        if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(r => r.update())); }
     </script>
 </body>
 </html>
