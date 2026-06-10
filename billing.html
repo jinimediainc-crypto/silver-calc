@@ -17,13 +17,11 @@
         .toggle-checkbox:checked + .toggle-label { background-color: #D4AF37; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* THE PERFECT PRINT ENGINE FIX */
+        /* ADVANCED LUXURY TABLE PRINT FORMATTING */
         @media print {
-            /* Hide all interactive components cleanly */
             .no-print, .internal-only, button, input, .toggle-label { 
                 display: none !important; 
             }
-            /* Strip page structures to prevent clipping or empty blanks */
             body, html { 
                 background: #ffffff !important; 
                 color: #000000 !important; 
@@ -32,7 +30,6 @@
                 -webkit-print-color-adjust: exact; 
                 print-color-adjust: exact;
             }
-            /* Flatten parent grid containers so they don't break vertical rendering */
             div, main, .grid {
                 display: block !important;
                 overflow: visible !important;
@@ -41,22 +38,41 @@
                 padding: 0 !important;
                 margin: 0 !important;
             }
-            /* Force the memo card to present in full view */
             #printableMemoCard { 
                 display: block !important; 
                 width: 100% !important; 
                 max-width: 100% !important; 
                 border: none !important;
-                padding: 20px !important;
+                padding: 10px !important;
                 margin: 0 auto !important;
                 background: #ffffff !important;
                 box-shadow: none !important;
             }
-            /* Clean visible colors for print out contrast templates */
-            .text-gray-600, .text-gray-500, .text-gray-400 { color: #333333 !important; }
+            /* Force Clean Table Borders during physical or PDF output printing */
+            .print-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                margin-top: 15px !important;
+                margin-bottom: 15px !important;
+            }
+            .print-table th {
+                background-color: #f5f5f5 !important;
+                color: #000000 !important;
+                border: 1px solid #000000 !important;
+                padding: 8px !important;
+                font-weight: bold !important;
+                text-transform: uppercase !important;
+                font-size: 11px !important;
+            }
+            .print-table td {
+                border: 1px solid #000000 !important;
+                padding: 8px !important;
+                font-size: 12px !important;
+                color: #000000 !important;
+            }
+            .text-gray-600, .text-gray-500, .text-gray-400 { color: #222222 !important; }
             .text-gray-900, .text-[#064e3b] { color: #000000 !important; }
-            .bg-emerald-50\/50, .bg-gray-50\/60 { background: #fbfbfb !important; border: 1px dashed #cccccc !important; }
-            .print-border { border-bottom: 2px dashed #000000 !important; }
+            .print-border-dashed { border-bottom: 2px dashed #000000 !important; }
         }
     </style>
 </head>
@@ -75,11 +91,11 @@
         </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto px-4 lg:px-8 py-4 pb-40 max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="flex-1 overflow-y-auto px-4 lg:px-8 py-4 pb-40 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         <div class="lg:col-span-7 space-y-5 no-print">
             
-            <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
+            <div id="formTop" class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
                 <h3 class="text-lg font-black text-[#064e3b] mb-4 uppercase tracking-wide">Customer Details</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2 sm:col-span-1">
@@ -103,7 +119,7 @@
 
             <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
-                    <h3 class="text-lg font-black text-[#064e3b] uppercase tracking-wide">Add Item to Memo</h3>
+                    <h3 class="text-lg font-black text-[#064e3b] uppercase tracking-wide">Add/Modify Item</h3>
                     
                     <div class="flex bg-gray-100 p-1 rounded-xl border border-gray-200 w-full sm:w-auto">
                         <button type="button" onclick="setSaleMode(event, 'weight')" id="btnModeWeight" class="flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg bg-[#047857] text-white transition-all shadow-sm">By Weight</button>
@@ -122,7 +138,7 @@
                             <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest">Internal Cypher Tag (Hidden on Print)</label>
                             <input type="text" id="itemCypher" class="w-full sm:w-48 bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black tracking-widest uppercase outline-none focus:border-[#047857]" placeholder="e.g. FLLXIR" />
                         </div>
-                        <p class="text-[11px] font-bold text-stone-400 italic text-center sm:text-right">Code is displayed live internally on counter screen but permanently stripped from client's copy.</p>
+                        <p class="text-[11px] font-bold text-stone-400 italic text-center sm:text-right">Displayed live internally but hidden from printed invoice copies.</p>
                     </div>
                     
                     <div id="rowWeightRate" class="col-span-2 grid grid-cols-2 gap-4">
@@ -151,7 +167,7 @@
 
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Other Charges (₹)</label>
-                        <input type="number" id="itemOther" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-900 text-lg outline-none focus:border-[#047857] text-center" placeholder="0" />
+                        <input type="number" id="itemOther" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-black text-gray-900 text-lg outline-none focus:border-[#047857] text-center" placeholder="0" />
                     </div>
                 </div>
 
@@ -174,24 +190,25 @@
 
         <div class="lg:col-span-5 space-y-4">
             
-            <div id="printableMemoCard" class="bg-white rounded-[2rem] shadow-2xl p-6 border border-gray-200 flex flex-col min-h-[500px]">
-                <div class="text-center print-border border-b-2 border-dashed border-gray-200 pb-4 mb-4">
+            <div id="printableMemoCard" class="bg-white rounded-[2rem] shadow-2xl p-5 md:p-6 border border-gray-200 flex flex-col min-h-[550px]">
+                
+                <div class="text-center print-border-dashed border-b-2 border-dashed border-gray-200 pb-3 mb-4">
                     <h2 class="text-2xl font-black text-[#064e3b] tracking-tight">JINI JEWELS</h2>
                     <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Estimate / Cash Memo</p>
                 </div>
 
-                <div class="text-xs font-bold text-gray-600 space-y-1 mb-4">
+                <div class="text-xs font-bold text-gray-600 space-y-1.5 mb-4 px-1">
                     <div class="flex justify-between"><span>Estimate No:</span><span class="text-gray-900" id="prevMemoId">--</span></div>
                     <div class="flex justify-between"><span>Date:</span><span class="text-gray-900" id="prevDate">--</span></div>
                     <div class="flex justify-between"><span>Customer:</span><span class="text-gray-900" id="prevName">--</span></div>
                     <div class="flex justify-between"><span>Mobile:</span><span class="text-gray-900" id="prevMobile">--</span></div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto max-h-[260px] border-t border-b border-gray-100 py-3 my-2 space-y-3" id="invoiceItemsList">
-                    <p class="text-center text-gray-300 font-medium text-sm py-12" id="emptyCartMsg">No items added to invoice yet</p>
+                <div class="flex-1 overflow-y-auto max-h-[300px] my-2" id="invoiceTableWrapper">
+                    <p class="text-center text-gray-300 font-medium text-sm py-16" id="emptyCartMsg">No items added to invoice yet</p>
                 </div>
 
-                <div class="mt-4 pt-3 border-t border-dashed border-gray-200 space-y-2 text-xs font-bold text-gray-500">
+                <div class="mt-4 pt-3 border-t border-dashed border-gray-200 space-y-2 text-xs font-bold text-gray-500 px-1">
                     <div class="flex justify-between"><span>Gross Subtotal</span><span class="text-gray-900">₹ <span id="prevGross">0</span></span></div>
                     
                     <div class="flex justify-between items-center text-emerald-800">
@@ -206,18 +223,31 @@
                     </div>
                 </div>
 
-                <div class="hidden print:flex justify-between items-center pt-3 border-t-2 border-black font-black text-base mt-2">
+                <div class="hidden print:flex justify-between items-center pt-2.5 border-t-2 border-black font-black text-base mt-3 px-1">
                     <span>NET PAYABLE</span>
                     <span>₹ <span id="printGrandTotal">0</span></span>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-gray-100 text-left">
+                    <div class="flex justify-between items-end text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+                        <div>
+                            <p class="text-gray-500 font-black mb-1">E. & O.E.</p>
+                            <p class="text-[8px] lowercase italic text-gray-400">Errors & omissions excepted.</p>
+                        </div>
+                        <div class="text-right border-t border-gray-300 pt-6 w-28 text-center uppercase text-[8px] text-gray-500 font-bold">
+                            Authorized Sign
+                        </div>
+                    </div>
+                    <p class="text-center text-[10px] font-black text-[#064e3b] tracking-wide mt-5 uppercase italic">~ Thank You For Visiting Jini Jewels ~</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3 internal-only">
-                <button type="button" onclick="executePrint(event)" class="bg-gray-900 hover:bg-black text-[#D4AF37] font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                <button type="button" onclick="executePrint(event)" class="bg-gray-900 hover:bg-black text-[#D4AF37] font-bold py-3.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                     Print / Save PDF
                 </button>
-                <button type="button" onclick="executeShare(event)" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                <button type="button" onclick="executeShare(event)" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 10.742l4.522-2.456m0 0a3 3 0 10-5.367-2.684 3 3 0 005.367 2.684zm0 9.316l-4.523-2.456m0 0a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" /></svg>
                     Share via Text
                 </button>
@@ -241,6 +271,7 @@
     </div>
 
     <script>
+        // Set Runtime Parameters
         document.getElementById('memoDate').valueAsDate = new Date();
         const randId = 'JJ-' + Math.floor(100000 + Math.random() * 900000);
         document.getElementById('memoId').value = randId;
@@ -307,24 +338,40 @@
 
             let calculatedItemTotal = 0;
             let calculationSubtext = "";
+            let savedRate = 0;
+            let savedLabour = 0;
+            let savedMrp = 0;
 
             if (saleMode === "weight") {
-                const rate = parseFloat(inputs.rate.value) || 0;
-                const labour = parseFloat(inputs.labour.value) || 0;
+                savedRate = parseFloat(inputs.rate.value) || 0;
+                savedLabour = parseFloat(inputs.labour.value) || 0;
                 if (weight <= 0) { alert("Net Weight is mandatory for calculations by weight!"); return; }
                 
-                calculatedItemTotal = Math.round(((rate + labour) * weight) + other + huidAmt);
-                calculationSubtext = `${weight}g @ ₹${rate + labour}/g`;
+                calculatedItemTotal = Math.round(((savedRate + savedLabour) * weight) + other + huidAmt);
+                calculationSubtext = `${weight}g @ ₹${savedRate + savedLabour}/g`;
             } else {
-                const mrp = parseFloat(inputs.mrp.value) || 0;
-                if (mrp <= 0) { alert("Please input Fixed Item MRP value!"); return; }
+                savedMrp = parseFloat(inputs.mrp.value) || 0;
+                if (savedMrp <= 0) { alert("Please input Fixed Item MRP value!"); return; }
 
-                calculatedItemTotal = Math.round(mrp + other + huidAmt);
+                calculatedItemTotal = Math.round(savedMrp + other + huidAmt);
                 calculationSubtext = weight > 0 ? `Fixed Price (${weight}g)` : "Fixed Price Item";
             }
 
-            items.push({ desc, cypher: cypherStr, subtext: calculationSubtext, total: calculatedItemTotal });
+            // Append item payload metrics package
+            items.push({ 
+                desc, 
+                cypher: cypherStr, 
+                subtext: calculationSubtext, 
+                total: calculatedItemTotal,
+                rate: savedRate,
+                labour: savedLabour,
+                mrp: savedMrp,
+                weight: weight,
+                other: other,
+                huidChecked: inputs.huid.checked
+            });
 
+            // Re-zero parameters securely
             inputs.desc.value = '';
             inputs.cypher.value = '';
             inputs.weight.value = '';
@@ -334,18 +381,45 @@
             renderInvoice();
         }
 
+        // ONE-TAP EDIT DATA RECOVERY BLOCK
+        function editItem(index) {
+            const item = items[index];
+            
+            // Re-populate state configurations
+            inputs.desc.value = item.desc;
+            inputs.cypher.value = item.cypher || '';
+            inputs.other.value = item.other || '';
+            inputs.weight.value = item.weight || '';
+            inputs.huid.checked = item.huidChecked;
+
+            if (item.mrp > 0) {
+                setSaleMode(null, 'mrp');
+                inputs.mrp.value = item.mrp;
+            } else {
+                setSaleMode(null, 'weight');
+                inputs.rate.value = item.rate;
+                inputs.labour.value = item.labour;
+            }
+
+            // Remove previous item footprint out of state matrix arrays
+            items.splice(index, 1);
+            renderInvoice();
+
+            // Smooth track scroll focal point orientation adjustments
+            document.getElementById('formTop').scrollIntoView({ behavior: 'smooth' });
+            inputs.desc.focus();
+        }
+
         function deleteItem(index) {
             items.splice(index, 1);
             renderInvoice();
         }
 
         function renderInvoice() {
-            const container = document.getElementById('invoiceItemsList');
-            const emptyMsg = document.getElementById('emptyCartMsg');
+            const wrapper = document.getElementById('invoiceTableWrapper');
             
             if (items.length === 0) {
-                container.innerHTML = '';
-                container.appendChild(emptyMsg);
+                wrapper.innerHTML = `<p class="text-center text-gray-300 font-medium text-sm py-16" id="emptyCartMsg">No items added to invoice yet</p>`;
                 document.getElementById('itemCountLabel').innerText = '0 Items Added';
                 document.getElementById('prevGross').innerText = '0';
                 document.getElementById('prevTax').innerText = '0';
@@ -354,32 +428,50 @@
                 return;
             }
 
-            if (emptyMsg) emptyMsg.remove();
-            container.innerHTML = '';
+            // Generate clean structural table headers cleanly
+            let tableHtml = `
+                <table class="print-table w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="py-2 text-xs font-black text-gray-400 uppercase tracking-wider w-8">#</th>
+                            <th class="py-2 text-xs font-black text-gray-400 uppercase tracking-wider">Item</th>
+                            <th class="py-2 text-xs font-black text-gray-400 uppercase tracking-wider text-right">Breakdown</th>
+                            <th class="py-2 text-xs font-black text-gray-400 uppercase tracking-wider text-right pr-2 w-24">Amount</th>
+                            <th class="py-2 text-xs font-black text-gray-400 uppercase tracking-wider text-center w-20 internal-only">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+            `;
 
             let grossSubtotal = 0;
 
             items.forEach((item, index) => {
                 grossSubtotal += item.total;
-                const row = document.createElement('div');
-                row.className = "flex justify-between items-start bg-gray-50/60 p-2.5 rounded-xl border border-gray-100 relative";
-                row.innerHTML = `
-                    <div class="flex-1 pr-4">
-                        <div class="flex items-center gap-2">
-                            <p class="font-black text-gray-800 text-sm">${item.desc}</p>
-                            ${item.cypher ? `<span class="internal-only bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider">${item.cypher}</span>` : ''}
-                        </div>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase mt-0.5">${item.subtext}</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="font-black text-gray-900 text-sm">₹${item.total.toLocaleString('en-IN')}</span>
-                        <button type="button" onclick="deleteItem(${index})" class="internal-only text-red-400 hover:text-red-600 active:scale-90 transition-transform">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        </button>
-                    </div>
+                tableHtml += `
+                    <tr class="align-top">
+                        <td class="py-2.5 text-xs font-black text-gray-400">${index + 1}</td>
+                        <td class="py-2.5">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="font-black text-gray-800 text-xs md:text-sm">${item.desc}</span>
+                                ${item.cypher ? `<span class="internal-only bg-stone-200 text-stone-700 px-1 py-0.5 rounded text-[8px] font-black tracking-wider uppercase">${item.cypher}</span>` : ''}
+                            </div>
+                        </td>
+                        <td class="py-2.5 text-right text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wide">${item.subtext}</td>
+                        <td class="py-2.5 text-right font-black text-gray-900 text-xs md:text-sm pr-2">₹${item.total.toLocaleString('en-IN')}</td>
+                        <td class="py-2.5 text-center internal-only space-x-2">
+                            <button type="button" onclick="editItem(${index})" class="text-amber-500 hover:text-amber-700 active:scale-90 transition-transform inline-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            </button>
+                            <button type="button" onclick="deleteItem(${index})" class="text-red-400 hover:text-red-600 active:scale-90 transition-transform inline-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                        </td>
+                    </tr>
                 `;
-                container.appendChild(row);
             });
+
+            tableHtml += `</tbody></table>`;
+            wrapper.innerHTML = tableHtml;
 
             const gstAmount = inputs.taxToggle.checked ? Math.round(grossSubtotal * 0.03) : 0;
             const finalGrandTotal = grossSubtotal + gstAmount;
@@ -407,13 +499,14 @@
             items.forEach((item, idx) => { shareText += `${idx+1}. ${item.desc} - ₹${item.total.toLocaleString('en-IN')}\n`; });
             if(inputs.taxToggle.checked) { shareText += `Gst (3%): Included\n`; }
             shareText += `---------------------------\n`;
-            shareText += `*Total Payable: ₹${grandTotal}*`;
+            shareText += `*Total Payable: ₹${grandTotal}*\n`;
+            shareText += `_E&OE_`;
 
             if (navigator.share) {
                 navigator.share({ title: 'Jini Jewels Estimate', text: shareText }).catch((err) => console.log(err));
             } else {
                 navigator.clipboard.writeText(shareText);
-                alert("Estimate copied to clipboard!");
+                alert("Estimate text data payload copied directly to device clipboard!");
             }
         }
 
