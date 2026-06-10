@@ -9,6 +9,11 @@
     <link rel="apple-touch-icon" href="icon.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         html { scroll-behavior: smooth; }
@@ -17,7 +22,6 @@
         .toggle-checkbox:checked + .toggle-label { background-color: #D4AF37; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* THE PERFECT PRINT ENGINE ENGINE OVERRIDE */
         @media print {
             .no-print, .internal-only, button, input, .toggle-label { 
                 display: none !important; 
@@ -31,6 +35,14 @@
                 margin: 0 !important;
                 -webkit-print-color-adjust: exact; 
                 print-color-adjust: exact;
+            }
+            div, main, .grid {
+                display: block !important;
+                overflow: visible !important;
+                box-shadow: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                margin: 0 !important;
             }
             #printableMemoCard { 
                 display: block !important; 
@@ -68,8 +80,6 @@
             .text-gray-600, .text-gray-500, .text-gray-400 { color: #374151 !important; }
             .text-gray-900, .text-[#064e3b] { color: #000000 !important; }
             .print-border-dashed { border-bottom: 2px dashed #000000 !important; }
-            
-            /* High priority print layouts to fix alignments */
             .print-footer-flex {
                 display: flex !important;
                 flex-direction: row !important;
@@ -78,17 +88,31 @@
                 width: 100% !important;
                 margin-top: 40px !important;
             }
-            .hide-on-print {
-                display: none !important;
+            .hide-on-print { display: none !important; }
+            
+            /* Ensures cypher printed code remains visible in small lowercase format on paper layout sheets */
+            .print-cypher-lowercase {
+                display: block !important;
+                text-transform: lowercase !important;
+                font-size: 10px !important;
+                color: #6b7280 !important;
+                font-family: monospace !important;
+                margin-top: 2px !important;
             }
         }
     </style>
 </head>
 <body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 h-[100dvh] flex flex-col overflow-hidden selection:bg-[#D4AF37] selection:text-gray-900">
 
-    <script>
-        if (sessionStorage.getItem('jini_auth') !== 'true') { window.location.replace('index.html'); }
-    </script>
+    <div id="authScreen" class="hidden fixed inset-0 bg-[#022c22] z-50 flex flex-col items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-sm shadow-2xl text-center">
+            <h2 class="text-2xl font-black text-[#064e3b] mb-2">JINI JEWELS</h2>
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-6">Terminal Authentication</p>
+            <input type="email" id="loginEmail" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold mb-3 outline-none" placeholder="Email Address" />
+            <input type="password" id="loginPassword" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold mb-6 outline-none" placeholder="Password PIN" />
+            <button type="button" onclick="loginTerminal()" class="w-full bg-[#047857] text-white font-black py-3 rounded-xl uppercase tracking-widest">Verify Login</button>
+        </div>
+    </div>
 
     <div class="flex-shrink-0 flex flex-col z-10 sticky top-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 no-print">
         <div class="flex items-center px-4 py-3 max-w-6xl mx-auto w-full">
@@ -104,15 +128,15 @@
         <div class="lg:col-span-7 space-y-5 no-print">
             
             <div id="formTop" class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
-                <h3 class="text-lg font-black text-[#064e3b] mb-4 uppercase tracking-wide">Customer Details</h3>
+                <h3 class="text-lg font-black text-[#064e3b] mb-4 uppercase tracking-wide">Customer Details (Mandatory)</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2 sm:col-span-1">
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Customer Name *</label>
-                        <input type="text" id="custName" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="Enter full name" />
+                        <input type="text" id="custName" class="w-full bg-gray-50 border-2 border-transparent rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857] focus:bg-white" placeholder="Enter full name" />
                     </div>
                     <div class="col-span-2 sm:col-span-1">
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Mobile Number *</label>
-                        <input type="number" id="custMobile" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="10-digit phone" />
+                        <input type="number" id="custMobile" class="w-full bg-gray-50 border-2 border-transparent rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857] focus:bg-white" placeholder="10-digit phone" />
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Memo Date</label>
@@ -128,7 +152,6 @@
             <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
                     <h3 class="text-lg font-black text-[#064e3b] uppercase tracking-wide">Add/Modify Item</h3>
-                    
                     <div class="flex bg-gray-100 p-1 rounded-xl border border-gray-200 w-full sm:w-auto">
                         <button type="button" onclick="setSaleMode(event, 'weight')" id="btnModeWeight" class="flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg bg-[#047857] text-white transition-all shadow-sm">By Weight</button>
                         <button type="button" onclick="setSaleMode(event, 'mrp')" id="btnModeMrp" class="flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500 transition-all">Fixed MRP</button>
@@ -141,12 +164,9 @@
                         <input type="text" id="itemDesc" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="e.g. Silver Handcrafted Payal" />
                     </div>
 
-                    <div class="col-span-2 bg-stone-50 border border-stone-200 rounded-xl p-3 flex flex-col sm:flex-row gap-3 justify-between items-center shadow-inner">
-                        <div class="w-full sm:w-auto">
-                            <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest">Internal Cypher Tag (Hidden on Print)</label>
-                            <input type="text" id="itemCypher" class="w-full sm:w-48 bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black tracking-widest uppercase outline-none focus:border-[#047857]" placeholder="e.g. FLLXIR" />
-                        </div>
-                        <p class="text-[11px] font-bold text-stone-400 italic text-center sm:text-right">Displayed live internally but stripped cleanly from printed copies.</p>
+                    <div class="col-span-2 bg-stone-50 border border-stone-200 rounded-xl p-3">
+                        <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">Cypher Tag Code (Prints in small letter below name)</label>
+                        <input type="text" id="itemCypher" class="w-full bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black tracking-widest uppercase outline-none focus:border-[#047857]" placeholder="e.g. FRARXLAR" />
                     </div>
                     
                     <div id="rowWeightRate" class="col-span-2 grid grid-cols-2 gap-4">
@@ -179,13 +199,29 @@
                     </div>
                 </div>
 
-                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-200 mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="relative inline-block w-10 h-5 align-middle select-none">
-                            <input type="checkbox" id="itemHuid" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
-                            <label for="itemHuid" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3 mb-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="relative inline-block w-10 h-5 align-middle select-none">
+                                <input type="checkbox" id="itemHuidToggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
+                                <label for="itemHuidToggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
+                            </div>
+                            <span class="text-xs font-extrabold text-gray-600 uppercase">Apply HUID Amt</span>
                         </div>
-                        <span class="text-xs font-extrabold text-gray-600 uppercase">Apply HUID (+₹50)</span>
+                        <input type="number" id="itemHuidPrice" class="w-20 bg-white border border-gray-300 rounded-lg text-center text-sm font-bold py-1 outline-none" value="50" />
+                    </div>
+                    
+                    <hr class="border-gray-200">
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="relative inline-block w-10 h-5 align-middle select-none">
+                                <input type="checkbox" id="cardToggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" />
+                                <label for="cardToggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
+                            </div>
+                            <span class="text-xs font-extrabold text-gray-600 uppercase">Card Charges (%)</span>
+                        </div>
+                        <input type="number" id="cardPercent" class="w-20 bg-white border border-gray-300 rounded-lg text-center text-sm font-bold py-1 outline-none" value="2" />
                     </div>
                 </div>
 
@@ -193,11 +229,9 @@
                     ➕ Add Item to Receipt
                 </button>
             </div>
-            
         </div>
 
         <div class="lg:col-span-5 space-y-4">
-            
             <div id="printableMemoCard" class="bg-white rounded-[2rem] shadow-2xl p-5 md:p-6 border border-gray-200 flex flex-col min-h-[550px]">
                 
                 <div class="text-center print-border-dashed border-b-2 border-dashed border-gray-200 pb-3 mb-4">
@@ -227,6 +261,11 @@
                         <span>₹ <span id="prevTax">0</span></span>
                     </div>
 
+                    <div class="flex justify-between text-blue-800" id="invoiceCardRow">
+                        <span>Card Charges (<span id="lblCardPct">2</span>%)</span>
+                        <span>₹ <span id="prevCardAmt">0</span></span>
+                    </div>
+
                     <div class="flex justify-between items-center text-emerald-800 internal-only no-print bg-emerald-50/30 p-2 rounded-xl border border-emerald-100 mt-1">
                         <div class="flex items-center gap-2">
                             <div class="relative inline-block w-8 h-4 align-middle select-none">
@@ -244,29 +283,16 @@
                 </div>
 
                 <div class="print-footer-flex flex justify-between items-end mt-8 pt-4 border-t border-gray-100 text-left w-full">
-                    <div>
-                        <p class="text-gray-900 font-black tracking-widest text-xs">E. & O.E.</p>
-                    </div>
-                    <div class="text-right border-t border-gray-300 pt-6 w-32 text-center uppercase text-[10px] font-black text-gray-600">
-                        Authorized Sign
-                    </div>
+                    <div><p class="text-gray-900 font-black tracking-widest text-xs">E. & O.E.</p></div>
+                    <div class="text-right border-t border-gray-300 pt-6 w-32 text-center uppercase text-[10px] font-black text-gray-600">Authorized Sign</div>
                 </div>
-                <p class="text-center text-[10px] font-black text-[#064e3b] tracking-widest mt-6 uppercase italic no-print">~ Thank You For Visiting Jini Jewels ~</p>
             </div>
 
             <div class="grid grid-cols-2 gap-3 internal-only">
-                <button type="button" onclick="executePrint(event)" class="bg-gray-900 hover:bg-black text-[#D4AF37] font-bold py-3.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                    Print / Save PDF
-                </button>
-                <button type="button" onclick="executeShare(event)" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 10.742l4.522-2.456m0 0a3 3 0 10-5.367-2.684 3 3 0 005.367 2.684zm0 9.316l-4.523-2.456m0 0a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" /></svg>
-                    Share via Text
-                </button>
+                <button type="button" onclick="executePrint(event)" class="bg-gray-900 hover:bg-black text-[#D4AF37] font-bold py-3.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md flex items-center justify-center gap-2">Print / Save PDF</button>
+                <button type="button" onclick="executeCloudSave(event)" id="btnCloudSave" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-3.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md flex items-center justify-center gap-2">☁️ Cloud Save Memo</button>
             </div>
-
         </div>
-
     </div>
 
     <div class="fixed bottom-0 left-0 w-full bg-gray-900 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t-[3px] border-[#D4AF37] px-6 py-5 z-20 transition-transform internal-only">
@@ -283,6 +309,21 @@
     </div>
 
     <script>
+        // =================================================================
+        // OPTIONAL: CONFIG YOUR FIREBASE DETAILS HERE TO ACTIVATE CLOUD SAVE
+        // =================================================================
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // To turn on cloud feature: uncomment line below once config is pasted
+        // firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
+        // =================================================================
+
         document.getElementById('memoDate').valueAsDate = new Date();
         const randId = 'JJ-' + Math.floor(100000 + Math.random() * 900000);
         document.getElementById('memoId').value = randId;
@@ -302,6 +343,8 @@
         setupSync('memoDate', 'prevDate', '--');
 
         const inputs = {
+            name: document.getElementById('custName'),
+            mobile: document.getElementById('custMobile'),
             desc: document.getElementById('itemDesc'),
             cypher: document.getElementById('itemCypher'),
             rate: document.getElementById('itemRate'),
@@ -309,7 +352,10 @@
             mrp: document.getElementById('itemMrp'),
             weight: document.getElementById('itemWeight'),
             other: document.getElementById('itemOther'),
-            huid: document.getElementById('itemHuid'),
+            huidToggle: document.getElementById('itemHuidToggle'),
+            huidPrice: document.getElementById('itemHuidPrice'),
+            cardToggle: document.getElementById('cardToggle'),
+            cardPercent: document.getElementById('cardPercent'),
             taxToggle: document.getElementById('taxToggle')
         };
 
@@ -339,11 +385,25 @@
 
         function addItem(e) {
             if (e) e.preventDefault();
+
+            // MANDATORY ENFORCEMENT VERIFICATION RULE
+            const cName = inputs.name.value.trim();
+            const cMobile = inputs.mobile.value.trim();
+            if (!cName || !cMobile) {
+                alert("Customer Name and Mobile Number are strictly mandatory before adding items!");
+                inputs.name.classList.add('border-red-500');
+                inputs.mobile.classList.add('border-red-500');
+                document.getElementById('formTop').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            inputs.name.classList.remove('border-red-500');
+            inputs.mobile.classList.remove('border-red-500');
+
             const desc = inputs.desc.value.trim();
-            const cypherStr = inputs.cypher.value.trim().toUpperCase();
+            const cypherStr = inputs.cypher.value.trim();
             const other = parseFloat(inputs.other.value) || 0;
             const weight = parseFloat(inputs.weight.value) || 0;
-            const huidAmt = inputs.huid.checked ? 50 : 0;
+            const huidAmt = inputs.huidToggle.checked ? (parseFloat(inputs.huidPrice.value) || 0) : 0;
 
             if (!desc) { alert("Please input Item Description!"); return; }
 
@@ -364,23 +424,12 @@
             }
 
             items.push({ 
-                desc, 
-                cypher: cypherStr, 
-                total: calculatedItemTotal,
-                rate: savedRate,
-                labour: savedLabour,
-                mrp: savedMrp,
-                weight: weight,
-                other: other,
-                huidChecked: inputs.huid.checked
+                desc, cypher: cypherStr, total: calculatedItemTotal,
+                rate: savedRate, labour: savedLabour, mrp: savedMrp,
+                weight, other, huidChecked: inputs.huidToggle.checked, huidPriceVal: huidAmt
             });
 
-            inputs.desc.value = '';
-            inputs.cypher.value = '';
-            inputs.weight.value = '';
-            inputs.other.value = '';
-            inputs.mrp.value = '';
-
+            inputs.desc.value = ''; inputs.cypher.value = ''; inputs.weight.value = ''; inputs.other.value = ''; inputs.mrp.value = '';
             renderInvoice();
         }
 
@@ -390,7 +439,7 @@
             inputs.cypher.value = item.cypher || '';
             inputs.other.value = item.other || '';
             inputs.weight.value = item.weight || '';
-            inputs.huid.checked = item.huidChecked;
+            inputs.huidToggle.checked = item.huidChecked;
 
             if (item.mrp > 0) {
                 setSaleMode(null, 'mrp');
@@ -403,7 +452,6 @@
 
             items.splice(index, 1);
             renderInvoice();
-            document.getElementById('formTop').scrollIntoView({ behavior: 'smooth' });
             inputs.desc.focus();
         }
 
@@ -414,13 +462,11 @@
 
         function renderInvoice() {
             const wrapper = document.getElementById('invoiceTableWrapper');
-            
             if (items.length === 0) {
                 wrapper.innerHTML = `<p class="text-center text-gray-300 font-medium text-sm py-16" id="emptyCartMsg">No items added to invoice yet</p>`;
                 document.getElementById('itemCountLabel').innerText = '0 Items Added';
-                document.getElementById('prevGross').innerText = '0';
-                document.getElementById('prevTax').innerText = '0';
-                document.getElementById('invoiceGrandTotal').innerText = '0';
+                document.getElementById('prevGross').innerText = '0'; document.getElementById('prevTax').innerText = '0';
+                document.getElementById('prevCardAmt').innerText = '0'; document.getElementById('invoiceGrandTotal').innerText = '0';
                 document.getElementById('printGrandTotal').innerText = '0';
                 return;
             }
@@ -444,7 +490,6 @@
 
             items.forEach((item, index) => {
                 grossSubtotal += item.total;
-                
                 const weightDisplay = item.weight > 0 ? `${item.weight.toFixed(2)} g` : `-`;
                 const rateDisplay = item.mrp > 0 ? `-` : `₹${item.rate + item.labour}`;
                 const hasAddons = item.huidChecked || item.other > 0;
@@ -453,9 +498,9 @@
                     <tr class="align-top">
                         <td class="py-3 text-xs font-bold text-gray-400 text-center">${index + 1}</td>
                         <td class="py-3">
-                            <div class="flex items-center gap-2 flex-wrap">
+                            <div class="flex flex-col">
                                 <span class="font-black text-gray-800 text-sm tracking-tight">${item.desc}</span>
-                                ${item.cypher ? `<span class="internal-only bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded text-[8px] font-black tracking-wider uppercase">${item.cypher}</span>` : ''}
+                                ${item.cypher ? `<span class="print-cypher-lowercase block text-[10px] font-mono text-gray-400 lowercase">${item.cypher.toLowerCase()}</span>` : ''}
                             </div>
                             ${hasAddons ? `<span class="text-[10px] text-gray-400 block font-bold uppercase tracking-wide mt-0.5">(Inc. ${item.huidChecked ? 'HUID' : ''}${item.huidChecked && item.other > 0 ? ' + ' : ''}${item.other > 0 ? 'Charges' : ''})</span>` : ''}
                         </td>
@@ -463,12 +508,8 @@
                         <td class="py-3 text-right font-bold text-gray-500 text-xs md:text-sm">${rateDisplay}</td>
                         <td class="py-3 text-right font-black text-gray-900 text-xs md:text-sm pr-1">₹${item.total.toLocaleString('en-IN')}</td>
                         <td class="py-3 text-center internal-only no-print space-x-1">
-                            <button type="button" onclick="editItem(${index})" class="text-amber-500 hover:text-amber-700 active:scale-90 transition-transform inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                            </button>
-                            <button type="button" onclick="deleteItem(${index})" class="text-red-400 hover:text-red-600 active:scale-90 transition-transform inline-block">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                            </button>
+                            <button type="button" onclick="editItem(${index})" class="text-amber-500 hover:text-amber-700 active:scale-90 transition-transform inline-block">✏️</button>
+                            <button type="button" onclick="deleteItem(${index})" class="text-red-400 hover:text-red-600 active:scale-90 transition-transform inline-block">🗑️</button>
                         </td>
                     </tr>
                 `;
@@ -477,56 +518,72 @@
             tableHtml += `</tbody></table>`;
             wrapper.innerHTML = tableHtml;
 
+            // TAX & CARD CHARGE ACCOUNTING BALANCES
             const taxApplied = inputs.taxToggle.checked;
             const gstAmount = taxApplied ? Math.round(grossSubtotal * 0.03) : 0;
-            const finalGrandTotal = grossSubtotal + gstAmount;
+            
+            const cardApplied = inputs.cardToggle.checked;
+            const cardPctVal = parseFloat(inputs.cardPercent.value) || 0;
+            const cardAmount = cardApplied ? Math.round((grossSubtotal + gstAmount) * (cardPctVal / 100)) : 0;
 
-            const grossRow = document.getElementById('invoiceGrossRow');
-            const gstRow = document.getElementById('invoiceGstRow');
+            const finalGrandTotal = grossSubtotal + gstAmount + cardAmount;
 
-            if (taxApplied) {
-                grossRow.classList.remove('hide-on-print');
-                gstRow.classList.remove('hide-on-print');
-            } else {
-                grossRow.classList.add('hide-on-print'); 
-                gstRow.classList.add('hide-on-print');
-            }
+            // Handle Print States Visibility
+            document.getElementById('invoiceGrossRow').className = taxApplied ? "flex justify-between" : "flex justify-between hide-on-print";
+            document.getElementById('invoiceGstRow').className = taxApplied ? "flex justify-between text-emerald-800" : "flex justify-between text-emerald-800 hidden";
+            document.getElementById('invoiceCardRow').className = cardApplied ? "flex justify-between text-blue-800" : "flex justify-between text-blue-800 hidden";
+            document.getElementById('lblCardPct').innerText = cardPctVal;
 
             document.getElementById('itemCountLabel').innerText = `${items.length} Item${items.length > 1 ? 's' : ''} Added`;
             document.getElementById('prevGross').innerText = grossSubtotal.toLocaleString('en-IN');
             document.getElementById('prevTax').innerText = gstAmount.toLocaleString('en-IN');
+            document.getElementById('prevCardAmt').innerText = cardAmount.toLocaleString('en-IN');
             document.getElementById('invoiceGrandTotal').innerText = finalGrandTotal.toLocaleString('en-IN');
             document.getElementById('printGrandTotal').innerText = finalGrandTotal.toLocaleString('en-IN');
         }
 
         function executePrint(e) { if (e) e.preventDefault(); window.print(); }
 
+        // DYNAMIC CLOUD INTERACTION PLATFORM Blueprints
+        function executeCloudSave(e) {
+            if (e) e.preventDefault();
+            if(typeof firebase === 'undefined' || !firebase.apps.length) {
+                alert("Database Offline: Please fill out your real Firebase credentials in the script configuration area to activate Cloud Syncing!");
+                return;
+            }
+            // Active Execution Code when Config parameters are updated:
+            /*
+            const payload = {
+                memoId: document.getElementById('memoId').value,
+                customerName: inputs.name.value,
+                customerMobile: inputs.mobile.value,
+                date: document.getElementById('memoDate').value,
+                items: items,
+                grandTotal: document.getElementById('invoiceGrandTotal').innerText,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            db.collection("estimates").doc(payload.memoId).set(payload)
+              .then(() => alert("☁️ Success: Memo saved safely to Jini cloud storage!"))
+              .catch(err => alert("Cloud Error: " + err.message));
+            */
+        }
+
         function executeShare(e) {
             if (e) e.preventDefault();
-            const name = document.getElementById('custName').value.trim() || "Valued Customer";
+            const name = inputs.name.value.trim() || "Valued Customer";
             const id = document.getElementById('memoId').value;
             const grandTotal = document.getElementById('invoiceGrandTotal').innerText;
-            
-            let shareText = `*JINI JEWELS ESTIMATE*\n`;
-            shareText += `Memo No: ${id}\n`;
-            shareText += `Customer: ${name}\n`;
-            shareText += `---------------------------\n`;
-            
+            let shareText = `*JINI JEWELS ESTIMATE*\nMemos No: ${id}\nCustomer: ${name}\n---------------------------\n`;
             items.forEach((item, idx) => { shareText += `${idx+1}. ${item.desc} - ₹${item.total.toLocaleString('en-IN')}\n`; });
-            if(inputs.taxToggle.checked) { shareText += `Gst (3%): Included\n`; }
-            shareText += `---------------------------\n`;
-            shareText += `*Total Payable: ₹${grandTotal}*\n`;
-            shareText += `_E&OE_`;
+            shareText += `---------------------------\n*Total: ₹${grandTotal}*\n_E&OE_`;
 
-            if (navigator.share) {
-                navigator.share({ title: 'Jini Jewels Estimate', text: shareText }).catch((err) => console.log(err));
-            } else {
-                navigator.clipboard.writeText(shareText);
-                alert("Estimate breakdown copied cleanly!");
-            }
+            if (navigator.share) { navigator.share({ title: 'Jini Jewels Estimate', text: shareText }); } 
+            else { navigator.clipboard.writeText(shareText); alert("Copied to clipboard!"); }
         }
 
         inputs.taxToggle.addEventListener('change', renderInvoice);
+        inputs.cardToggle.addEventListener('change', renderInvoice);
+        inputs.cardPercent.addEventListener('input', renderInvoice);
     </script>
 </body>
 </html>
