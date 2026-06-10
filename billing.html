@@ -9,11 +9,9 @@
     <link rel="apple-touch-icon" href="icon.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
     <script src="https://unpkg.com/html5-qrcode"></script>
 
     <script src="firebase-config.js"></script>
@@ -38,8 +36,6 @@
             .text-gray-900, .text-[#064e3b] { color: #000000 !important; }
             .print-border-dashed { border-bottom: 2px dashed #000000 !important; }
             .print-total-highlight { border-top: 3px double #000000 !important; border-bottom: 3px double #000000 !important; background-color: #f9fafb !important; font-size: 18px !important; padding: 10px 4px !important; font-weight: 900 !important; }
-            .hide-on-print { display: none !important; }
-            .print-cypher-lowercase { display: block !important; text-transform: lowercase !important; font-size: 10px !important; color: #555555 !important; font-family: monospace !important; margin-top: 1px !important; }
             .print-footer-container { display: block !important; width: 100% !important; margin-top: 60px !important; clear: both !important; }
             .print-left-eoe { float: left !important; display: block !important; width: 40% !important; text-align: left !important; }
             .print-right-sign { float: right !important; display: block !important; width: 40% !important; text-align: center !important; border-top: 1px solid #000000 !important; padding-top: 30px !important; }
@@ -55,7 +51,7 @@
                 <button type="button" onclick="toggleHistoryModal(false)" class="text-gray-400 hover:text-gray-600 font-black text-xl p-2">✕</button>
             </div>
             <div class="mt-3 relative">
-                <input type="text" id="historySearchInput" oninput="filterHistoryLedger()" class="w-full bg-gray-100 border border-gray-200 rounded-xl py-2.5 pl-3 pr-10 text-sm font-bold text-gray-800 outline-none focus:border-[#047857] focus:bg-white transition-all" placeholder="🔍 Search Name, Phone, or Memo No..." />
+                <input type="text" id="historySearchInput" oninput="filterHistoryLedger()" class="w-full bg-gray-100 border border-gray-200 rounded-xl py-2.5 pl-3 pr-10 text-sm font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="🔍 Filter history logs..." />
             </div>
             <div class="flex-1 overflow-y-auto py-4 space-y-3" id="historyMemosList"></div>
         </div>
@@ -76,39 +72,39 @@
             
             <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-4 shadow-xl border border-[#D4AF37] flex items-center gap-3">
                 <div class="flex-1 relative">
-                    <input type="text" id="liveSearchQuery" onkeypress="handleBarcodeGunScan(event)" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-3 pr-12 text-sm font-black tracking-wide text-gray-900 outline-none focus:border-[#047857] focus:bg-white" placeholder="🔍 Scan QR Tag or Type Stock No / Item..." />
-                    <button type="button" onclick="executeDatabaseLookup()" class="absolute inset-y-0 right-0 font-black px-4 text-xs uppercase text-[#047857] hover:text-[#064e3b]">Find</button>
+                    <input type="text" id="liveSearchQuery" onkeypress="handleBarcodeGunScan(event)" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-3 pr-12 text-sm font-black text-gray-900 outline-none focus:border-[#047857]" placeholder="🔍 Type name (e.g. payal), scan tag code..." />
+                    <button type="button" onclick="executeDatabaseLookup()" class="absolute inset-y-0 right-0 font-black px-4 text-xs uppercase text-[#047857]">Find</button>
                 </div>
-                <button type="button" onclick="startCameraScanner()" class="w-12 h-12 bg-[#064e3b] hover:bg-emerald-900 rounded-xl flex items-center justify-center text-white text-lg shadow-md active:scale-90 transition-all">📷</button>
+                <button type="button" onclick="startCameraScanner()" class="w-12 h-12 bg-[#064e3b] rounded-xl flex items-center justify-center text-white text-lg shadow-md">📷</button>
             </div>
 
-            <div id="qrScannerBox" class="hidden bg-black rounded-2xl overflow-hidden shadow-inner p-2 border border-gray-800 max-w-sm mx-auto w-full relative">
-                <div id="cameraViewfinder" class="w-full bg-stone-900"></div>
-                <button type="button" onclick="stopCameraScanner()" class="absolute top-4 right-4 bg-red-600 text-white font-bold text-xs px-2.5 py-1 rounded-lg uppercase shadow z-10">Close</button>
+            <div id="qrScannerBox" class="hidden bg-black rounded-2xl p-2 border max-w-sm mx-auto w-full relative">
+                <div id="cameraViewfinder" class="w-full"></div>
+                <button type="button" onclick="stopCameraScanner()" class="absolute top-4 right-4 bg-red-600 text-white text-xs px-2.5 py-1 rounded-lg uppercase shadow">Close</button>
             </div>
 
             <div id="customerCard" class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
                 <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-2">
                     <h3 class="text-lg font-black text-[#064e3b] uppercase tracking-wide">Customer Details</h3>
-                    <button type="button" onclick="fetchHistoryFromCloud()" class="bg-gray-900 hover:bg-black text-[#D4AF37] font-black text-[11px] px-3 py-1.5 rounded-xl uppercase tracking-wider transition-all active:scale-95">📋 View History</button>
+                    <button type="button" onclick="fetchHistoryFromCloud()" class="bg-gray-900 hover:bg-black text-[#D4AF37] font-black text-[11px] px-3 py-1.5 rounded-xl uppercase tracking-wider">📋 View History</button>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2 sm:col-span-1">
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Customer Name *</label>
-                        <input type="text" id="custName" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="Required fields" />
+                        <input type="text" id="custName" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none" placeholder="Required" />
                     </div>
                     <div class="col-span-2 sm:col-span-1">
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Mobile Number *</label>
-                        <input type="number" id="custMobile" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="Required fields" />
+                        <input type="number" id="custMobile" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none" placeholder="Required" />
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Memo Date</label>
-                        <input type="date" id="memoDate" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 px-3 font-bold text-gray-800 outline-none" />
+                        <input type="date" id="memoDate" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 px-3 font-bold text-gray-800" />
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Estimate No. (Auto +1)</label>
-                        <input type="text" id="memoId" class="w-full bg-gray-50 border-2 border-[#D4AF37] rounded-xl py-2 px-3 font-black text-gray-900 text-center outline-none focus:bg-white" />
+                        <input type="text" id="memoId" class="w-full bg-gray-50 border-2 border-[#D4AF37] rounded-xl py-2 px-3 font-black text-gray-900 text-center outline-none" />
                     </div>
                 </div>
             </div>
@@ -116,76 +112,68 @@
             <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
                     <h3 class="text-lg font-black text-[#064e3b] uppercase tracking-wide">Add/Modify Item</h3>
-                    <div class="flex bg-gray-100 p-1 rounded-xl border border-gray-200 w-full sm:w-auto">
-                        <button type="button" onclick="setSaleMode(event, 'weight')" id="btnModeWeight" class="flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg bg-[#047857] text-white transition-all shadow-sm">By Weight</button>
-                        <button type="button" onclick="setSaleMode(event, 'mrp')" id="btnModeMrp" class="flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500 transition-all">Fixed MRP</button>
+                    <div class="flex bg-gray-100 p-1 rounded-xl border border-gray-200">
+                        <button type="button" onclick="setSaleMode(event, 'weight')" id="btnModeWeight" class="text-xs font-black uppercase px-4 py-2 rounded-lg bg-[#047857] text-white">By Weight</button>
+                        <button type="button" onclick="setSaleMode(event, 'mrp')" id="btnModeMrp" class="text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500">Fixed MRP</button>
                     </div>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div class="col-span-2">
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Item Description *</label>
-                        <input type="text" id="itemDesc" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="e.g. Silver Payal Set" />
+                        <input type="text" id="itemDesc" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none" placeholder="Description details" />
                     </div>
-
                     <div class="col-span-2 bg-stone-50 border border-stone-200 rounded-xl p-3">
-                        <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">Cypher Tag Code</label>
-                        <input type="text" id="itemCypher" class="w-full bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black tracking-widest uppercase outline-none focus:border-[#047857]" placeholder="e.g. frarxlar" />
+                        <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">Cypher Tag Code / Stock ID Reference</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="itemCypher" class="flex-1 bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black tracking-widest uppercase outline-none" placeholder="Cypher code" />
+                            <input type="text" id="itemAttachedStockTag" class="w-32 bg-stone-100 border border-stone-300 rounded-lg py-1.5 px-2 text-center text-xs font-black tracking-wider text-gray-500 outline-none" placeholder="TAG NO" readonly />
+                        </div>
                     </div>
                     
                     <div id="rowWeightRate" class="col-span-2 grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-black text-[#047857] mb-1 uppercase">Metal Rate (₹/g)</label>
-                            <input type="number" id="itemRate" class="w-full bg-emerald-50/50 border border-emerald-200 rounded-xl py-2.5 px-3 font-black text-gray-900 text-lg outline-none focus:border-[#047857]" placeholder="0" />
+                            <input type="number" id="itemRate" class="w-full bg-emerald-50/50 border border-emerald-200 rounded-xl py-2.5 px-3 font-black text-gray-900 text-lg" placeholder="0" />
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Labour Charge (₹/g)</label>
-                            <input type="number" id="itemLabour" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-900 text-lg outline-none focus:border-[#047857]" placeholder="0" />
+                            <input type="number" id="itemLabour" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-900 text-lg" placeholder="0" />
                         </div>
                     </div>
 
                     <div id="rowFixedMrp" class="col-span-2 hidden">
                         <label class="block text-xs font-black text-blue-800 mb-1 uppercase">Fixed Item MRP (₹)</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-700 text-lg font-bold">₹</span>
-                            <input type="number" id="itemMrp" class="w-full bg-blue-50/30 border border-blue-200 rounded-xl py-2.5 pl-8 pr-3 font-black text-gray-900 text-lg outline-none focus:border-blue-700" placeholder="0" />
-                        </div>
+                        <input type="number" id="itemMrp" class="w-full bg-blue-50/30 border border-blue-200 rounded-xl py-2.5 px-3 font-black text-gray-900 text-lg" placeholder="0" />
                     </div>
                     
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase" id="lblWeight">Net Weight (g) *</label>
-                        <input type="number" id="itemWeight" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-black text-gray-900 text-lg outline-none focus:border-[#047857] text-center" placeholder="0.00" />
+                        <input type="number" id="itemWeight" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-black text-gray-900 text-center" placeholder="0.00" />
                     </div>
-
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Other Charges (₹)</label>
-                        <input type="number" id="itemOther" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-black text-gray-900 text-lg outline-none focus:border-[#047857] text-center" placeholder="0" />
+                        <input type="number" id="itemOther" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-900 text-center" placeholder="0" />
                     </div>
 
-                    <div class="col-span-2 bg-emerald-50/40 border border-emerald-100 rounded-xl p-3 flex items-center justify-between mt-1">
+                    <div class="col-span-2 bg-emerald-50/40 border border-emerald-100 rounded-xl p-3 flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="relative inline-block w-10 h-5 align-middle select-none">
                                 <input type="checkbox" id="itemHuidToggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
                                 <label for="itemHuidToggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
                             </div>
-                            <span class="text-xs font-black text-[#047857] uppercase">Apply HUID / Cert Charge</span>
+                            <span class="text-xs font-black text-[#047857] uppercase">Apply HUID Charge</span>
                         </div>
-                        <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden focus-within:border-[#047857]">
-                            <span class="text-gray-400 font-bold px-2 text-sm">₹</span>
-                            <input type="number" id="itemHuidPrice" class="w-16 text-center text-sm font-bold py-1 outline-none" value="50" />
-                        </div>
+                        <input type="number" id="itemHuidPrice" class="w-20 text-center text-sm font-bold border rounded-lg py-1 outline-none bg-white" value="50" />
                     </div>
                 </div>
 
-                <button type="button" onclick="addItem(event)" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3.5 px-4 rounded-xl uppercase tracking-widest transition-colors shadow-md active:scale-[0.99]">
-                    ➕ Add Item to Receipt
-                </button>
+                <button type="button" onclick="addItem(event)" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3.5 px-4 rounded-xl uppercase tracking-widest transition-all">➕ Add Item to Receipt</button>
             </div>
         </div>
 
         <div class="lg:col-span-5 space-y-4">
-            <div id="printableMemoCard" class="bg-white rounded-[2rem] shadow-2xl p-5 md:p-6 border border-gray-200 flex flex-col min-h-[550px]">
-                
+            <div id="printableMemoCard" class="bg-white rounded-[2rem] shadow-2xl p-5 border border-gray-200 flex flex-col min-h-[550px]">
                 <div class="text-center print-border-dashed border-b-2 border-dashed border-gray-200 pb-3 mb-4">
                     <h2 class="text-2xl font-black text-[#064e3b] tracking-tight">JINI JEWELS</h2>
                     <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Estimate / Cash Memo</p>
@@ -198,44 +186,41 @@
                     <div class="flex justify-between"><span>Mobile:</span><span class="text-gray-900" id="prevMobile">--</span></div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto max-h-[320px] my-2" id="invoiceTableWrapper">
-                    <p class="text-center text-gray-300 font-medium text-sm py-16" id="emptyCartMsg">No items added to invoice yet</p>
-                </div>
+                <div class="flex-1 overflow-y-auto max-h-[320px] my-2" id="invoiceTableWrapper"></div>
 
                 <div class="mt-4 pt-3 border-t border-dashed border-gray-200 space-y-2 text-sm font-bold text-gray-700 px-1">
                     <div class="flex justify-between" id="invoiceGrossRow">
                         <span class="text-gray-500 font-medium">Gross Subtotal</span>
                         <span class="text-gray-900">₹ <span id="prevGross">0</span></span>
                     </div>
-                    
                     <div class="flex justify-between text-emerald-800" id="invoiceGstRow">
                         <span class="font-medium">GST (3%)</span>
                         <span>₹ <span id="prevTax">0</span></span>
                     </div>
 
                     <div class="flex justify-between text-red-700 hidden" id="invoiceDiscountRow">
-                        <span class="font-medium">Ecosystem Discount Applied</span>
+                        <span class="font-medium">Settlement Discount</span>
                         <span>- ₹ <span id="prevDiscountAmt">0</span></span>
                     </div>
 
-                    <div class="toggle-container-discount bg-stone-50 border border-stone-200 rounded-xl p-3 space-y-2 mt-2 internal-only no-print">
+                    <div class="toggle-container-discount bg-stone-50 border border-stone-200 rounded-xl p-3 space-y-2 mt-1 internal-only no-print">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-black text-stone-600 uppercase tracking-wide">Final Settlement Discount</span>
-                            <select id="discountType" onchange="renderInvoice()" class="bg-white border border-stone-300 text-[11px] font-black uppercase rounded px-1.5 py-0.5 outline-none">
+                            <span class="text-xs font-black text-stone-600 uppercase">Discount Type</span>
+                            <select id="discountType" onchange="renderInvoice()" class="bg-white border text-[11px] font-black uppercase rounded p-0.5">
                                 <option value="flat">Flat Price (₹)</option>
                                 <option value="percent">Percentage (%)</option>
                             </select>
                         </div>
-                        <input type="number" id="discountValue" oninput="renderInvoice()" class="w-full bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black text-red-700 outline-none focus:border-red-500" placeholder="Enter discount value..." value="0" />
+                        <input type="number" id="discountValue" oninput="renderInvoice()" class="w-full bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black text-red-700 outline-none animate-pulse" value="0" />
                     </div>
 
-                    <div class="flex justify-between items-center text-emerald-800 internal-only no-print bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-200 mt-1">
+                    <div class="flex justify-between items-center text-emerald-800 internal-only no-print bg-emerald-50/50 p-2 rounded-xl border border-emerald-200 mt-1">
                         <div class="flex items-center gap-2">
                             <div class="relative inline-block w-8 h-4 align-middle select-none">
                                 <input type="checkbox" id="taxToggle" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" />
                                 <label for="taxToggle" class="toggle-label block overflow-hidden h-4 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
                             </div>
-                            <span class="text-xs font-black uppercase tracking-wide">Apply GST (3%)</span>
+                            <span class="text-xs font-black uppercase">Apply GST (3%)</span>
                         </div>
                     </div>
 
@@ -253,16 +238,16 @@
             </div>
 
             <div class="grid grid-cols-2 gap-3 internal-only">
-                <button type="button" onclick="executePrint(event)" class="bg-gray-900 hover:bg-black text-[#D4AF37] font-bold py-3.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md flex items-center justify-center gap-2">Print / Save PDF</button>
-                <button type="button" onclick="executeCloudSave(event)" id="btnCloudSave" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-3.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md flex items-center justify-center gap-2">☁️ Cloud Save Memo</button>
+                <button type="button" onclick="executePrint(event)" class="bg-gray-900 text-[#D4AF37] font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs">Print / Save PDF</button>
+                <button type="button" onclick="executeCloudSave(event)" id="btnCloudSave" class="bg-blue-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs">☁️ Cloud Save Memo</button>
             </div>
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full bg-gray-900 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t-[3px] border-[#D4AF37] px-6 py-5 z-20 transition-transform internal-only">
+    <div class="fixed bottom-0 left-0 w-full bg-gray-900 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t-[3px] border-[#D4AF37] px-6 py-5 z-20 internal-only">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <div>
-                <span class="text-gray-400 text-xs font-bold uppercase tracking-widest block">Running Total</span>
+                <span class="text-gray-400 text-xs font-bold block">Running Total</span>
                 <span class="text-xs font-bold text-emerald-400" id="itemCountLabel">0 Items Added</span>
             </div>
             <div class="flex items-center text-emerald-500 font-black text-3xl md:text-5xl">
@@ -274,13 +259,11 @@
 
     <script>
         document.getElementById('memoDate').valueAsDate = new Date();
-        
         let items = [];
         let saleMode = "weight";
         let globalHistoryCache = [];
         let cameraScannerEngineInstance = null;
 
-        // AUTOMATIC HIGH SEQUENCE COUNTER FETCH ENGINE (+1 AUTOSET)
         if (typeof db !== 'undefined') {
             db.collection("showroom_memos").get().then((querySnapshot) => {
                 let maxNum = 1000;
@@ -291,436 +274,252 @@
                 const nextSequenceId = maxNum + 1;
                 document.getElementById('memoId').value = nextSequenceId;
                 document.getElementById('prevMemoId').innerText = nextSequenceId;
-            }).catch(() => {
-                const fallbackId = Math.floor(1000 + Math.random() * 9000);
-                document.getElementById('memoId').value = fallbackId;
-                document.getElementById('prevMemoId').innerText = fallbackId;
             });
         }
 
-        document.getElementById('memoId').addEventListener('input', () => { 
-            document.getElementById('prevMemoId').innerText = document.getElementById('memoId').value || '--'; 
-        });
+        document.getElementById('memoId').addEventListener('input', () => { document.getElementById('prevMemoId').innerText = document.getElementById('memoId').value || '--'; });
+        setupSync('custName', 'prevName', '--'); setupSync('custMobile', 'prevMobile', '--'); setupSync('memoDate', 'prevDate', '--');
 
-        const setupSync = (inputId, prevId, fallback) => {
+        function setupSync(inputId, prevId, fallback) {
             const input = document.getElementById(inputId);
-            const prev = document.getElementById(prevId);
-            input.addEventListener('input', () => { prev.innerText = input.value || fallback; });
-            prev.innerText = input.value || fallback;
-        };
-        setupSync('custName', 'prevName', '--');
-        setupSync('custMobile', 'prevMobile', '--');
-        setupSync('memoDate', 'prevDate', '--');
+            input.addEventListener('input', () => { document.getElementById(prevId).innerText = input.value || fallback; });
+            document.getElementById(prevId).innerText = input.value || fallback;
+        }
 
         const inputs = {
-            name: document.getElementById('custName'),
-            mobile: document.getElementById('custMobile'),
-            memoId: document.getElementById('memoId'),
-            desc: document.getElementById('itemDesc'),
-            cypher: document.getElementById('itemCypher'),
-            rate: document.getElementById('itemRate'),
-            labour: document.getElementById('itemLabour'),
-            mrp: document.getElementById('itemMrp'),
-            itemWeight: document.getElementById('itemWeight'),
-            other: document.getElementById('itemOther'),
-            huidToggle: document.getElementById('itemHuidToggle'),
-            huidPrice: document.getElementById('itemHuidPrice'),
-            taxToggle: document.getElementById('taxToggle'),
-            discType: document.getElementById('discountType'),
-            discVal: document.getElementById('discountValue')
+            name: document.getElementById('custName'), mobile: document.getElementById('custMobile'), memoId: document.getElementById('memoId'),
+            desc: document.getElementById('itemDesc'), cypher: document.getElementById('itemCypher'), stockTag: document.getElementById('itemAttachedStockTag'),
+            rate: document.getElementById('itemRate'), labour: document.getElementById('itemLabour'), mrp: document.getElementById('itemMrp'),
+            itemWeight: document.getElementById('itemWeight'), other: document.getElementById('itemOther'),
+            huidToggle: document.getElementById('itemHuidToggle'), huidPrice: document.getElementById('itemHuidPrice'),
+            taxToggle: document.getElementById('taxToggle'), discType: document.getElementById('discountType'), discVal: document.getElementById('discountValue')
         };
 
-        // INTELLIGENT DISCOVERY DATABASE LOOKUPS LOGIC
+        // FIXED INTEL LOOKUP LAYER WITH SUBOBJECT CAPABILITIES (PREFIX STRING PATTERNS)
         function executeDatabaseLookup() {
-            const rawQuery = document.getElementById('liveSearchQuery').value.trim().toUpperCase();
-            if(!rawQuery) return;
+            const query = document.getElementById('liveSearchQuery').value.trim();
+            if(!query) return;
 
-            // 1. First attempt exact document match lookup using Tag SKU
-            db.collection("jini_inventory").doc(rawQuery).get()
-                .then((doc) => {
-                    if (doc.exists) {
-                        populateFormFieldsWithStockData(doc.data());
-                    } else {
-                        // 2. Fallback secondary search mapping loop matching string queries
-                        db.collection("jini_inventory").where("itemNameDescription", "==", rawQuery).limit(1).get()
-                            .then((snap) => {
-                                if(!snap.empty) {
-                                    populateFormFieldsWithStockData(snap.docs[0].data());
-                                } else {
-                                    alert("No inventory stock records matching tag parameter parameters matched.");
-                                }
-                            });
-                    }
-                }).catch(err => console.log(err));
+            // 1. Direct key reference fetch check loop
+            db.collection("jini_inventory").doc(query.toUpperCase()).get().then((doc) => {
+                if (doc.exists) { populateFormFieldsWithStockData(doc.data()); } 
+                else {
+                    // 2. FIXED: Case-insensitive search fallback using the new normalized searchName property!
+                    const normalizedQuery = query.toLowerCase();
+                    db.collection("jini_inventory")
+                      .where("searchName", ">=", normalizedQuery)
+                      .where("searchName", "<=", normalizedQuery + "\uf8ff")
+                      .limit(1).get().then((snap) => {
+                          if(!snap.empty) populateFormFieldsWithStockData(snap.docs[0].data());
+                          else alert(`No matched items under parameter string reference: "${query}"`);
+                      });
+                }
+            });
         }
 
-        function handleBarcodeGunScan(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                executeDatabaseLookup();
-            }
-        }
+        function handleBarcodeGunScan(e) { if (e.key === 'Enter') { e.preventDefault(); executeDatabaseLookup(); } }
 
         function populateFormFieldsWithStockData(data) {
+            if(data.status === "Sold") {
+                alert(`⚠️ STOCK WARNING: Tag #${data.tagNumberId} is already marked as SOLD inside your system logs.`);
+            }
             inputs.desc.value = data.itemNameDescription || '';
             inputs.cypher.value = data.itemCypherCode || '';
+            inputs.stockTag.value = data.tagNumberId || ''; // Links the internal cloud reference tracker
             inputs.itemWeight.value = data.netWeightValue || '';
             inputs.other.value = data.otherChargesAmount || '0';
             
             if (data.pricingSaleMode === 'mrp') {
-                setSaleMode(null, 'mrp');
-                inputs.mrp.value = data.fixedMrpAmount || '';
+                setSaleMode(null, 'mrp'); inputs.mrp.value = data.fixedMrpAmount || '';
             } else {
-                setSaleMode(null, 'weight');
-                inputs.rate.value = data.metalRateValue || '';
-                inputs.labour.value = data.labourChargeValue || '';
+                setSaleMode(null, 'weight'); inputs.rate.value = data.metalRateValue || ''; inputs.labour.value = data.labourChargeValue || '';
             }
-            document.getElementById('liveSearchQuery').value = ""; // Clear lookup box
-            inputs.itemWeight.focus();
-            alert(`⚡ Stock Found: "${data.itemNameDescription}" loaded cleanly onto canvas!`);
+            document.getElementById('liveSearchQuery').value = ""; inputs.itemWeight.focus();
         }
 
-        // DEVICE CAMERA HARDWARE ACCESS SYSTEMS CONTROLLER LOOPS
         function startCameraScanner() {
             document.getElementById('qrScannerBox').classList.remove('hidden');
             cameraScannerEngineInstance = new Html5Qrcode("cameraViewfinder");
-            cameraScannerEngineInstance.start(
-                { facingMode: "environment" }, 
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                (decodedText) => {
-                    document.getElementById('liveSearchQuery').value = decodedText;
-                    stopCameraScanner();
-                    executeDatabaseLookup();
-                },
-                () => {}
-            ).catch(err => {
-                alert("Camera Initialization Failed: " + err.message);
-                document.getElementById('qrScannerBox').classList.add('hidden');
-            });
+            cameraScannerEngineInstance.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
+                document.getElementById('liveSearchQuery').value = txt; stopCameraScanner(); executeDatabaseLookup();
+            }, () => {});
         }
-
-        function stopCameraScanner() {
-            if (cameraScannerEngineInstance) {
-                cameraScannerEngineInstance.stop().then(() => {
-                    document.getElementById('qrScannerBox').classList.add('hidden');
-                });
-            }
-        }
+        function stopCameraScanner() { if(cameraScannerEngineInstance) cameraScannerEngineInstance.stop().then(() => document.getElementById('qrScannerBox').classList.add('hidden')); }
 
         function checkMandatoryDetails() {
-            const nameVal = inputs.name.value.trim();
-            const mobileVal = inputs.mobile.value.trim();
-            if (!nameVal || !mobileVal) {
-                alert("STRICT MANDATORY LOCK: You must enter both Customer Name and Mobile Number first!");
-                if(!nameVal) inputs.name.className = "w-full bg-red-50 border-2 border-red-500 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none";
-                if(!mobileVal) inputs.mobile.className = "w-full bg-red-50 border-2 border-red-500 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none";
-                document.getElementById('customerCard').scrollIntoView({ behavior: 'smooth' });
+            const n = inputs.name.value.trim(), m = inputs.mobile.value.trim();
+            if (!n || !m) {
+                alert("Customer Name and Mobile Number are strictly compulsory!");
+                if(!n) inputs.name.className = "w-full bg-red-50 border-2 border-red-500 rounded-xl py-2.5 px-3 font-bold";
+                if(!m) inputs.mobile.className = "w-full bg-red-50 border-2 border-red-500 rounded-xl py-2.5 px-3 font-bold";
                 return false;
             }
-            inputs.name.className = "w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]";
-            inputs.mobile.className = "w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]";
             return true;
         }
 
         function setSaleMode(e, mode) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
             saleMode = mode;
-            const btnW = document.getElementById('btnModeWeight');
-            const btnM = document.getElementById('btnModeMrp');
-            const rowW = document.getElementById('rowWeightRate');
-            const rowM = document.getElementById('rowFixedMrp');
-            const lblWeight = document.getElementById('lblWeight');
-
             if (mode === 'weight') {
-                btnW.className = "flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg bg-[#047857] text-white transition-all shadow-sm";
-                btnM.className = "flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500 transition-all";
-                rowW.classList.remove('hidden'); rowM.classList.add('hidden');
-                lblWeight.innerText = "Net Weight (g) *";
+                document.getElementById('btnModeWeight').className = "text-xs font-black uppercase px-4 py-2 rounded-lg bg-[#047857] text-white";
+                document.getElementById('btnModeMrp').className = "text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500";
+                document.getElementById('rowWeightRate').classList.remove('hidden'); document.getElementById('rowFixedMrp').classList.add('hidden');
+                document.getElementById('lblWeight').innerText = "Net Weight (g) *";
             } else {
-                btnM.className = "flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg bg-blue-800 text-white transition-all shadow-sm";
-                btnW.className = "flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500 transition-all";
-                rowM.classList.remove('hidden'); rowW.classList.add('hidden');
-                lblWeight.innerText = "Weight (g - Optional)";
+                document.getElementById('btnModeMrp').className = "text-xs font-black uppercase px-4 py-2 rounded-lg bg-blue-800 text-white";
+                document.getElementById('btnModeWeight').className = "text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500";
+                document.getElementById('rowFixedMrp').classList.remove('hidden'); document.getElementById('rowWeightRate').classList.add('hidden');
+                document.getElementById('lblWeight').innerText = "Weight (g - Optional)";
             }
         }
 
         function addItem(e) {
-            if (e) e.preventDefault();
-            if (!checkMandatoryDetails()) return;
-
-            const desc = inputs.desc.value.trim();
-            const cypherStr = inputs.cypher.value.trim();
-            const other = parseFloat(inputs.other.value) || 0;
-            const weight = parseFloat(inputs.itemWeight.value) || 0;
+            if (e) e.preventDefault(); if (!checkMandatoryDetails()) return;
+            const desc = inputs.desc.value.trim(), cypherStr = inputs.cypher.value.trim(), tagRef = inputs.stockTag.value;
+            const other = parseFloat(inputs.other.value) || 0, weight = parseFloat(inputs.itemWeight.value) || 0;
             const huidAmt = inputs.huidToggle.checked ? (parseFloat(inputs.huidPrice.value) || 0) : 0;
 
             if (!desc) { alert("Please input Item Description!"); return; }
-
-            let calculatedItemTotal = 0;
-            let savedRate = 0; let savedLabour = 0; let savedMrp = 0;
+            let total = 0, rate = 0, labour = 0, mrp = 0;
 
             if (saleMode === "weight") {
-                savedRate = parseFloat(inputs.rate.value) || 0;
-                savedLabour = parseFloat(inputs.labour.value) || 0;
-                if (weight <= 0) { alert("Net Weight is mandatory for calculations by weight!"); return; }
-                calculatedItemTotal = Math.round(((savedRate + savedLabour) * weight) + other + huidAmt);
+                rate = parseFloat(inputs.rate.value) || 0; labour = parseFloat(inputs.labour.value) || 0;
+                if (weight <= 0) { alert("Net Weight is mandatory!"); return; }
+                total = Math.round(((rate + labour) * weight) + other + huidAmt);
             } else {
-                savedMrp = parseFloat(inputs.mrp.value) || 0;
-                if (savedMrp <= 0) { alert("Please input Fixed Item MRP value!"); return; }
-                calculatedItemTotal = Math.round(savedMrp + other + huidAmt);
+                mrp = parseFloat(inputs.mrp.value) || 0; if (mrp <= 0) { alert("Please input Fixed Item MRP!"); return; }
+                total = Math.round(mrp + other + huidAmt);
             }
 
-            items.push({ 
-                desc, cypher: cypherStr, total: calculatedItemTotal,
-                rate: savedRate, labour: savedLabour, mrp: savedMrp,
-                weight, other, huidChecked: inputs.huidToggle.checked, huidPriceVal: huidAmt
-            });
-
-            inputs.desc.value = ''; inputs.cypher.value = ''; inputs.itemWeight.value = ''; inputs.other.value = ''; inputs.mrp.value = ''; inputs.huidPrice.value = '50';
+            items.push({ desc, cypher: cypherStr, tagNumberId: tagRef, total, rate, labour, mrp, weight, other, huidPriceVal: huidAmt });
+            inputs.desc.value = ''; inputs.cypher.value = ''; inputs.stockTag.value = ''; inputs.itemWeight.value = ''; inputs.other.value = '';
             renderInvoice();
         }
 
         function editItem(index) {
-            const item = items[index];
-            inputs.desc.value = item.desc; inputs.cypher.value = item.cypher || '';
-            inputs.other.value = item.other || ''; inputs.itemWeight.value = item.weight || '';
-            inputs.huidToggle.checked = item.huidChecked; inputs.huidPrice.value = item.huidPriceVal || '50';
-
-            if (item.mrp > 0) {
-                setSaleMode(null, 'mrp'); inputs.mrp.value = item.mrp;
-            } else {
-                setSaleMode(null, 'weight'); inputs.rate.value = item.rate; inputs.labour.value = item.labour;
-            }
-            items.splice(index, 1); renderInvoice(); inputs.desc.focus();
+            const item = items[index]; inputs.desc.value = item.desc; inputs.cypher.value = item.cypher || ''; inputs.stockTag.value = item.tagNumberId || '';
+            inputs.itemWeight.value = item.weight || ''; inputs.other.value = item.other || ''; inputs.huidPrice.value = item.huidPriceVal || '50';
+            if (item.mrp > 0) { setSaleMode(null, 'mrp'); inputs.mrp.value = item.mrp; } 
+            else { setSaleMode(null, 'weight'); inputs.rate.value = item.rate; inputs.labour.value = item.labour; }
+            items.splice(index, 1); renderInvoice();
         }
-
         function deleteItem(index) { items.splice(index, 1); renderInvoice(); }
 
         function renderInvoice() {
             const wrapper = document.getElementById('invoiceTableWrapper');
             if (items.length === 0) {
-                wrapper.innerHTML = `<p class="text-center text-gray-300 font-medium text-sm py-16" id="emptyCartMsg">No items added to invoice yet</p>`;
-                document.getElementById('itemCountLabel').innerText = '0 Items Added';
-                document.getElementById('prevGross').innerText = '0'; document.getElementById('prevTax').innerText = '0';
-                document.getElementById('invoiceGrandTotal').innerText = '0'; document.getElementById('printGrandTotal').innerText = '0';
-                document.getElementById('invoiceDiscountRow').classList.add('hidden');
+                wrapper.innerHTML = `<p class="text-center text-gray-300 font-medium text-sm py-16">No items on canvas</p>`;
+                document.getElementById('itemCountLabel').innerText = '0 Items'; document.getElementById('prevGross').innerText = '0';
+                document.getElementById('prevTax').innerText = '0'; document.getElementById('invoiceGrandTotal').innerText = '0';
+                document.getElementById('printGrandTotal').innerText = '0'; document.getElementById('invoiceDiscountRow').classList.add('hidden');
                 return;
             }
 
-            let tableHtml = `
-                <table class="print-table w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b-2 border-black">
-                            <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider w-8 text-center">Sr.</th>
-                            <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider">Description</th>
-                            <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider text-right w-20">Weight</th>
-                            <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider text-right w-24">Rate/g</th>
-                            <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider text-right pr-1 w-28">Amount</th>
-                            <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider text-center w-16 internal-only no-print">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-            `;
+            let tableHtml = `<table class="print-table w-full text-left text-xs border-collapse"><thead><tr class="border-b-2 border-black"><th class="py-2 w-8 text-center">Sr.</th><th>Description</th><th class="text-right w-20">Weight</th><th class="text-right w-24">Rate/g</th><th class="text-right pr-1 w-28">Amount</th><th class="internal-only no-print text-center w-16">Action</th></tr></thead><tbody>`;
+            let gross = 0;
 
-            let grossSubtotal = 0;
-
-            items.forEach((item, index) => {
-                grossSubtotal += item.total;
-                const weightDisplay = item.weight > 0 ? `${item.weight.toFixed(2)} g` : `-`;
-                const rateDisplay = item.mrp > 0 ? `-` : `₹${item.rate + item.labour}`;
-                const hasAddons = item.huidPriceVal > 0 || item.other > 0;
-
+            items.forEach((item, idx) => {
+                gross += item.total;
+                const wDisp = item.weight > 0 ? `${item.weight.toFixed(2)} g` : `-`;
+                const rDisp = item.mrp > 0 ? `-` : `₹${item.rate + item.labour}`;
                 tableHtml += `
                     <tr class="align-top">
-                        <td class="py-3 text-xs font-bold text-gray-400 text-center">${index + 1}</td>
-                        <td class="py-3">
+                        <td class="py-3 text-center text-gray-400">${idx+1}</td>
+                        <td>
                             <div class="flex flex-col">
-                                <span class="font-black text-gray-800 text-sm tracking-tight">${item.desc}</span>
-                                ${item.cypher ? `<span class="print-cypher-lowercase block text-[10px] font-mono text-gray-500 lowercase">${item.cypher.toLowerCase()}</span>` : ''}
+                                <span class="font-black text-gray-800 text-sm">${item.desc}</span>
+                                ${item.cypher ? `<span class="print-cypher-lowercase font-mono text-gray-400 lowercase text-[10px]">${item.cypher.toLowerCase()}</span>` : ''}
                             </div>
-                            ${hasAddons ? `<span class="text-[10px] text-gray-400 block font-bold uppercase tracking-wide mt-0.5">(Inc. ${item.huidPriceVal > 0 ? 'HUID/Cert' : ''}${item.huidPriceVal > 0 && item.other > 0 ? ' + ' : ''}${item.other > 0 ? 'Charges' : ''})</span>` : ''}
                         </td>
-                        <td class="py-3 text-right font-bold text-gray-900 text-xs md:text-sm">${weightDisplay}</td>
-                        <td class="py-3 text-right font-bold text-gray-500 text-xs md:text-sm">${rateDisplay}</td>
-                        <td class="py-3 text-right font-black text-gray-900 text-xs md:text-sm pr-1">₹${item.total.toLocaleString('en-IN')}</td>
-                        <td class="py-3 text-center internal-only no-print space-x-1">
-                            <button type="button" onclick="editItem(${index})" class="text-amber-500 font-bold hover:text-amber-700">✏️</button>
-                            <button type="button" onclick="deleteItem(${index})" class="text-red-400 font-bold hover:text-red-600">🗑️</button>
-                        </td>
-                    </tr>
-                `;
+                        <td class="py-3 text-right font-bold">${wDisp}</td>
+                        <td class="py-3 text-right text-gray-500">${rDisp}</td>
+                        <td class="py-3 text-right font-black pr-1">₹${item.total.toLocaleString('en-IN')}</td>
+                        <td class="py-3 text-center internal-only no-print space-x-1"><button type="button" onclick="editItem(${idx})">✏️</button><button type="button" onclick="deleteItem(${idx})">🗑️</button></td>
+                    </tr>`;
             });
+            tableHtml += `</tbody></table>`; wrapper.innerHTML = tableHtml;
 
-            tableHtml += `</tbody></table>`;
-            wrapper.innerHTML = tableHtml;
-
-            // TAX ACCOUNTING
             const taxApplied = inputs.taxToggle.checked;
-            const gstAmount = taxApplied ? Math.round(grossSubtotal * 0.03) : 0;
-            
-            // INTRODUCING LIVE ECOSYSTEM DISCOUNT BALANCING SETTLEMENT ARRAYS
+            const gst = taxApplied ? Math.round(gross * 0.03) : 0;
             const discType = inputs.discType.value;
-            const discInputVal = parseFloat(inputs.discVal.value) || 0;
-            let finalDiscountAmt = 0;
+            const discIn = parseFloat(inputs.discVal.value) || 0;
+            const discAmt = discType === 'percent' ? Math.round((gross + gst) * (discIn / 100)) : Math.round(discIn);
+            const finalTotal = (gross + gst) - discAmt;
 
-            if (discType === 'percent') {
-                finalDiscountAmt = Math.round((grossSubtotal + gstAmount) * (discInputVal / 100));
-            } else {
-                finalDiscountAmt = Math.round(discInputVal);
-            }
+            const grossRow = document.getElementById('invoiceGrossRow'), gstRow = document.getElementById('invoiceGstRow'), discRow = document.getElementById('invoiceDiscountRow');
+            if (taxApplied) { grossRow.style.display = "flex"; gstRow.style.display = "flex"; } else { grossRow.style.display = "none"; gstRow.style.display = "none"; }
+            if (discAmt > 0) { discRow.classList.remove('hidden'); document.getElementById('prevDiscountAmt').innerText = discAmt.toLocaleString('en-IN'); } else { discRow.classList.add('hidden'); }
 
-            const finalGrandTotal = (grossSubtotal + gstAmount) - finalDiscountAmt;
-
-            // Handle UI changes for visibility states
-            const grossRow = document.getElementById('invoiceGrossRow');
-            const gstRow = document.getElementById('invoiceGstRow');
-            const discRow = document.getElementById('invoiceDiscountRow');
-
-            if (taxApplied) {
-                grossRow.style.display = "flex"; gstRow.style.display = "flex";
-                grossRow.classList.remove('hide-on-print'); gstRow.classList.remove('hide-on-print');
-            } else {
-                grossRow.style.display = "none"; gstRow.style.display = "none";
-                grossRow.classList.add('hide-on-print'); gstRow.classList.add('hide-on-print');
-            }
-
-            if (finalDiscountAmt > 0) {
-                discRow.classList.remove('hidden');
-                document.getElementById('prevDiscountAmt').innerText = finalDiscountAmt.toLocaleString('en-IN');
-            } else {
-                discRow.classList.add('hidden');
-            }
-
-            document.getElementById('itemCountLabel').innerText = `${items.length} Item${items.length > 1 ? 's' : ''} Added`;
-            document.getElementById('prevGross').innerText = grossSubtotal.toLocaleString('en-IN');
-            document.getElementById('prevTax').innerText = gstAmount.toLocaleString('en-IN');
-            document.getElementById('invoiceGrandTotal').innerText = finalGrandTotal.toLocaleString('en-IN');
-            document.getElementById('printGrandTotal').innerText = finalGrandTotal.toLocaleString('en-IN');
+            document.getElementById('itemCountLabel').innerText = `${items.length} Items`;
+            document.getElementById('prevGross').innerText = gross.toLocaleString('en-IN'); document.getElementById('prevTax').innerText = gst.toLocaleString('en-IN');
+            document.getElementById('invoiceGrandTotal').innerText = finalTotal.toLocaleString('en-IN'); document.getElementById('printGrandTotal').innerText = finalTotal.toLocaleString('en-IN');
         }
 
-        function executePrint(e) { 
-            if (e) e.preventDefault(); 
-            if (!checkMandatoryDetails()) return;
-            window.print(); 
-        }
-
+        // AUTOMATED INWARD/OUTWARD STATUS BATCH FLUSHER
         function executeCloudSave(e) {
-            if (e) e.preventDefault();
-            if (!checkMandatoryDetails()) return;
-            if (items.length === 0) { alert("Please add at least one item before cloud saving!"); return; }
-            if (!confirm("Confirm: Commit this transaction record to Jini Jewels secure ledger?")) return;
+            if (e) e.preventDefault(); if (!checkMandatoryDetails()) return;
+            if (items.length === 0) { alert("Please add items first!"); return; }
+            if (!confirm("Are you sure you want to finalize and save this bill to the cloud database?")) return;
 
             const saveBtn = document.getElementById('btnCloudSave');
             saveBtn.innerText = "⏳ Saving..."; saveBtn.disabled = true;
-            const targetEstimateNumber = inputs.memoId.value.trim();
+            const targetId = inputs.memoId.value.trim();
 
-            const documentPayload = {
-                estimateNumber: targetEstimateNumber,
-                customerName: inputs.name.value.trim(),
-                customerMobile: inputs.mobile.value.trim(),
-                memoDate: document.getElementById('memoDate').value,
-                itemsListArray: items,
-                subtotalAmount: document.getElementById('prevGross').innerText,
-                taxAppliedBool: inputs.taxToggle.checked,
-                discountGivenValue: document.getElementById('prevDiscountAmt').innerText || '0',
-                grandTotalPayable: document.getElementById('invoiceGrandTotal').innerText,
-                localTimestamp: new Date().toISOString()
+            const payload = {
+                estimateNumber: targetId, customerName: inputs.name.value.trim(), customerMobile: inputs.mobile.value.trim(),
+                memoDate: document.getElementById('memoDate').value, itemsListArray: items, subtotalAmount: document.getElementById('prevGross').innerText,
+                taxAppliedBool: inputs.taxToggle.checked, grandTotalPayable: document.getElementById('invoiceGrandTotal').innerText, localTimestamp: new Date().toISOString()
             };
 
-            db.collection("showroom_memos").doc(documentPayload.estimateNumber).set(documentPayload)
-              .then(() => { 
-                  alert("☁️ Success: Memo #" + documentPayload.estimateNumber + " has been recorded safely in the cloud database!"); 
-                  saveBtn.innerText = "☁️ Cloud Save Memo"; saveBtn.disabled = false;
-                  
-                  // Bump sequence +1 smoothly on layout canvas instantly
-                  const nextId = parseInt(targetEstimateNumber) + 1;
-                  if(!isNaN(nextId)) {
-                      inputs.memoId.value = nextId;
-                      document.getElementById('prevMemoId').innerText = nextId;
-                  }
-                  items = []; renderInvoice(); inputs.name.value = ''; inputs.mobile.value = '';
-              })
-              .catch(error => { 
-                  alert("Cloud Failure: " + error.message); 
-                  saveBtn.innerText = "☁️ Cloud Save Memo"; saveBtn.disabled = false;
-              });
-        }
-
-        function toggleHistoryModal(show) {
-            const modal = document.getElementById('historyModal');
-            if (show) modal.classList.remove('opacity-0', 'pointer-events-none');
-            else modal.classList.add('opacity-0', 'pointer-events-none');
-        }
-
-        function fetchHistoryFromCloud() {
-            if (typeof db === 'undefined') return;
-            toggleHistoryModal(true);
-            const historyList = document.getElementById('historyMemosList');
-            historyList.innerHTML = `<p class="text-center text-gray-400 font-bold py-12 animate-pulse">⏳ Fetching live ledger logs...</p>`;
-
-            db.collection("showroom_memos").get()
-                .then((querySnapshot) => {
-                    globalHistoryCache = [];
-                    if (querySnapshot.empty) {
-                        historyList.innerHTML = `<p class="text-center text-gray-400 py-12 font-bold">No saved files discovered in database.</p>`;
-                        return;
+            db.collection("showroom_memos").doc(targetId).set(payload).then(() => {
+                // RUN THROUGH ARRAY AND FLIP ITEM TAGS NATIVELY TO SOLD
+                let updatePromises = [];
+                items.forEach(item => {
+                    if (item.tagNumberId) {
+                        const p = db.collection("jini_inventory").doc(item.tagNumberId).update({ status: "Sold" });
+                        updatePromises.push(p);
                     }
-                    querySnapshot.forEach((doc) => { globalHistoryCache.push(doc.data()); });
-                    renderHistoryListItems(globalHistoryCache);
-                })
-                .catch((error) => {
-                    historyList.innerHTML = `<p class="text-center text-red-500 py-12 font-bold">Failed to load logs: ${error.message}</p>`;
                 });
+
+                Promise.all(updatePromises).then(() => {
+                    alert(`☁️ Invoice Saved! Stock levels updated automatically.`);
+                    saveBtn.innerText = "☁️ Cloud Save Memo"; saveBtn.disabled = false;
+                    inputs.memoId.value = parseInt(targetId) + 1; document.getElementById('prevMemoId').innerText = parseInt(targetId) + 1;
+                    items = []; renderInvoice(); inputs.name.value = ''; inputs.mobile.value = '';
+                });
+            }).catch(err => { alert(err.message); saveBtn.innerText = "☁️ Cloud Save Memo"; saveBtn.disabled = false; });
         }
 
-        function renderHistoryListItems(recordsArray) {
-            const historyList = document.getElementById('historyMemosList');
-            historyList.innerHTML = "";
-            recordsArray.forEach((data) => {
-                const rowCard = document.createElement('div');
-                rowCard.className = "bg-gray-50 hover:bg-emerald-50/60 border border-gray-200 rounded-2xl p-4 transition-all cursor-pointer shadow-sm mb-3 text-left";
-                rowCard.innerHTML = `
-                    <div class="flex justify-between items-start mb-1">
-                        <span class="font-black text-gray-900 text-sm">#${data.estimateNumber}</span>
-                        <span class="text-xs font-bold text-gray-400">${data.memoDate || ''}</span>
-                    </div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="font-black text-gray-700 text-xs uppercase tracking-tight">${data.customerName}</p>
-                            <p class="text-[10px] text-gray-400 font-medium">${data.customerMobile}</p>
-                        </div>
-                        <span class="font-black text-[#047857] text-sm">₹${data.grandTotalPayable}</span>
-                    </div>
-                `;
-                rowCard.addEventListener('click', () => { loadOldRecordIntoTerminal(data); toggleHistoryModal(false); });
-                historyList.appendChild(rowCard);
+        function toggleHistoryModal(s) { const m = document.getElementById('historyModal'); if(s) m.classList.remove('opacity-0', 'pointer-events-none'); else m.classList.add('opacity-0', 'pointer-events-none'); }
+        function fetchHistoryFromCloud() {
+            toggleHistoryModal(true); const list = document.getElementById('historyMemosList');
+            list.innerHTML = `<p class="text-center font-bold animate-pulse">⏳ Loading records...</p>`;
+            db.collection("showroom_memos").get().then((snap) => {
+                globalHistoryCache = []; if (snap.empty) { list.innerHTML = `<p class="text-center">No memos found.</p>`; return; }
+                snap.forEach(d => globalHistoryCache.push(d.data())); renderHistoryList(globalHistoryCache);
             });
         }
-
-        function filterHistoryLedger() {
-            const query = document.getElementById('historySearchInput').value.toLowerCase().trim();
-            if(!query) { renderHistoryListItems(globalHistoryCache); return; }
-            const matches = globalHistoryCache.filter(item => 
-                (item.customerName && item.customerName.toLowerCase().includes(query)) ||
-                (item.customerMobile && item.customerMobile.includes(query)) ||
-                (item.estimateNumber && item.estimateNumber.toString().includes(query))
-            );
-            renderHistoryListItems(matches);
+        function renderHistoryList(arr) {
+            const list = document.getElementById('historyMemosList'); list.innerHTML = "";
+            arr.forEach(d => {
+                const card = document.createElement('div'); card.className = "bg-gray-50 border p-4 rounded-2xl mb-2 text-left cursor-pointer";
+                card.innerHTML = `<div class="flex justify-between font-black text-sm"><span>#${d.estimateNumber}</span><span class="text-xs font-bold text-gray-400">${d.memoDate}</span></div><div class="flex justify-between mt-1"><p class="text-xs uppercase">${d.customerName}</p><span class="font-black text-emerald-700">₹${d.grandTotalPayable}</span></div>`;
+                card.addEventListener('click', () => { loadOldRecordIntoTerminal(d); toggleHistoryModal(false); });
+                list.appendChild(card);
+            });
         }
-
-        function loadOldRecordIntoTerminal(data) {
-            inputs.name.value = data.customerName || '';
-            inputs.mobile.value = data.customerMobile || '';
-            inputs.memoId.value = data.estimateNumber || '';
-            document.getElementById('memoDate').value = data.memoDate || '';
-            document.getElementById('prevMemoId').innerText = data.estimateNumber || '--';
-            document.getElementById('prevName').innerText = data.customerName || '--';
-            document.getElementById('prevMobile').innerText = data.customerMobile || '--';
-            document.getElementById('prevDate').innerText = data.memoDate || '--';
-            items = data.itemsListArray || [];
-            inputs.taxToggle.checked = data.taxAppliedBool || false;
-            if(data.discountGivenValue) { inputs.discVal.value = data.discountGivenValue.replace(/,/g, ''); inputs.discType.value = 'flat'; }
-            renderInvoice();
+        function filterHistoryLedger() {
+            const q = document.getElementById('historySearchInput').value.toLowerCase().trim();
+            if(!q) { renderHistoryList(globalHistoryCache); return; }
+            const matches = globalHistoryCache.filter(i => i.customerName.toLowerCase().includes(q) || i.customerMobile.includes(q) || i.estimateNumber.toString().includes(q));
+            renderHistoryList(matches);
+        }
+        function loadOldRecordIntoTerminal(d) {
+            inputs.name.value = d.customerName || ''; inputs.mobile.value = d.customerMobile || ''; inputs.memoId.value = d.estimateNumber || '';
+            document.getElementById('memoDate').value = d.memoDate || ''; document.getElementById('prevMemoId').innerText = d.estimateNumber || '--';
+            document.getElementById('prevName').innerText = d.customerName || '--'; document.getElementById('prevMobile').innerText = d.customerMobile || '--';
+            document.getElementById('prevDate').innerText = d.memoDate || '--';
+            items = d.itemsListArray || []; inputs.taxToggle.checked = d.taxAppliedBool || false; renderInvoice();
         }
     </script>
 </body>
