@@ -36,6 +36,8 @@
             .text-gray-900, .text-[#064e3b] { color: #000000 !important; }
             .print-border-dashed { border-bottom: 2px dashed #000000 !important; }
             .print-total-highlight { border-top: 3px double #000000 !important; border-bottom: 3px double #000000 !important; background-color: #f9fafb !important; font-size: 18px !important; padding: 10px 4px !important; font-weight: 900 !important; }
+            .hide-on-print { display: none !important; }
+            .print-cypher-lowercase { display: block !important; text-transform: lowercase !important; font-size: 10px !important; color: #555555 !important; font-family: monospace !important; margin-top: 1px !important; }
             .print-footer-container { display: block !important; width: 100% !important; margin-top: 60px !important; clear: both !important; }
             .print-left-eoe { float: left !important; display: block !important; width: 40% !important; text-align: left !important; }
             .print-right-sign { float: right !important; display: block !important; width: 40% !important; text-align: center !important; border-top: 1px solid #000000 !important; padding-top: 30px !important; }
@@ -211,7 +213,7 @@
                                 <option value="percent">Percentage (%)</option>
                             </select>
                         </div>
-                        <input type="number" id="discountValue" oninput="renderInvoice()" class="w-full bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black text-red-700 outline-none animate-pulse" value="0" />
+                        <input type="number" id="discountValue" oninput="renderInvoice()" class="w-full bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black text-red-700 outline-none" value="0" />
                     </div>
 
                     <div class="flex justify-between items-center text-emerald-800 internal-only no-print bg-emerald-50/50 p-2 rounded-xl border border-emerald-200 mt-1">
@@ -263,8 +265,12 @@
         let saleMode = "weight";
         let globalHistoryCache = [];
         let cameraScannerEngineInstance = null;
+        
+        // INTERNALLY MAP THE ENTIRE JINI INVENTORY FOR MEMORY SUBSTRING SEARCH MATCHES
+        window.localShowroomInventoryMemoryList = [];
 
         if (typeof db !== 'undefined') {
+            // Load sequence counters
             db.collection("showroom_memos").get().then((querySnapshot) => {
                 let maxNum = 1000;
                 querySnapshot.forEach((doc) => {
@@ -274,6 +280,14 @@
                 const nextSequenceId = maxNum + 1;
                 document.getElementById('memoId').value = nextSequenceId;
                 document.getElementById('prevMemoId').innerText = nextSequenceId;
+            });
+
+            // Stream inventory down into local high speed RAM strings array maps instantly
+            db.collection("jini_inventory").onSnapshot((snapshot) => {
+                window.localShowroomInventoryMemoryList = [];
+                snapshot.forEach(doc => {
+                    window.localShowroomInventoryMemoryList.push(doc.data());
+                });
             });
         }
 
@@ -295,26 +309,24 @@
             taxToggle: document.getElementById('taxToggle'), discType: document.getElementById('discountType'), discVal: document.getElementById('discountValue')
         };
 
-        // FIXED INTEL LOOKUP LAYER WITH SUBOBJECT CAPABILITIES (PREFIX STRING PATTERNS)
+        // FIXED HIGH PERFORMANCE SUBSTRING LOGIC SEARCH CORES
         function executeDatabaseLookup() {
-            const query = document.getElementById('liveSearchQuery').value.trim();
+            const query = document.getElementById('liveSearchQuery').value.trim().toLowerCase();
             if(!query) return;
 
-            // 1. Direct key reference fetch check loop
-            db.collection("jini_inventory").doc(query.toUpperCase()).get().then((doc) => {
-                if (doc.exists) { populateFormFieldsWithStockData(doc.data()); } 
-                else {
-                    // 2. FIXED: Case-insensitive search fallback using the new normalized searchName property!
-                    const normalizedQuery = query.toLowerCase();
-                    db.collection("jini_inventory")
-                      .where("searchName", ">=", normalizedQuery)
-                      .where("searchName", "<=", normalizedQuery + "\uf8ff")
-                      .limit(1).get().then((snap) => {
-                          if(!snap.empty) populateFormFieldsWithStockData(snap.docs[0].data());
-                          else alert(`No matched items under parameter string reference: "${query}"`);
-                      });
-                }
-            });
+            // First check for exact Tag ID match
+            let foundRecord = window.localShowroomInventoryMemoryList.find(i => i.tagNumberId.toLowerCase() === query);
+            
+            // Fallback: Check if user typed a partial piece of the descriptive string
+            if(!foundRecord) {
+                foundRecord = window.localShowroomInventoryMemoryList.find(i => i.itemNameDescription.toLowerCase().includes(query));
+            }
+
+            if(foundRecord) {
+                populateFormFieldsWithStockData(foundRecord);
+            } else {
+                alert(`No inventory matched under query string keyword: "${query}"`);
+            }
         }
 
         function handleBarcodeGunScan(e) { if (e.key === 'Enter') { e.preventDefault(); executeDatabaseLookup(); } }
@@ -325,7 +337,7 @@
             }
             inputs.desc.value = data.itemNameDescription || '';
             inputs.cypher.value = data.itemCypherCode || '';
-            inputs.stockTag.value = data.tagNumberId || ''; // Links the internal cloud reference tracker
+            inputs.stockTag.value = data.tagNumberId || ''; 
             inputs.itemWeight.value = data.netWeightValue || '';
             inputs.other.value = data.otherChargesAmount || '0';
             
@@ -357,8 +369,8 @@
             return true;
         }
 
-        function setSaleMode(e, mode) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
+        function setSaleMode(browserEvent, mode) {
+            if (browserEvent) { browserEvent.preventDefault(); browserEvent.stopPropagation(); }
             saleMode = mode;
             if (mode === 'weight') {
                 document.getElementById('btnModeWeight').className = "text-xs font-black uppercase px-4 py-2 rounded-lg bg-[#047857] text-white";
@@ -447,15 +459,29 @@
             const finalTotal = (gross + gst) - discAmt;
 
             const grossRow = document.getElementById('invoiceGrossRow'), gstRow = document.getElementById('invoiceGstRow'), discRow = document.getElementById('invoiceDiscountRow');
-            if (taxApplied) { grossRow.style.display = "flex"; gstRow.style.display = "flex"; } else { grossRow.style.display = "none"; gstRow.style.display = "none"; }
-            if (discAmt > 0) { discRow.classList.remove('hidden'); document.getElementById('prevDiscountAmt').innerText = discAmt.toLocaleString('en-IN'); } else { discRow.classList.add('hidden'); }
+            
+            if (taxApplied) {
+                grossRow.style.display = "flex"; gstRow.style.display = "flex";
+                grossRow.classList.remove('hide-on-print'); gstRow.classList.remove('hide-on-print');
+            } else {
+                grossRow.style.display = "none"; gstRow.style.display = "none";
+                grossRow.classList.add('hide-on-print'); gstRow.classList.add('hide-on-print');
+            }
+
+            if (discAmt > 0) {
+                discRow.classList.remove('hidden');
+                discRow.classList.remove('hide-on-print');
+                document.getElementById('prevDiscountAmt').innerText = discAmt.toLocaleString('en-IN');
+            } else {
+                discRow.classList.add('hidden');
+                discRow.classList.add('hide-on-print');
+            }
 
             document.getElementById('itemCountLabel').innerText = `${items.length} Items`;
             document.getElementById('prevGross').innerText = gross.toLocaleString('en-IN'); document.getElementById('prevTax').innerText = gst.toLocaleString('en-IN');
             document.getElementById('invoiceGrandTotal').innerText = finalTotal.toLocaleString('en-IN'); document.getElementById('printGrandTotal').innerText = finalTotal.toLocaleString('en-IN');
         }
 
-        // AUTOMATED INWARD/OUTWARD STATUS BATCH FLUSHER
         function executeCloudSave(e) {
             if (e) e.preventDefault(); if (!checkMandatoryDetails()) return;
             if (items.length === 0) { alert("Please add items first!"); return; }
@@ -468,11 +494,11 @@
             const payload = {
                 estimateNumber: targetId, customerName: inputs.name.value.trim(), customerMobile: inputs.mobile.value.trim(),
                 memoDate: document.getElementById('memoDate').value, itemsListArray: items, subtotalAmount: document.getElementById('prevGross').innerText,
-                taxAppliedBool: inputs.taxToggle.checked, grandTotalPayable: document.getElementById('invoiceGrandTotal').innerText, localTimestamp: new Date().toISOString()
+                taxAppliedBool: inputs.taxToggle.checked, discountGivenValue: document.getElementById('prevDiscountAmt').innerText || '0',
+                grandTotalPayable: document.getElementById('invoiceGrandTotal').innerText, localTimestamp: new Date().toISOString()
             };
 
             db.collection("showroom_memos").doc(targetId).set(payload).then(() => {
-                // RUN THROUGH ARRAY AND FLIP ITEM TAGS NATIVELY TO SOLD
                 let updatePromises = [];
                 items.forEach(item => {
                     if (item.tagNumberId) {
@@ -485,7 +511,7 @@
                     alert(`☁️ Invoice Saved! Stock levels updated automatically.`);
                     saveBtn.innerText = "☁️ Cloud Save Memo"; saveBtn.disabled = false;
                     inputs.memoId.value = parseInt(targetId) + 1; document.getElementById('prevMemoId').innerText = parseInt(targetId) + 1;
-                    items = []; renderInvoice(); inputs.name.value = ''; inputs.mobile.value = '';
+                    items = []; inputs.discVal.value = 0; renderInvoice(); inputs.name.value = ''; inputs.mobile.value = '';
                 });
             }).catch(err => { alert(err.message); saveBtn.innerText = "☁️ Cloud Save Memo"; saveBtn.disabled = false; });
         }
@@ -519,7 +545,9 @@
             document.getElementById('memoDate').value = d.memoDate || ''; document.getElementById('prevMemoId').innerText = d.estimateNumber || '--';
             document.getElementById('prevName').innerText = d.customerName || '--'; document.getElementById('prevMobile').innerText = d.customerMobile || '--';
             document.getElementById('prevDate').innerText = d.memoDate || '--';
-            items = d.itemsListArray || []; inputs.taxToggle.checked = d.taxAppliedBool || false; renderInvoice();
+            items = d.itemsListArray || []; inputs.taxToggle.checked = d.taxAppliedBool || false;
+            if(d.discountGivenValue) { inputs.discVal.value = d.discountGivenValue.replace(/,/g, ''); inputs.discType.value = 'flat'; }
+            renderInvoice();
         }
     </script>
 </body>
