@@ -45,7 +45,7 @@
                 width: 100% !important; 
                 max-width: 100% !important; 
                 border: none !important;
-                padding: 40px !important; /* Generous padding for full page view */
+                padding: 40px !important; 
                 margin: 0 auto !important;
                 background: #ffffff !important;
                 box-shadow: none !important;
@@ -353,13 +353,11 @@
                 savedRate = parseFloat(inputs.rate.value) || 0;
                 savedLabour = parseFloat(inputs.labour.value) || 0;
                 if (weight <= 0) { alert("Net Weight is mandatory for calculations by weight!"); return; }
-                
                 calculatedItemTotal = Math.round(((savedRate + savedLabour) * weight) + other + huidAmt);
             } else {
                 savedMrp = parseFloat(inputs.mrp.value) || 0;
                 if (savedMrp <= 0) { alert("Please input Fixed Item MRP value!"); return; }
-
-                calculatedItemTotal = Math.round(mrp + other + huidAmt);
+                calculatedItemTotal = Math.round(savedMrp + other + huidAmt);
             }
 
             items.push({ 
@@ -444,7 +442,6 @@
             items.forEach((item, index) => {
                 grossSubtotal += item.total;
                 
-                // Pure high-end column breakdown assignment variables
                 const weightDisplay = item.weight > 0 ? `${item.weight.toFixed(2)} g` : `-`;
                 const rateDisplay = item.mrp > 0 ? `-` : `₹${item.rate + item.labour}`;
                 const hasAddons = item.huidChecked || item.other > 0;
@@ -477,7 +474,6 @@
             tableHtml += `</tbody></table>`;
             wrapper.innerHTML = tableHtml;
 
-            // TAX CONDITIONAL EXECUTION STRATEGY BLOCK
             const taxApplied = inputs.taxToggle.checked;
             const gstAmount = taxApplied ? Math.round(grossSubtotal * 0.03) : 0;
             const finalGrandTotal = grossSubtotal + gstAmount;
@@ -489,7 +485,7 @@
                 grossRow.classList.remove('print:hidden');
                 gstRow.classList.remove('hidden');
             } else {
-                grossRow.classList.add('print:hidden'); // Strip gross subtotal row from paper if no tax is calculated
+                grossRow.classList.add('print:hidden'); 
                 gstRow.classList.add('hidden');
             }
 
@@ -523,7 +519,7 @@
                 navigator.share({ title: 'Jini Jewels Estimate', text: shareText }).catch((err) => console.log(err));
             } else {
                 navigator.clipboard.writeText(shareText);
-                alert("Estimate breakdown copied cleanly to clipboard data structures!");
+                alert("Estimate breakdown copied cleanly!");
             }
         }
 
