@@ -9,13 +9,19 @@
     <link rel="apple-touch-icon" href="icon.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         html { scroll-behavior: smooth; }
-        .focus-ring:focus-within { box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.4); border-color: #D4AF37; }
+        
+        /* Premium thematic target colors for active states */
+        .toggle-checkbox:checked { right: 0; border-color: #D4AF37; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #047857; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* ADVANCED FULL-PAGE LUXURY PRINT ENGINE */
         @media print {
             .no-print, .internal-only, button, input { 
                 display: none !important; 
@@ -71,28 +77,39 @@
                 font-size: 13px !important;
                 color: #000000 !important;
             }
-            .text-gray-600, .text-gray-500, .text-gray-400 { color: #374151 !important; }
+            
+            /* High Contrast Print Mode Assignments */
+            .text-gray-600, .text-gray-500, .text-gray-400 { color: #111111 !important; }
             .text-gray-900, .text-[#064e3b] { color: #000000 !important; }
             .print-border-dashed { border-bottom: 2px dashed #000000 !important; }
             
+            /* Premium highlighted total box layout rules on sheet print outs */
+            .print-total-highlight {
+                border-top: 3px double #000000 !important;
+                border-bottom: 3px double #000000 !important;
+                background-color: #f9fafb !important;
+                font-size: 18px !important;
+                padding: 10px 4px !important;
+                font-weight: 900 !important;
+            }
+
             .print-footer-flex {
                 display: flex !important;
                 flex-direction: row !important;
                 justify-content: space-between !important;
                 align-items: flex-end !important;
                 width: 100% !important;
-                margin-top: 40px !important;
+                margin-top: 50px !important;
             }
             .hide-on-print { display: none !important; }
             
-            /* Enforces lowercase print for internal cypher track letters */
             .print-cypher-lowercase {
                 display: block !important;
                 text-transform: lowercase !important;
                 font-size: 10px !important;
                 color: #555555 !important;
                 font-family: monospace !important;
-                margin-top: 2px !important;
+                margin-top: 1px !important;
             }
         }
     </style>
@@ -132,8 +149,8 @@
                         <input type="date" id="memoDate" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 px-3 font-bold text-gray-800 outline-none" />
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Estimate No. (Changeable)</label>
-                        <input type="text" id="memoId" class="w-full bg-gray-50 border-2 border-[#D4AF37] rounded-xl py-2 px-3 font-black text-gray-900 text-center outline-none focus:bg-white" placeholder="e.g. 1001" />
+                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Estimate No. (Editable)</label>
+                        <input type="text" id="memoId" class="w-full bg-gray-50 border-2 border-[#D4AF37] rounded-xl py-2 px-3 font-black text-gray-900 text-center outline-none focus:bg-white" />
                     </div>
                 </div>
             </div>
@@ -154,7 +171,7 @@
                     </div>
 
                     <div class="col-span-2 bg-stone-50 border border-stone-200 rounded-xl p-3">
-                        <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">Cypher Tag Code (Prints in Small Case below name)</label>
+                        <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">Cypher Tag Code (Prints in Lower Case below item)</label>
                         <input type="text" id="itemCypher" class="w-full bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black tracking-widest uppercase outline-none focus:border-[#047857]" placeholder="e.g. frarxlar" />
                     </div>
                     
@@ -187,9 +204,18 @@
                         <input type="number" id="itemOther" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-black text-gray-900 text-lg outline-none focus:border-[#047857] text-center" placeholder="0" />
                     </div>
 
-                    <div class="col-span-2">
-                        <label class="block text-xs font-bold text-[#047857] mb-1 uppercase">HUID / Cert Charges (₹)</label>
-                        <input type="number" id="itemHuidPrice" class="w-full bg-emerald-50/20 border border-emerald-200 rounded-xl py-2.5 px-3 font-bold text-gray-900 text-lg outline-none focus:border-[#047857]" value="50" />
+                    <div class="col-span-2 bg-emerald-50/40 border border-emerald-100 rounded-xl p-3 flex items-center justify-between mt-1">
+                        <div class="flex items-center gap-3">
+                            <div class="relative inline-block w-10 h-5 align-middle select-none">
+                                <input type="checkbox" id="itemHuidToggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
+                                <label for="itemHuidToggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
+                            </div>
+                            <span class="text-xs font-black text-[#047857] uppercase">Apply HUID / Cert Charge</span>
+                        </div>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden focus-within:border-[#047857]">
+                            <span class="text-gray-400 font-bold px-2 text-sm">₹</span>
+                            <input type="number" id="itemHuidPrice" class="w-16 text-center text-sm font-bold py-1 outline-none" value="50" />
+                        </div>
                     </div>
                 </div>
 
@@ -220,32 +246,32 @@
 
                 <div class="mt-4 pt-3 border-t border-dashed border-gray-200 space-y-2 text-sm font-bold text-gray-700 px-1">
                     <div class="flex justify-between" id="invoiceGrossRow">
-                        <span class="text-gray-500">Gross Subtotal</span>
+                        <span class="text-gray-500 font-medium">Gross Subtotal</span>
                         <span class="text-gray-900">₹ <span id="prevGross">0</span></span>
                     </div>
                     
                     <div class="flex justify-between text-emerald-800" id="invoiceGstRow">
-                        <span>GST (3%)</span>
+                        <span class="font-medium">GST (3%)</span>
                         <span>₹ <span id="prevTax">0</span></span>
                     </div>
 
-                    <div class="flex justify-between items-center text-emerald-800 internal-only no-print bg-emerald-50/30 p-2 rounded-xl border border-emerald-100 mt-1">
+                    <div class="flex justify-between items-center text-emerald-800 internal-only no-print bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-200 mt-1">
                         <div class="flex items-center gap-2">
                             <div class="relative inline-block w-8 h-4 align-middle select-none">
                                 <input type="checkbox" id="taxToggle" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" />
                                 <label for="taxToggle" class="toggle-label block overflow-hidden h-4 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
                             </div>
-                            <span class="text-xs font-black uppercase">Apply GST (3%)</span>
+                            <span class="text-xs font-black uppercase tracking-wide">Apply GST (3%)</span>
                         </div>
                     </div>
 
-                    <div class="flex justify-between items-center pt-2.5 border-t-2 border-gray-900 font-black text-base md:text-xl text-gray-900 mt-2">
+                    <div class="print-total-highlight flex justify-between items-center pt-3 border-t-2 border-b-2 border-double border-gray-900 font-black text-lg md:text-2xl text-gray-900 mt-4 bg-gray-50/50 p-2 rounded-lg">
                         <span>Net Payable</span>
-                        <span>₹ <span id="printGrandTotal">0</span></span>
+                        <span class="text-[#047857]">₹ <span id="printGrandTotal">0</span></span>
                     </div>
                 </div>
 
-                <div class="print-footer-flex flex justify-between items-end mt-8 pt-4 border-t border-gray-100 text-left w-full">
+                <div class="print-footer-flex flex justify-between items-end mt-10 pt-4 border-t border-gray-100 text-left w-full">
                     <div><p class="text-gray-900 font-black tracking-widest text-xs">E. & O.E.</p></div>
                     <div class="text-right border-t border-gray-300 pt-6 w-32 text-center uppercase text-[10px] font-black text-gray-600">Authorized Sign</div>
                 </div>
@@ -253,7 +279,7 @@
 
             <div class="grid grid-cols-2 gap-3 internal-only">
                 <button type="button" onclick="executePrint(event)" class="bg-gray-900 hover:bg-black text-[#D4AF37] font-bold py-3.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md flex items-center justify-center gap-2">Print / Save PDF</button>
-                <button type="button" onclick="executeShare(event)" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md flex items-center justify-center gap-2">Share via Text</button>
+                <button type="button" onclick="executeCloudSave(event)" id="btnCloudSave" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-3.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md flex items-center justify-center gap-2">☁️ Cloud Save Memo</button>
             </div>
         </div>
     </div>
@@ -272,7 +298,23 @@
     </div>
 
     <script>
-        // Init automated default baseline number package setup
+        // =================================================================
+        // DYNAMIC CLOUD INTERACTION FIRING PORTALS (PASTE KEYS TO INITIALIZE)
+        // =================================================================
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "jini-jewels-pos.firebaseapp.com",
+            projectId: "jini-jewels-pos",
+            storageBucket: "jini-jewels-pos.appspot.com",
+            appId: "YOUR_APP_ID"
+        };
+        // Activate Cloud database pipeline loop execution once parameters are updated:
+        if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+            firebase.initializeApp(firebaseConfig);
+            var db = firebase.firestore();
+        }
+        // =================================================================
+
         document.getElementById('memoDate').valueAsDate = new Date();
         const initialId = Math.floor(1000 + Math.random() * 9000);
         document.getElementById('memoId').value = initialId;
@@ -281,11 +323,8 @@
         let items = [];
         let saleMode = "weight";
 
-        // Real-time sequential input listener synchronization hook logic loop block
         const memoIdInput = document.getElementById('memoId');
-        memoIdInput.addEventListener('input', () => {
-            document.getElementById('prevMemoId').innerText = memoIdInput.value || '--';
-        });
+        memoIdInput.addEventListener('input', () => { document.getElementById('prevMemoId').innerText = memoIdInput.value || '--'; });
 
         const setupSync = (inputId, prevId, fallback) => {
             const input = document.getElementById(inputId);
@@ -306,20 +345,20 @@
             rate: document.getElementById('itemRate'),
             labour: document.getElementById('itemLabour'),
             mrp: document.getElementById('itemMrp'),
-            weight: document.getElementById('weight'), // Sync id fix compatibility checks
             itemWeight: document.getElementById('itemWeight'),
             other: document.getElementById('itemOther'),
+            huidToggle: document.getElementById('itemHuidToggle'),
             huidPrice: document.getElementById('itemHuidPrice'),
             taxToggle: document.getElementById('taxToggle')
         };
 
-        // EXPLICIT MANDATORY SHIELD VALIDATION CHECKER FUNCTION
+        // RIGID MANDATORY BOUNDARY VERIFICATION ENGINE RUNS (ADD & PRINT PROTECTION SHIELDS)
         function checkMandatoryDetails() {
             const nameVal = inputs.name.value.trim();
             const mobileVal = inputs.mobile.value.trim();
             
             if (!nameVal || !mobileVal) {
-                alert("ALERT: Customer Name and Mobile Number are strictly compulsory!");
+                alert("STRICT MANDATORY LOCK: You must enter both Customer Name and Mobile Number first!");
                 
                 if(!nameVal) inputs.name.className = "w-full bg-red-50 border-2 border-red-500 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none";
                 if(!mobileVal) inputs.mobile.className = "w-full bg-red-50 border-2 border-red-500 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none";
@@ -359,22 +398,18 @@
 
         function addItem(e) {
             if (e) e.preventDefault();
-
-            // 1. BLOCKS ADDITION IF MANDATORY FIELD MISSING
             if (!checkMandatoryDetails()) return;
 
             const desc = inputs.desc.value.trim();
             const cypherStr = inputs.cypher.value.trim();
             const other = parseFloat(inputs.other.value) || 0;
             const weight = parseFloat(inputs.itemWeight.value) || 0;
-            const huidAmt = parseFloat(inputs.huidPrice.value) || 0;
+            const huidAmt = inputs.huidToggle.checked ? (parseFloat(inputs.huidPrice.value) || 0) : 0;
 
             if (!desc) { alert("Please input Item Description!"); return; }
 
             let calculatedItemTotal = 0;
-            let savedRate = 0;
-            let savedLabour = 0;
-            let savedMrp = 0;
+            let savedRate = 0; let savedLabour = 0; let savedMrp = 0;
 
             if (saleMode === "weight") {
                 savedRate = parseFloat(inputs.rate.value) || 0;
@@ -390,7 +425,7 @@
             items.push({ 
                 desc, cypher: cypherStr, total: calculatedItemTotal,
                 rate: savedRate, labour: savedLabour, mrp: savedMrp,
-                weight, other, huidPriceVal: huidAmt
+                weight, other, huidChecked: inputs.huidToggle.checked, huidPriceVal: huidAmt
             });
 
             inputs.desc.value = ''; inputs.cypher.value = ''; inputs.itemWeight.value = ''; inputs.other.value = ''; inputs.mrp.value = ''; inputs.huidPrice.value = '50';
@@ -403,15 +438,13 @@
             inputs.cypher.value = item.cypher || '';
             inputs.other.value = item.other || '';
             inputs.itemWeight.value = item.weight || '';
-            inputs.huidPrice.value = item.huidPriceVal;
+            inputs.huidToggle.checked = item.huidChecked;
+            inputs.huidPrice.value = item.huidPriceVal || '50';
 
             if (item.mrp > 0) {
-                setSaleMode(null, 'mrp');
-                inputs.mrp.value = item.mrp;
+                setSaleMode(null, 'mrp'); inputs.mrp.value = item.mrp;
             } else {
-                setSaleMode(null, 'weight');
-                inputs.rate.value = item.rate;
-                inputs.labour.value = item.labour;
+                setSaleMode(null, 'weight'); inputs.rate.value = item.rate; inputs.labour.value = item.labour;
             }
 
             items.splice(index, 1);
@@ -419,14 +452,10 @@
             inputs.desc.focus();
         }
 
-        function deleteItem(index) {
-            items.splice(index, 1);
-            renderInvoice();
-        }
+        function deleteItem(index) { items.splice(index, 1); renderInvoice(); }
 
         function renderInvoice() {
             const wrapper = document.getElementById('invoiceTableWrapper');
-            
             if (items.length === 0) {
                 wrapper.innerHTML = `<p class="text-center text-gray-300 font-medium text-sm py-16" id="emptyCartMsg">No items added to invoice yet</p>`;
                 document.getElementById('itemCountLabel').innerText = '0 Items Added';
@@ -454,7 +483,6 @@
 
             items.forEach((item, index) => {
                 grossSubtotal += item.total;
-                
                 const weightDisplay = item.weight > 0 ? `${item.weight.toFixed(2)} g` : `-`;
                 const rateDisplay = item.mrp > 0 ? `-` : `₹${item.rate + item.labour}`;
                 const hasAddons = item.huidPriceVal > 0 || item.other > 0;
@@ -465,7 +493,7 @@
                         <td class="py-3">
                             <div class="flex flex-col">
                                 <span class="font-black text-gray-800 text-sm tracking-tight">${item.desc}</span>
-                                ${item.cypher ? `<span class="print-cypher-lowercase block text-[10px] font-mono text-gray-400 lowercase">${item.cypher.toLowerCase()}</span>` : ''}
+                                ${item.cypher ? `<span class="print-cypher-lowercase block text-[10px] font-mono text-gray-500 lowercase">${item.cypher.toLowerCase()}</span>` : ''}
                             </div>
                             ${hasAddons ? `<span class="text-[10px] text-gray-400 block font-bold uppercase tracking-wide mt-0.5">(Inc. ${item.huidPriceVal > 0 ? 'HUID/Cert' : ''}${item.huidPriceVal > 0 && item.other > 0 ? ' + ' : ''}${item.other > 0 ? 'Charges' : ''})</span>` : ''}
                         </td>
@@ -487,16 +515,9 @@
             const gstAmount = taxApplied ? Math.round(grossSubtotal * 0.03) : 0;
             const finalGrandTotal = grossSubtotal + gstAmount;
 
-            const grossRow = document.getElementById('invoiceGrossRow');
-            const gstRow = document.getElementById('invoiceGstRow');
-
-            if (taxApplied) {
-                grossRow.classList.remove('hide-on-print');
-                gstRow.classList.remove('hide-on-print');
-            } else {
-                grossRow.classList.add('hide-on-print'); 
-                gstRow.classList.add('hide-on-print');
-            }
+            // Strict hide state conditional formatting package bindings on final summaries
+            document.getElementById('invoiceGrossRow').className = taxApplied ? "flex justify-between" : "flex justify-between hide-on-print";
+            document.getElementById('invoiceGstRow').className = taxApplied ? "flex justify-between text-emerald-800" : "flex justify-between text-emerald-800 hidden";
 
             document.getElementById('itemCountLabel').innerText = `${items.length} Item${items.length > 1 ? 's' : ''} Added`;
             document.getElementById('prevGross').innerText = grossSubtotal.toLocaleString('en-IN');
@@ -507,26 +528,48 @@
 
         function executePrint(e) { 
             if (e) e.preventDefault(); 
-            // 2. BLOCKS PRINT DIALOGUE IF MANDATORY FIELD MISSING
             if (!checkMandatoryDetails()) return;
             window.print(); 
+        }
+
+        // CONNECTED SECURE CORE LIVE CLOUD PRODUCTION SAVING ROUTINE
+        function executeCloudSave(e) {
+            if (e) e.preventDefault();
+            if (!checkMandatoryDetails()) return;
+            if (items.length === 0) { alert("Please add at least one item before cloud saving!"); return; }
+
+            if (typeof db === 'undefined') {
+                alert("Configuration Required: Please fill out your real Firebase credentials in the script header block to link this live counter terminal to Jini Jewels secure storage cloud!");
+                return;
+            }
+
+            const documentPayload = {
+                estimateNumber: inputs.memoId.value,
+                customerName: inputs.name.value.trim(),
+                customerMobile: inputs.mobile.value.trim(),
+                memoDate: document.getElementById('memoDate').value,
+                itemsListArray: items,
+                subtotalAmount: document.getElementById('prevGross').innerText,
+                taxAppliedBool: inputs.taxToggle.checked,
+                grandTotalPayable: document.getElementById('invoiceGrandTotal').innerText,
+                serverCreationDate: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            db.collection("showroom_memos").doc(documentPayload.estimateNumber).set(documentPayload)
+              .then(() => { alert("☁️ Security Safe: Quote saved securely to Jini Jewels cloud ledger system!"); })
+              .catch(error => { alert("Cloud Failure Encountered: " + error.message); });
         }
 
         function executeShare(e) {
             if (e) e.preventDefault();
             if (!checkMandatoryDetails()) return;
-            
-            const name = inputs.name.value.trim();
-            const id = inputs.memoId.value;
-            const grandTotal = document.getElementById('invoiceGrandTotal').innerText;
-            
+            const name = inputs.name.value.trim(); const id = inputs.memoId.value; const grandTotal = document.getElementById('invoiceGrandTotal').innerText;
             let shareText = `*JINI JEWELS ESTIMATE*\nMemos No: ${id}\nCustomer: ${name}\n---------------------------\n`;
             items.forEach((item, idx) => { shareText += `${idx+1}. ${item.desc} - ₹${item.total.toLocaleString('en-IN')}\n`; });
             if(inputs.taxToggle.checked) { shareText += `Gst (3%): Included\n`; }
             shareText += `---------------------------\n*Total Payable: ₹${grandTotal}*\n_E&OE_`;
-
             if (navigator.share) { navigator.share({ title: 'Jini Jewels Estimate', text: shareText }); } 
-            else { navigator.clipboard.writeText(shareText); alert("Estimate breakdown copied safely to clipboard!"); }
+            else { navigator.clipboard.writeText(shareText); alert("Estimate data text copied directly to clipboard!"); }
         }
 
         inputs.taxToggle.addEventListener('change', renderInvoice);
