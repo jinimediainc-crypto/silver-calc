@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jini Inventory & Tags</title>
+    <title>Jini Inventory & Tracking Ledger</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <script src="firebase-config.js"></script>
@@ -18,107 +17,142 @@
     <style>
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
-
-        /* JEWELRY PRINT STRING TAG SIZE OPTIMIZATION */
         @media print {
             .no-print { display: none !important; }
             body, html { background: #ffffff !important; color: #000000 !important; margin: 0 !important; padding: 0 !important; }
-            #tagPrintArea { 
-                display: block !important; 
-                width: 3.2in !important;   /* Standard retail barcode sticker width */
-                height: 1.0in !important;  /* Standard retail barcode sticker height */
-                padding: 5px !important;
-                margin: 0 !important;
-                page-break-inside: avoid;
-            }
+            #tagPrintArea { display: block !important; width: 3.2in !important; height: 1.0in !important; padding: 5px !important; margin: 0 !important; page-break-inside: avoid; }
         }
     </style>
 </head>
 <body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen flex flex-col overflow-x-hidden selection:bg-[#D4AF37] selection:text-gray-900">
 
     <div class="flex-shrink-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 no-print">
-        <div class="flex items-center px-4 py-3 max-w-6xl mx-auto w-full">
+        <div class="flex items-center px-4 py-3 max-w-7xl mx-auto w-full">
             <a href="index.html" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20 active:scale-90 transition-transform">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
             </a>
-            <h1 class="flex-1 text-center text-lg md:text-2xl font-black text-white tracking-widest uppercase mr-10">Inventory Inward</h1>
+            <h1 class="flex-1 text-center text-lg md:text-xl font-black text-white tracking-widest uppercase mr-10">Inventory & Stock Tracking</h1>
         </div>
     </div>
 
-    <div class="flex-1 px-4 py-6 max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-6 no-print">
+    <div class="flex-1 px-4 py-6 max-w-7xl mx-auto w-full space-y-6 no-print">
         
-        <div class="md:col-span-7 bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10 space-y-4">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-gray-100 pb-3">
-                <h3 class="text-base font-black text-[#064e3b] uppercase tracking-wide">Stock Inward Registration</h3>
-                <div class="flex bg-gray-100 p-1 rounded-xl border border-gray-200">
-                    <button type="button" onclick="setInvMode('weight')" id="invModeWeight" class="text-[10px] font-black uppercase px-3 py-1.5 rounded-lg bg-[#047857] text-white transition-all shadow-sm">By Weight</button>
-                    <button type="button" onclick="setInvMode('mrp')" id="invModeMrp" class="text-[10px] font-black uppercase px-3 py-1.5 rounded-lg text-gray-500 transition-all">Fixed MRP</button>
-                </div>
+        <div class="grid grid-cols-3 gap-4">
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 text-left">
+                <span class="text-gray-400 text-[10px] font-black uppercase tracking-wider block">Total Inward</span>
+                <span id="statInward" class="text-2xl font-black text-white">0</span>
             </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div class="col-span-2">
-                    <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Generated Tag/Item SKU No. *</label>
-                    <input type="text" id="invTagId" class="w-full bg-emerald-50/40 border-2 border-[#D4AF37] rounded-xl py-2.5 px-3 font-black text-gray-900 tracking-wider text-center outline-none" placeholder="e.g. JINI-7001" />
-                </div>
-                <div class="col-span-2">
-                    <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Item Description Name *</label>
-                    <input type="text" id="invDesc" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="e.g. Handcrafted Silver Payal" />
-                </div>
-                <div class="col-span-2">
-                    <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Internal Cypher Code</label>
-                    <input type="text" id="invCypher" class="w-full bg-white border border-gray-200 rounded-xl py-2 px-3 font-mono tracking-widest text-sm font-black uppercase outline-none focus:border-[#047857]" placeholder="e.g. frarx" />
-                </div>
-
-                <div id="boxWeightFields" class="col-span-2 grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Metal Rate (₹/g)</label>
-                        <input type="number" id="invRate" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="0" />
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Labour (₹/g)</label>
-                        <input type="number" id="invLabour" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="0" />
-                    </div>
-                </div>
-
-                <div id="boxMrpFields" class="col-span-2 hidden">
-                    <label class="block text-xs font-bold text-blue-900 mb-1 uppercase">Item Fixed Price MRP (₹)</label>
-                    <input type="number" id="invMrp" class="w-full bg-blue-50/30 border border-blue-200 rounded-xl py-2.5 px-3 font-black text-blue-900 outline-none" placeholder="0" />
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Item Net Weight (g)</label>
-                    <input type="number" id="invWeight" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857] text-center" placeholder="0.00" />
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Other Charges (₹)</label>
-                    <input type="number" id="invOther" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857] text-center" placeholder="0" />
-                </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 text-left">
+                <span class="text-amber-400 text-[10px] font-black uppercase tracking-wider block">Sold Outward</span>
+                <span id="statOutward" class="text-2xl font-black text-amber-400">0</span>
             </div>
-
-            <button type="button" onclick="saveItemToInventory()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3.5 px-4 rounded-xl uppercase tracking-widest transition-all shadow-md active:scale-95">
-                💾 Save Item & Generate QR Tag
-            </button>
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-[#D4AF37]/30 text-left bg-[#064e3b]/30">
+                <span class="text-emerald-400 text-[10px] font-black uppercase tracking-wider block">Stock Available</span>
+                <span id="statAvailable" class="text-2xl font-black text-emerald-400">0</span>
+            </div>
         </div>
 
-        <div class="md:col-span-5 flex flex-col justify-between bg-white rounded-[1.5rem] p-5 shadow-2xl border border-gray-100">
-            <div class="text-center">
-                <h4 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Live Tag Print Preview</h4>
-                
-                <div class="border border-dashed border-gray-400 p-2 mx-auto rounded-lg bg-gray-50 flex items-center justify-between w-[280px] h-[90px] text-left overflow-hidden">
-                    <div class="flex flex-col justify-center flex-1 pr-1 font-sans text-[10px] leading-tight text-black font-bold select-none">
-                        <p class="text-[11px] font-black tracking-tight text-[#064e3b]">JINI JEWELS</p>
-                        <p id="tagTxtId" class="font-mono text-gray-500 tracking-wider">#----</p>
-                        <p id="tagTxtDesc" class="truncate font-black max-w-[150px]">Item Details</p>
-                        <p id="tagTxtMetrics" class="text-[9px] font-medium text-gray-400">--g | --</p>
-                    </div>
-                    <div id="tagQrOutput" class="w-[70px] h-[70px] bg-white flex items-center justify-center p-0.5 border border-gray-200"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-5 bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10 space-y-4 h-fit">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                    <h3 class="text-base font-black text-[#064e3b] uppercase tracking-wide">Stock Entry</h3>
+                    <select id="invModeSelect" onchange="toggleFormSaleMode()" class="bg-gray-100 border border-gray-300 text-[10px] font-black uppercase rounded-lg p-1 outline-none">
+                        <option value="weight">By Weight</option>
+                        <option value="mrp">Fixed MRP</option>
+                    </select>
                 </div>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Tag Number SKU *</label>
+                        <input type="text" id="invTagId" class="w-full bg-emerald-50/40 border-2 border-[#D4AF37] rounded-xl py-2 px-3 font-black text-gray-900 tracking-wider text-center outline-none" />
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Item Category *</label>
+                        <div class="flex gap-2">
+                            <select id="invCategorySelect" onchange="handleCategorySelection()" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl py-2 px-3 font-bold text-gray-800 outline-none">
+                                <option value="Silver">Silver Item</option>
+                                <option value="Gold">Gold Item</option>
+                                <option value="Custom">✏️ Add Custom Category...</option>
+                            </select>
+                            <input type="text" id="invCustomCategoryInput" class="hidden flex-1 bg-amber-50/50 border border-[#D4AF37] rounded-xl py-2 px-3 font-bold text-gray-800 outline-none" placeholder="Enter category" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Item Name / Description *</label>
+                        <input type="text" id="invDesc" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 px-3 font-bold text-gray-800 outline-none" placeholder="e.g. Silver payal" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Internal Cypher Tag</label>
+                        <input type="text" id="invCypher" class="w-full bg-white border border-gray-200 rounded-xl py-2 px-3 font-mono text-sm font-black uppercase tracking-widest outline-none" placeholder="e.g. frar" />
+                    </div>
+
+                    <div id="weightInputsRow" class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Rate (₹/g)</label>
+                            <input type="number" id="invRate" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 px-3 font-bold text-gray-800 outline-none" placeholder="0" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Labour (₹/g)</label>
+                            <input type="number" id="invLabour" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 px-3 font-bold text-gray-800 outline-none" placeholder="0" />
+                        </div>
+                    </div>
+
+                    <div id="mrpInputBox" class="hidden">
+                        <label class="block text-xs font-bold text-blue-900 mb-1 uppercase">Item Fixed Price MRP (₹)</label>
+                        <input type="number" id="invMrp" class="w-full bg-blue-50/40 border border-blue-200 rounded-xl py-2 px-3 font-black text-blue-900 outline-none" placeholder="0" />
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Net Weight (g)</label>
+                            <input type="number" id="invWeight" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 px-3 font-bold text-gray-800 text-center outline-none" placeholder="0.00" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Other (₹)</label>
+                            <input type="number" id="invOther" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 px-3 font-bold text-gray-800 text-center outline-none" placeholder="0" />
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" onclick="saveItemToInventory()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3 px-4 rounded-xl uppercase tracking-widest transition-all shadow-md mt-2">💾 Save & Generate Tag</button>
+                
+                <div class="border border-dashed border-gray-300 p-2 rounded-xl bg-gray-50 flex items-center justify-between w-full h-[85px] mt-4 overflow-hidden">
+                    <div class="font-sans text-[10px] leading-tight text-black font-bold">
+                        <p class="text-[11px] font-black text-[#064e3b]">JINI JEWELS</p>
+                        <p id="tagTxtId" class="font-mono text-gray-400">#----</p>
+                        <p id="tagTxtDesc" class="truncate max-w-[140px]">Item Details</p>
+                        <p id="tagTxtMetrics" class="text-[9px] text-gray-500">--</p>
+                    </div>
+                    <div id="tagQrOutput" class="w-[65px] h-[65px] bg-white flex items-center justify-center border p-0.5"></div>
+                </div>
+                <button type="button" onclick="window.print()" class="w-full bg-gray-900 text-[#D4AF37] font-bold py-2 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md">Print String Tag</button>
             </div>
 
-            <button type="button" onclick="window.print()" class="w-full bg-gray-900 hover:bg-black text-[#D4AF37] font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md mt-6 active:scale-95">
-                🖨️ Print Single String Tag
-            </button>
+            <div class="lg:col-span-7 bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10 flex flex-col h-[620px]">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-3">
+                    <h3 class="text-base font-black text-gray-800 uppercase tracking-wide">Live Stock Ledger</h3>
+                    <input type="text" id="ledgerSearch" oninput="filterLedgerTable()" class="bg-gray-100 border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-bold text-gray-800 outline-none w-44 focus:bg-white focus:border-[#047857]" placeholder="🔍 Filter stock list..." />
+                </div>
+
+                <div class="flex-1 overflow-y-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-200 text-gray-400 font-black uppercase tracking-wider">
+                                <th class="pb-2">Tag SKU</th>
+                                <th class="pb-2">Category</th>
+                                <th class="pb-2">Description</th>
+                                <th class="pb-2 text-right">Weight</th>
+                                <th class="pb-2 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledgerTableBody" class="divide-y divide-gray-100 font-bold text-gray-700">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -135,39 +169,44 @@
     </div>
 
     <script>
-        let invMode = "weight";
-        let qrGeneratorInstance = null;
+        let currentFormMode = "weight";
+        let localLedgerCacheArray = [];
 
-        // Auto Generate Baseline SKU Tag Code on Initialization
         document.addEventListener("DOMContentLoaded", () => {
-            const tempSku = "JJ-" + Math.floor(200000 + Math.random() * 700000);
-            document.getElementById('invTagId').value = tempSku;
-            refreshPreviewCanvas();
+            generateRandomSku();
+            streamLiveEcosystemLedgers();
         });
 
-        function setInvMode(mode) {
-            invMode = mode;
-            const btnW = document.getElementById('invModeWeight'), btnM = document.getElementById('invModeMrp');
-            const boxW = document.getElementById('boxWeightFields'), boxM = document.getElementById('boxMrpFields');
-            if(mode === 'weight') {
-                btnW.className = "text-[10px] font-black uppercase px-3 py-1.5 rounded-lg bg-[#047857] text-white transition-all shadow-sm";
-                btnM.className = "text-[10px] font-black uppercase px-3 py-1.5 rounded-lg text-gray-500 transition-all";
-                boxW.classList.remove('hidden'); boxM.classList.add('hidden');
+        function generateRandomSku() {
+            document.getElementById('invTagId').value = "JJ-" + Math.floor(200000 + Math.random() * 700000);
+            refreshPreviewCanvas();
+        }
+
+        function toggleFormSaleMode() {
+            currentFormMode = document.getElementById('invModeSelect').value;
+            if(currentFormMode === 'weight') {
+                document.getElementById('weightInputsRow').classList.remove('hidden');
+                document.getElementById('mrpInputBox').classList.add('hidden');
             } else {
-                btnM.className = "text-[10px] font-black uppercase px-3 py-1.5 rounded-lg bg-blue-800 text-white transition-all shadow-sm";
-                btnW.className = "text-[10px] font-black uppercase px-3 py-1.5 rounded-lg text-gray-500 transition-all";
-                boxM.classList.remove('hidden'); boxW.classList.add('hidden');
+                document.getElementById('mrpInputBox').classList.remove('hidden');
+                document.getElementById('weightInputsRow').classList.add('hidden');
             }
             refreshPreviewCanvas();
         }
 
-        // Real-time Event Listening Sync hooks
+        function handleCategorySelection() {
+            const selectValue = document.getElementById('invCategorySelect').value;
+            const customInput = document.getElementById('invCustomCategoryInput');
+            if(selectValue === 'Custom') customInput.classList.remove('hidden');
+            else customInput.classList.add('hidden');
+        }
+
         ['invTagId', 'invDesc', 'invWeight', 'invRate', 'invLabour', 'invMrp', 'invOther'].forEach(id => {
             document.getElementById(id).addEventListener('input', refreshPreviewCanvas);
         });
 
         function refreshPreviewCanvas() {
-            const tagId = document.getElementById('invTagId').value.trim() || "----";
+            const tagId = document.getElementById('invTagId').value.trim().toUpperCase() || "----";
             const desc = document.getElementById('invDesc').value.trim() || "Item Details";
             const weight = parseFloat(document.getElementById('invWeight').value) || 0;
             const rate = parseFloat(document.getElementById('invRate').value) || 0;
@@ -175,30 +214,73 @@
             const mrp = parseFloat(document.getElementById('invMrp').value) || 0;
             const other = parseFloat(document.getElementById('invOther').value) || 0;
 
-            let metricsStr = "";
-            if (invMode === 'weight') {
-                metricsStr = `${weight.toFixed(2)}g | ₹${rate + labour}/g`;
-            } else {
-                metricsStr = weight > 0 ? `${weight.toFixed(2)}g | ₹${mrp + other}` : `₹${mrp + other}`;
-            }
+            let metricsStr = currentFormMode === 'weight' ? `${weight.toFixed(2)}g | ₹${rate + labour}/g` : `₹${mrp + other}`;
 
-            // Sync visual components
-            document.getElementById('tagTxtId').innerText = "#" + tagId.toUpperCase();
+            document.getElementById('tagTxtId').innerText = "#" + tagId;
             document.getElementById('tagTxtDesc').innerText = desc;
             document.getElementById('tagTxtMetrics').innerText = metricsStr;
-
-            document.getElementById('pTagId').innerText = "#" + tagId.toUpperCase();
+            document.getElementById('pTagId').innerText = "#" + tagId;
             document.getElementById('pTagDesc').innerText = desc;
             document.getElementById('pTagMetrics').innerText = metricsStr;
 
-            // Clear and regenerate QR blocks
             document.getElementById('tagQrOutput').innerHTML = "";
             document.getElementById('pTagQr').innerHTML = "";
-
             if (tagId !== "----") {
-                new QRCode(document.getElementById('tagQrOutput'), { text: tagId, width: 70, height: 70, correctLevel: QRCode.CorrectLevel.M });
-                new QRCode(document.getElementById('pTagQr'), { text: tagId, width: 72, height: 72, correctLevel: QRCode.CorrectLevel.M });
+                new QRCode(document.getElementById('tagQrOutput'), { text: tagId, width: 65, height: 65 });
+                new QRCode(document.getElementById('pTagQr'), { text: tagId, width: 72, height: 72 });
             }
+        }
+
+        function streamLiveEcosystemLedgers() {
+            db.collection("jini_inventory").onSnapshot((snapshot) => {
+                localLedgerCacheArray = [];
+                let total = 0, sold = 0, available = 0;
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    localLedgerCacheArray.push(data);
+                    total++;
+                    if(data.status === 'Sold') sold++;
+                    else available++;
+                });
+
+                document.getElementById('statInward').innerText = total;
+                document.getElementById('statOutward').innerText = sold;
+                document.getElementById('statAvailable').innerText = available;
+                renderTableRecords(localLedgerCacheArray);
+            });
+        }
+
+        function renderTableRecords(records) {
+            const tableBody = document.getElementById('ledgerTableBody');
+            tableBody.innerHTML = "";
+            records.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-50 hover:bg-gray-50/80";
+                
+                const badgeColor = item.status === 'Sold' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
+                const currentStatusBadge = `<span class="px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide uppercase ${badgeColor}">${item.status || 'In Stock'}</span>`;
+                
+                tr.innerHTML = `
+                    <td class="py-2.5 font-mono text-gray-900 font-black">#${item.tagNumberId}</td>
+                    <td class="py-2.5 text-gray-400 text-[11px] uppercase">${item.itemCategory || 'Silver'}</td>
+                    <td class="py-2.5 font-black text-gray-800 truncate max-w-[150px]">${item.itemNameDescription}</td>
+                    <td class="py-2.5 text-right text-gray-900">${item.netWeightValue ? item.netWeightValue.toFixed(2) + ' g' : '-'}</td>
+                    <td class="py-2.5 text-center">${currentStatusBadge}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function filterLedgerTable() {
+            const query = document.getElementById('ledgerSearch').value.toLowerCase().trim();
+            if(!query) { renderTableRecords(localLedgerCacheArray); return; }
+            const matches = localLedgerCacheArray.filter(i => 
+                i.tagNumberId.toLowerCase().includes(query) || 
+                i.itemNameDescription.toLowerCase().includes(query) || 
+                (i.itemCategory && i.itemCategory.toLowerCase().includes(query))
+            );
+            renderTableRecords(matches);
         }
 
         function saveItemToInventory() {
@@ -208,33 +290,36 @@
             const weight = parseFloat(document.getElementById('invWeight').value) || 0;
             const other = parseFloat(document.getElementById('invOther').value) || 0;
 
-            if(!tagId || !desc) { alert("Tag ID SKU and Description are mandatory!"); return; }
+            let selectedCategory = document.getElementById('invCategorySelect').value;
+            if(selectedCategory === 'Custom') {
+                selectedCategory = document.getElementById('invCustomCategoryInput').value.trim() || "Silver";
+            }
+
+            if(!tagId || !desc) { alert("Tag ID and Description Name are compulsory fields!"); return; }
 
             const itemPayload = {
                 tagNumberId: tagId,
                 itemNameDescription: desc,
+                searchName: desc.toLowerCase(), // FIXED CASE SEARCH PROPERTY INDEX LINK HOOK
+                itemCategory: selectedCategory,
                 itemCypherCode: cypher,
                 netWeightValue: weight,
                 otherChargesAmount: other,
-                pricingSaleMode: invMode,
-                metalRateValue: invMode === 'weight' ? (parseFloat(document.getElementById('invRate').value) || 0) : 0,
-                labourChargeValue: invMode === 'weight' ? (parseFloat(document.getElementById('invLabour').value) || 0) : 0,
-                fixedMrpAmount: invMode === 'mrp' ? (parseFloat(document.getElementById('invMrp').value) || 0) : 0,
+                pricingSaleMode: currentFormMode,
+                status: "In Stock", // Baseline active tracking state assignment
+                metalRateValue: currentFormMode === 'weight' ? (parseFloat(document.getElementById('invRate').value) || 0) : 0,
+                labourChargeValue: currentFormMode === 'weight' ? (parseFloat(document.getElementById('invLabour').value) || 0) : 0,
+                fixedMrpAmount: currentFormMode === 'mrp' ? (parseFloat(document.getElementById('invMrp').value) || 0) : 0,
                 creationTimestamp: new Date().toISOString()
             };
 
-            db.collection("jini_inventory").doc(tagId).set(itemPayload)
-                .then(() => {
-                    alert(`🎉 Stock Saved: Tag #${tagId} logged cleanly into cloud database!`);
-                    // Roll onto next random asset string automatically
-                    document.getElementById('invDesc').value = ''; document.getElementById('invCypher').value = '';
-                    document.getElementById('invWeight').value = ''; document.getElementById('invOther').value = '';
-                    document.getElementById('invRate').value = ''; document.getElementById('invLabour').value = ''; document.getElementById('invMrp').value = '';
-                    const nextSku = "JJ-" + Math.floor(200000 + Math.random() * 700000);
-                    document.getElementById('invTagId').value = nextSku;
-                    refreshPreviewCanvas();
-                })
-                .catch(err => alert("Inventory Save Error: " + err.message));
+            db.collection("jini_inventory").doc(tagId).set(itemPayload).then(() => {
+                alert(`Stock Recorded Successfully! Saved Tag: #${tagId}`);
+                document.getElementById('invDesc').value = ''; document.getElementById('invCypher').value = '';
+                document.getElementById('invWeight').value = ''; document.getElementById('invOther').value = '';
+                document.getElementById('invRate').value = ''; document.getElementById('invLabour').value = ''; document.getElementById('invMrp').value = '';
+                generateRandomSku();
+            }).catch(e => alert(e.message));
         }
     </script>
 </body>
