@@ -17,7 +17,7 @@
         .toggle-checkbox:checked + .toggle-label { background-color: #D4AF37; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* ADVANCED LUXURY TABLE PRINT FORMATTING */
+        /* ADVANCED FULL-PAGE LUXURY PRINT ENGINE */
         @media print {
             .no-print, .internal-only, button, input, .toggle-label { 
                 display: none !important; 
@@ -27,6 +27,8 @@
                 color: #000000 !important; 
                 overflow: visible !important; 
                 height: auto !important;
+                padding: 0 !important;
+                margin: 0 !important;
                 -webkit-print-color-adjust: exact; 
                 print-color-adjust: exact;
             }
@@ -43,34 +45,35 @@
                 width: 100% !important; 
                 max-width: 100% !important; 
                 border: none !important;
-                padding: 10px !important;
+                padding: 40px !important; /* Generous padding for full page view */
                 margin: 0 auto !important;
                 background: #ffffff !important;
                 box-shadow: none !important;
             }
-            /* Force Clean Table Borders during physical or PDF output printing */
             .print-table {
                 width: 100% !important;
                 border-collapse: collapse !important;
-                margin-top: 15px !important;
-                margin-bottom: 15px !important;
+                margin-top: 25px !important;
+                margin-bottom: 25px !important;
             }
             .print-table th {
-                background-color: #f5f5f5 !important;
+                background-color: #f9fafb !important;
                 color: #000000 !important;
-                border: 1px solid #000000 !important;
-                padding: 8px !important;
-                font-weight: bold !important;
+                border-top: 2px solid #000000 !important;
+                border-bottom: 2px solid #000000 !important;
+                padding: 12px 10px !important;
+                font-weight: 900 !important;
                 text-transform: uppercase !important;
-                font-size: 11px !important;
+                font-size: 12px !important;
+                letter-spacing: 0.05em !important;
             }
             .print-table td {
-                border: 1px solid #000000 !important;
-                padding: 8px !important;
-                font-size: 12px !important;
+                border-bottom: 1px solid #e5e7eb !important;
+                padding: 14px 10px !important;
+                font-size: 13px !important;
                 color: #000000 !important;
             }
-            .text-gray-600, .text-gray-500, .text-gray-400 { color: #222222 !important; }
+            .text-gray-600, .text-gray-500, .text-gray-400 { color: #374151 !important; }
             .text-gray-900, .text-[#064e3b] { color: #000000 !important; }
             .print-border-dashed { border-bottom: 2px dashed #000000 !important; }
         }
@@ -138,7 +141,7 @@
                             <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest">Internal Cypher Tag (Hidden on Print)</label>
                             <input type="text" id="itemCypher" class="w-full sm:w-48 bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black tracking-widest uppercase outline-none focus:border-[#047857]" placeholder="e.g. FLLXIR" />
                         </div>
-                        <p class="text-[11px] font-bold text-stone-400 italic text-center sm:text-right">Displayed live internally but hidden from printed invoice copies.</p>
+                        <p class="text-[11px] font-bold text-stone-400 italic text-center sm:text-right">Displayed live internally but stripped cleanly from printed copies.</p>
                     </div>
                     
                     <div id="rowWeightRate" class="col-span-2 grid grid-cols-2 gap-4">
@@ -204,41 +207,47 @@
                     <div class="flex justify-between"><span>Mobile:</span><span class="text-gray-900" id="prevMobile">--</span></div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto max-h-[300px] my-2" id="invoiceTableWrapper">
+                <div class="flex-1 overflow-y-auto max-h-[320px] my-2" id="invoiceTableWrapper">
                     <p class="text-center text-gray-300 font-medium text-sm py-16" id="emptyCartMsg">No items added to invoice yet</p>
                 </div>
 
-                <div class="mt-4 pt-3 border-t border-dashed border-gray-200 space-y-2 text-xs font-bold text-gray-500 px-1">
-                    <div class="flex justify-between"><span>Gross Subtotal</span><span class="text-gray-900">₹ <span id="prevGross">0</span></span></div>
+                <div class="mt-4 pt-3 border-t border-dashed border-gray-200 space-y-2 text-sm font-bold text-gray-700 px-1">
+                    <div class="flex justify-between" id="invoiceGrossRow">
+                        <span class="text-gray-500">Gross Subtotal</span>
+                        <span class="text-gray-900">₹ <span id="prevGross">0</span></span>
+                    </div>
                     
-                    <div class="flex justify-between items-center text-emerald-800">
+                    <div class="flex justify-between text-emerald-800" id="invoiceGstRow">
+                        <span>GST (3%)</span>
+                        <span>₹ <span id="prevTax">0</span></span>
+                    </div>
+
+                    <div class="flex justify-between items-center text-emerald-800 internal-only no-print bg-emerald-50/30 p-2 rounded-xl border border-emerald-100 mt-1">
                         <div class="flex items-center gap-2">
-                            <div class="relative inline-block w-8 h-4 align-middle select-none internal-only">
+                            <div class="relative inline-block w-8 h-4 align-middle select-none">
                                 <input type="checkbox" id="taxToggle" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" />
                                 <label for="taxToggle" class="toggle-label block overflow-hidden h-4 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
                             </div>
-                            <span>Add GST (3%)</span>
+                            <span class="text-xs font-black uppercase">Apply GST (3%)</span>
                         </div>
-                        <span>₹ <span id="prevTax">0</span></span>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2.5 border-t-2 border-gray-900 font-black text-base md:text-xl text-gray-900 mt-2">
+                        <span>Net Payable</span>
+                        <span>₹ <span id="printGrandTotal">0</span></span>
                     </div>
                 </div>
 
-                <div class="hidden print:flex justify-between items-center pt-2.5 border-t-2 border-black font-black text-base mt-3 px-1">
-                    <span>NET PAYABLE</span>
-                    <span>₹ <span id="printGrandTotal">0</span></span>
-                </div>
-
-                <div class="mt-6 pt-4 border-t border-gray-100 text-left">
-                    <div class="flex justify-between items-end text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+                <div class="mt-8 pt-4 border-t border-gray-100 text-left">
+                    <div class="flex justify-between items-end text-xs font-bold text-gray-400 tracking-wider">
                         <div>
-                            <p class="text-gray-500 font-black mb-1">E. & O.E.</p>
-                            <p class="text-[8px] lowercase italic text-gray-400">Errors & omissions excepted.</p>
+                            <p class="text-gray-900 font-black tracking-widest text-sm">E. & O.E.</p>
                         </div>
-                        <div class="text-right border-t border-gray-300 pt-6 w-28 text-center uppercase text-[8px] text-gray-500 font-bold">
+                        <div class="text-right border-t border-gray-300 pt-6 w-32 text-center uppercase text-[9px] text-gray-500 font-black">
                             Authorized Sign
                         </div>
                     </div>
-                    <p class="text-center text-[10px] font-black text-[#064e3b] tracking-wide mt-5 uppercase italic">~ Thank You For Visiting Jini Jewels ~</p>
+                    <p class="text-center text-xs font-black text-[#064e3b] tracking-widest mt-6 uppercase italic">~ Thank You For Visiting Jini Jewels ~</p>
                 </div>
             </div>
 
@@ -271,7 +280,6 @@
     </div>
 
     <script>
-        // Set Runtime Parameters
         document.getElementById('memoDate').valueAsDate = new Date();
         const randId = 'JJ-' + Math.floor(100000 + Math.random() * 900000);
         document.getElementById('memoId').value = randId;
@@ -337,7 +345,6 @@
             if (!desc) { alert("Please input Item Description!"); return; }
 
             let calculatedItemTotal = 0;
-            let calculationSubtext = "";
             let savedRate = 0;
             let savedLabour = 0;
             let savedMrp = 0;
@@ -348,20 +355,16 @@
                 if (weight <= 0) { alert("Net Weight is mandatory for calculations by weight!"); return; }
                 
                 calculatedItemTotal = Math.round(((savedRate + savedLabour) * weight) + other + huidAmt);
-                calculationSubtext = `${weight}g @ ₹${savedRate + savedLabour}/g`;
             } else {
                 savedMrp = parseFloat(inputs.mrp.value) || 0;
                 if (savedMrp <= 0) { alert("Please input Fixed Item MRP value!"); return; }
 
-                calculatedItemTotal = Math.round(savedMrp + other + huidAmt);
-                calculationSubtext = weight > 0 ? `Fixed Price (${weight}g)` : "Fixed Price Item";
+                calculatedItemTotal = Math.round(mrp + other + huidAmt);
             }
 
-            // Append item payload metrics package
             items.push({ 
                 desc, 
                 cypher: cypherStr, 
-                subtext: calculationSubtext, 
                 total: calculatedItemTotal,
                 rate: savedRate,
                 labour: savedLabour,
@@ -371,7 +374,6 @@
                 huidChecked: inputs.huid.checked
             });
 
-            // Re-zero parameters securely
             inputs.desc.value = '';
             inputs.cypher.value = '';
             inputs.weight.value = '';
@@ -381,11 +383,8 @@
             renderInvoice();
         }
 
-        // ONE-TAP EDIT DATA RECOVERY BLOCK
         function editItem(index) {
             const item = items[index];
-            
-            // Re-populate state configurations
             inputs.desc.value = item.desc;
             inputs.cypher.value = item.cypher || '';
             inputs.other.value = item.other || '';
@@ -401,11 +400,8 @@
                 inputs.labour.value = item.labour;
             }
 
-            // Remove previous item footprint out of state matrix arrays
             items.splice(index, 1);
             renderInvoice();
-
-            // Smooth track scroll focal point orientation adjustments
             document.getElementById('formTop').scrollIntoView({ behavior: 'smooth' });
             inputs.desc.focus();
         }
@@ -428,37 +424,45 @@
                 return;
             }
 
-            // Generate clean structural table headers cleanly
             let tableHtml = `
                 <table class="print-table w-full text-left border-collapse">
                     <thead>
-                        <tr class="border-b border-gray-200">
-                            <th class="py-2 text-xs font-black text-gray-400 uppercase tracking-wider w-8">#</th>
-                            <th class="py-2 text-xs font-black text-gray-400 uppercase tracking-wider">Item</th>
-                            <th class="py-2 text-xs font-black text-gray-400 uppercase tracking-wider text-right">Breakdown</th>
-                            <th class="py-2 text-xs font-black text-gray-400 uppercase tracking-wider text-right pr-2 w-24">Amount</th>
-                            <th class="py-2 text-xs font-black text-gray-400 uppercase tracking-wider text-center w-20 internal-only">Action</th>
+                        <tr class="border-b-2 border-black">
+                            <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider w-8">Sr.</th>
+                            <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider">Description</th>
+                            <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider text-right w-20">Weight</th>
+                            <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider text-right w-24">Rate/g</th>
+                            <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider text-right pr-1 w-28">Amount</th>
+                            <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider text-center w-16 internal-only no-print">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
+                    <tbody class="divide-y divide-gray-200">
             `;
 
             let grossSubtotal = 0;
 
             items.forEach((item, index) => {
                 grossSubtotal += item.total;
+                
+                // Pure high-end column breakdown assignment variables
+                const weightDisplay = item.weight > 0 ? `${item.weight.toFixed(2)} g` : `-`;
+                const rateDisplay = item.mrp > 0 ? `-` : `₹${item.rate + item.labour}`;
+                const hasAddons = item.huidChecked || item.other > 0;
+
                 tableHtml += `
                     <tr class="align-top">
-                        <td class="py-2.5 text-xs font-black text-gray-400">${index + 1}</td>
-                        <td class="py-2.5">
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                <span class="font-black text-gray-800 text-xs md:text-sm">${item.desc}</span>
-                                ${item.cypher ? `<span class="internal-only bg-stone-200 text-stone-700 px-1 py-0.5 rounded text-[8px] font-black tracking-wider uppercase">${item.cypher}</span>` : ''}
+                        <td class="py-3 text-xs font-bold text-gray-400 text-center">${index + 1}</td>
+                        <td class="py-3">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-black text-gray-800 text-sm tracking-tight">${item.desc}</span>
+                                ${item.cypher ? `<span class="internal-only bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded text-[8px] font-black tracking-wider uppercase">${item.cypher}</span>` : ''}
                             </div>
+                            ${hasAddons ? `<span class="text-[10px] text-gray-400 block font-bold uppercase tracking-wide mt-0.5">(Inc. ${item.huidChecked ? 'HUID' : ''}${item.huidChecked && item.other > 0 ? ' + ' : ''}${item.other > 0 ? 'Charges' : ''})</span>` : ''}
                         </td>
-                        <td class="py-2.5 text-right text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wide">${item.subtext}</td>
-                        <td class="py-2.5 text-right font-black text-gray-900 text-xs md:text-sm pr-2">₹${item.total.toLocaleString('en-IN')}</td>
-                        <td class="py-2.5 text-center internal-only space-x-2">
+                        <td class="py-3 text-right font-bold text-gray-900 text-xs md:text-sm">${weightDisplay}</td>
+                        <td class="py-3 text-right font-bold text-gray-500 text-xs md:text-sm">${rateDisplay}</td>
+                        <td class="py-3 text-right font-black text-gray-900 text-xs md:text-sm pr-1">₹${item.total.toLocaleString('en-IN')}</td>
+                        <td class="py-3 text-center internal-only no-print space-x-1">
                             <button type="button" onclick="editItem(${index})" class="text-amber-500 hover:text-amber-700 active:scale-90 transition-transform inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                             </button>
@@ -473,8 +477,21 @@
             tableHtml += `</tbody></table>`;
             wrapper.innerHTML = tableHtml;
 
-            const gstAmount = inputs.taxToggle.checked ? Math.round(grossSubtotal * 0.03) : 0;
+            // TAX CONDITIONAL EXECUTION STRATEGY BLOCK
+            const taxApplied = inputs.taxToggle.checked;
+            const gstAmount = taxApplied ? Math.round(grossSubtotal * 0.03) : 0;
             const finalGrandTotal = grossSubtotal + gstAmount;
+
+            const grossRow = document.getElementById('invoiceGrossRow');
+            const gstRow = document.getElementById('invoiceGstRow');
+
+            if (taxApplied) {
+                grossRow.classList.remove('print:hidden');
+                gstRow.classList.remove('hidden');
+            } else {
+                grossRow.classList.add('print:hidden'); // Strip gross subtotal row from paper if no tax is calculated
+                gstRow.classList.add('hidden');
+            }
 
             document.getElementById('itemCountLabel').innerText = `${items.length} Item${items.length > 1 ? 's' : ''} Added`;
             document.getElementById('prevGross').innerText = grossSubtotal.toLocaleString('en-IN');
@@ -506,7 +523,7 @@
                 navigator.share({ title: 'Jini Jewels Estimate', text: shareText }).catch((err) => console.log(err));
             } else {
                 navigator.clipboard.writeText(shareText);
-                alert("Estimate text data payload copied directly to device clipboard!");
+                alert("Estimate breakdown copied cleanly to clipboard data structures!");
             }
         }
 
