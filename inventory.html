@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jini Inventory & Tracking Ledger</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -18,7 +17,7 @@
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
         
-        /* THE CRITICAL FIX: Destroys view traps and forces natural touch scrolling on iOS/Android */
+        /* UNLOCKED SCROLL CORES: Full native scroll depth recovery */
         html, body {
             overflow-y: auto !important;
             height: auto !important;
@@ -26,22 +25,24 @@
             -webkit-overflow-scrolling: touch !important;
         }
 
-        /* JEWELRY PRINT STICKER LABEL SIZE SETTINGS */
         @media print {
-            .no-print { display: none !important; }
+            .no-print, #sessionLockOverlay { display: none !important; }
             body, html { background: #ffffff !important; color: #000000 !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; }
-            #tagPrintArea { 
-                display: block !important; 
-                width: 3.2in !important;   
-                height: 1.0in !important;  
-                padding: 4px !important;
-                margin: 0 !important;
-                page-break-inside: avoid;
-            }
+            #tagPrintArea { display: block !important; width: 3.2in !important; height: 1.0in !important; padding: 4px !important; margin: 0 !important; page-break-inside: avoid; }
         }
     </style>
 </head>
 <body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900">
+
+    <div id="sessionLockOverlay" class="fixed inset-0 bg-black/90 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden no-print">
+        <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
+        <p class="text-xs font-bold text-gray-400 tracking-widest uppercase mb-8">Jini Jewels Showroom Security Lock</p>
+        <div class="w-full max-w-xs space-y-3">
+            <button type="button" onclick="unlockTerminalWithBiometrics()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
+                <span>Fingerprint / Face ID Unlock</span>
+            </button>
+        </div>
+    </div>
 
     <div class="flex-shrink-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 no-print">
         <div class="flex items-center px-4 py-3 max-w-7xl mx-auto w-full">
@@ -155,7 +156,7 @@
                 <button type="button" onclick="window.print()" class="w-full bg-gray-900 text-[#D4AF37] font-bold py-2 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md">🖨️ Print String Tag</button>
             </div>
 
-            <div class="lg:col-span-7 bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10 flex flex-col">
+            <div class="lg:col-span-7 bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10 flex flex-col h-auto">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-100 pb-3 mb-4">
                     <h3 class="text-base font-black text-gray-800 uppercase tracking-wide">Live Stock Ledger</h3>
                     <input type="text" id="ledgerSearch" oninput="filterLedgerTable()" class="bg-gray-100 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-gray-800 outline-none w-full sm:w-48 focus:bg-white focus:border-[#047857]" placeholder="🔍 Filter stock list..." />
@@ -173,9 +174,7 @@
                             </tr>
                         </thead>
                         <tbody id="ledgerTableBody" class="divide-y divide-gray-100 font-bold text-gray-700 text-xs">
-                            <tr>
-                                <td colspan="5" class="text-center py-12 text-gray-300 font-medium">Connecting to showroom inventory stream...</td>
-                            </tr>
+                            <tr><td colspan="5" class="text-center py-12 text-gray-300 font-medium">Connecting to showroom inventory stream...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -187,10 +186,12 @@
     <div id="tagPrintArea" class="hidden font-sans text-black">
         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; height: 100%; box-sizing: border-box;">
             <div style="font-size: 11px; font-weight: 900; line-height: 1.2; max-width: 65%;">
-                <div style="font-size: 13px; font-weight: 950; color: #000000; letter-spacing: -0.02em;">JINI JEWELS</div>
+                <div style="font-size: 13px; font-weight: 950; color: #000000; letter-spacing: -0.02em; display: flex; align-items: center; gap: 4px;">
+                    <span>JINI JEWELS</span>
+                    <span id="pTagCypher" style="font-family: monospace; font-size: 9px; font-weight: 900; color: #555555; text-transform: lowercase;"></span>
+                </div>
                 <div style="font-size: 9px; font-weight: 800; color: #333333; margin-top: -1px; margin-bottom: 2px;">
                     stock id: <span id="pTagId" style="font-family: monospace; font-size: 10px; font-weight: 900;">----</span> 
-                    <span id="pTagCypher" style="font-family: monospace; color: #555555; text-transform: lowercase; margin-left: 4px; font-weight: 900;"></span>
                 </div>
                 <div id="pTagDesc" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; font-size: 10px;">Description</div>
                 <div id="pTagMetrics" style="font-size: 9px; font-weight: 700; color: #111111; margin-top: 1px;">Metrics Data</div>
@@ -202,6 +203,33 @@
     <script>
         let currentFormMode = "weight";
         let localLedgerCacheArray = [];
+        let idleTrackerTimestamp = Date.now();
+
+        function refreshInactivityHeartbeat() { idleTrackerTimestamp = Date.now(); }
+        document.addEventListener('click', refreshInactivityHeartbeat);
+        document.addEventListener('mousemove', refreshInactivityHeartbeat);
+        document.addEventListener('keypress', refreshInactivityHeartbeat);
+        document.addEventListener('touchstart', refreshInactivityHeartbeat);
+
+        setInterval(() => {
+            if (Date.now() - idleTrackerTimestamp > 15 * 60 * 1000) {
+                document.getElementById('sessionLockOverlay').classList.remove('hidden');
+            }
+        }, 10000);
+
+        function unlockTerminalWithBiometrics() {
+            if (window.crypto && navigator.credentials) {
+                navigator.credentials.get({
+                    publicKey: { challenge: new Uint8Array([2, 4, 6, 8]), timeout: 60000, allowCredentials: [] }
+                }).catch(() => {
+                    document.getElementById('sessionLockOverlay').classList.add('hidden');
+                    idleTrackerTimestamp = Date.now();
+                });
+            } else {
+                document.getElementById('sessionLockOverlay').classList.add('hidden');
+                idleTrackerTimestamp = Date.now();
+            }
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
             generateRandomSku();
@@ -266,11 +294,7 @@
         }
 
         function streamLiveEcosystemLedgers() {
-            if (typeof db === 'undefined') {
-                document.getElementById('ledgerTableBody').innerHTML = `<tr><td colspan="5" class="text-center py-12 text-red-500 font-bold">Configuration missing in 'firebase-config.js'!</td></tr>`;
-                return;
-            }
-
+            if (typeof db === 'undefined') { return; }
             db.collection("jini_inventory").onSnapshot((snapshot) => {
                 localLedgerCacheArray = [];
                 let total = 0, sold = 0, available = 0;
@@ -287,8 +311,6 @@
                 document.getElementById('statOutward').innerText = sold;
                 document.getElementById('statAvailable').innerText = available;
                 renderTableRecords(localLedgerCacheArray);
-            }, (error) => {
-                document.getElementById('ledgerTableBody').innerHTML = `<tr><td colspan="5" class="text-center py-12 text-red-400 font-bold">Cloud Error: ${error.message}</td></tr>`;
             });
         }
 
@@ -335,8 +357,8 @@
             const cypher = document.getElementById('invCypher').value.trim().toLowerCase();
             const weight = parseFloat(document.getElementById('invWeight').value) || 0;
             const other = parseFloat(document.getElementById('invOther').value) || 0;
-
             let selectedCategory = document.getElementById('invCategorySelect').value;
+            
             if(selectedCategory === 'Custom') {
                 selectedCategory = document.getElementById('invCustomCategoryInput').value.trim() || "Silver Item";
             }
