@@ -20,99 +20,33 @@
     <style>
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         html { scroll-behavior: smooth; }
-        
         .toggle-checkbox:checked { right: 0; border-color: #D4AF37; }
         .toggle-checkbox:checked + .toggle-label { background-color: #047857; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* FULL-PAGE LUXURY PRINT ENGINE */
+        /* ADVANCED FULL-PAGE LUXURY PRINT ENGINE */
         @media print {
-            .no-print, .internal-only, button, input, #historyModal { 
-                display: none !important; 
-            }
-            body, html { 
-                background: #ffffff !important; 
-                color: #000000 !important; 
-                overflow: visible !important; 
-                height: auto !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                -webkit-print-color-adjust: exact; 
-                print-color-adjust: exact;
-            }
-            div, main, .grid {
-                display: block !important;
-                overflow: visible !important;
-                box-shadow: none !important;
-                background: transparent !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            #printableMemoCard { 
-                display: block !important; 
-                width: 100% !important; 
-                max-width: 100% !important; 
-                border: none !important;
-                padding: 40px !important; 
-                margin: 0 auto !important;
-                background: #ffffff !important;
-                box-shadow: none !important;
-            }
-            .print-table {
-                width: 100% !important;
-                border-collapse: collapse !important;
-                margin-top: 25px !important;
-                margin-bottom: 25px !important;
-            }
-            .print-table th {
-                background-color: #f9fafb !important;
-                color: #000000 !important;
-                border-top: 2px solid #000000 !important;
-                border-bottom: 2px solid #000000 !important;
-                padding: 12px 10px !important;
-                font-weight: 900 !important;
-                text-transform: uppercase !important;
-                font-size: 12px !important;
-                letter-spacing: 0.05em !important;
-            }
-            .print-table td {
-                border-bottom: 1px solid #e5e7eb !important;
-                padding: 14px 10px !important;
-                font-size: 13px !important;
-                color: #000000 !important;
-            }
+            .no-print, .internal-only, button, input, #historyModal { display: none !important; }
+            body, html { background: #ffffff !important; color: #000000 !important; overflow: visible !important; height: auto !important; padding: 0 !important; margin: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            div, main, .grid { display: block !important; overflow: visible !important; box-shadow: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important; }
+            #printableMemoCard { display: block !important; width: 100% !important; max-width: 100% !important; border: none !important; padding: 40px !important; margin: 0 auto !important; background: #ffffff !important; box-shadow: none !important; }
             
-            .text-gray-600, .text-gray-500, .text-gray-400 { color: #111111 !important; }
+            .print-table { width: 100% !important; border-collapse: collapse !important; margin-top: 25px !important; margin-bottom: 25px !important; }
+            .print-table th { background-color: #f9fafb !important; color: #000000 !important; border-top: 2px solid #000000 !important; border-bottom: 2px solid #000000 !important; padding: 12px 10px !important; font-weight: 900 !important; text-transform: uppercase !important; font-size: 12px !important; letter-spacing: 0.05em !important; }
+            .print-table td { border-bottom: 1px solid #e5e7eb !important; padding: 14px 10px !important; font-size: 13px !important; color: #000000 !important; }
+            
+            .text-gray-600, .text-gray-500, .text-gray-400 { color: #374151 !important; }
             .text-gray-900, .text-[#064e3b] { color: #000000 !important; }
             .print-border-dashed { border-bottom: 2px dashed #000000 !important; }
             
-            .print-total-highlight {
-                border-top: 3px double #000000 !important;
-                border-bottom: 3px double #000000 !important;
-                background-color: #f9fafb !important;
-                font-size: 18px !important;
-                padding: 10px 4px !important;
-                font-weight: 900 !important;
-            }
-
-            .print-footer-flex {
-                display: flex !important;
-                flex-direction: row !important;
-                justify-content: space-between !important;
-                align-items: flex-end !important;
-                width: 100% !important;
-                margin-top: 50px !important;
-            }
+            .print-total-highlight { border-top: 3px double #000000 !important; border-bottom: 3px double #000000 !important; background-color: #f9fafb !important; font-size: 18px !important; padding: 10px 4px !important; font-weight: 900 !important; }
             .hide-on-print { display: none !important; }
-            
-            .print-cypher-lowercase {
-                display: block !important;
-                text-transform: lowercase !important;
-                font-size: 10px !important;
-                color: #555555 !important;
-                font-family: monospace !important;
-                margin-top: 1px !important;
-            }
+            .print-cypher-lowercase { display: block !important; text-transform: lowercase !important; font-size: 10px !important; color: #555555 !important; font-family: monospace !important; margin-top: 1px !important; }
+
+            /* Bulletproof traditional alignment overrides for page printers */
+            .print-footer-container { display: block !important; width: 100% !important; margin-top: 60px !important; clear: both !important; }
+            .print-left-eoe { float: left !important; display: block !important; width: 40% !important; text-align: left !important; }
+            .print-right-sign { float: right !important; display: block !important; width: 40% !important; text-align: center !important; border-top: 1px solid #000000 !important; padding-top: 30px !important; }
         }
     </style>
 </head>
@@ -185,7 +119,7 @@
                     </div>
 
                     <div class="col-span-2 bg-stone-50 border border-stone-200 rounded-xl p-3">
-                        <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">Cypher Tag Code (Prints in Lower Case below item)</label>
+                        <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">Cypher Tag Code</label>
                         <input type="text" id="itemCypher" class="w-full bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black tracking-widest uppercase outline-none focus:border-[#047857]" placeholder="e.g. frarxlar" />
                     </div>
                     
@@ -285,10 +219,12 @@
                     </div>
                 </div>
 
-                <div class="print-footer-flex flex justify-between items-end mt-10 pt-4 border-t border-gray-100 text-left w-full">
-                    <div><p class="text-gray-900 font-black tracking-widest text-xs">E. & O.E.</p></div>
-                    <div class="text-right border-t border-gray-300 pt-6 w-32 text-center uppercase text-[10px] font-black text-gray-600">Authorized Sign</div>
+                <div class="print-footer-container mt-10 w-full text-left">
+                    <div class="print-left-eoe font-black text-xs text-gray-900">E. & O.E.</div>
+                    <div class="print-right-sign uppercase text-[10px] font-black text-gray-600">Authorized Sign</div>
+                    <div style="clear: both;"></div>
                 </div>
+                <p class="text-center text-[10px] font-black text-[#064e3b] tracking-widest mt-6 uppercase italic no-print">~ Thank You For Visiting Jini Jewels ~</p>
             </div>
 
             <div class="grid grid-cols-2 gap-3 internal-only">
@@ -312,7 +248,6 @@
     </div>
 
     <script>
-        // Initialize dynamic targets
         document.getElementById('memoDate').valueAsDate = new Date();
         const initialId = Math.floor(1000 + Math.random() * 9000);
         document.getElementById('memoId').value = initialId;
@@ -353,7 +288,6 @@
         function checkMandatoryDetails() {
             const nameVal = inputs.name.value.trim();
             const mobileVal = inputs.mobile.value.trim();
-            
             if (!nameVal || !mobileVal) {
                 alert("STRICT MANDATORY LOCK: You must enter both Customer Name and Mobile Number first!");
                 if(!nameVal) inputs.name.className = "w-full bg-red-50 border-2 border-red-500 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none";
@@ -361,7 +295,6 @@
                 document.getElementById('customerCard').scrollIntoView({ behavior: 'smooth' });
                 return false;
             }
-            
             inputs.name.className = "w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]";
             inputs.mobile.className = "w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]";
             return true;
@@ -471,7 +404,7 @@
                             <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider text-center w-16 internal-only no-print">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
+                    <tbody class="divide-y divide-gray-200">
             `;
 
             let grossSubtotal = 0;
@@ -510,8 +443,20 @@
             const gstAmount = taxApplied ? Math.round(grossSubtotal * 0.03) : 0;
             const finalGrandTotal = grossSubtotal + gstAmount;
 
-            document.getElementById('invoiceGrossRow').className = taxApplied ? "flex justify-between" : "flex justify-between hide-on-print";
-            document.getElementById('invoiceGstRow').className = taxApplied ? "flex justify-between text-emerald-800" : "flex justify-between text-emerald-800 hidden";
+            // STRICTOR CONDITIONALS: Safely hides both rows on preview and print canvas
+            const grossRow = document.getElementById('invoiceGrossRow');
+            const gstRow = document.getElementById('invoiceGstRow');
+            if (taxApplied) {
+                grossRow.style.display = "flex";
+                gstRow.style.display = "flex";
+                grossRow.classList.remove('hide-on-print');
+                gstRow.classList.remove('hide-on-print');
+            } else {
+                grossRow.style.display = "none";
+                gstRow.style.display = "none";
+                grossRow.classList.add('hide-on-print');
+                gstRow.classList.add('hide-on-print');
+            }
 
             document.getElementById('itemCountLabel').innerText = `${items.length} Item${items.length > 1 ? 's' : ''} Added`;
             document.getElementById('prevGross').innerText = grossSubtotal.toLocaleString('en-IN');
@@ -526,27 +471,26 @@
             window.print(); 
         }
 
-        // IMPROVED: FIREBASE SECURE LEDGER CLOUD SAVING LOGIC WITH CONFIRMATION AND LOADING FEEDBACK
         function executeCloudSave(e) {
             if (e) e.preventDefault();
             if (!checkMandatoryDetails()) return;
             if (items.length === 0) { alert("Please add at least one item before cloud saving!"); return; }
 
             if (typeof db === 'undefined') {
-                alert("Database Connection Error: Please verify your Firebase initialization strings inside 'firebase-config.js' configuration file!");
+                alert("Database Connection Error: Please verify your settings configuration inside 'firebase-config.js'.");
                 return;
             }
 
-            // Interactive confirmation popup window
-            if (!confirm("Are you sure you want to save this Estimate / Cash Memo record to the cloud database collection?")) return;
+            if (!confirm("Are you sure you want to save this Estimate / Cash Memo record to the cloud?")) return;
 
             const saveBtn = document.getElementById('btnCloudSave');
-            const originalBtnText = saveBtn.innerText;
             saveBtn.innerText = "⏳ Saving...";
             saveBtn.disabled = true;
 
+            const targetEstimateNumber = inputs.memoId.value.trim();
+
             const documentPayload = {
-                estimateNumber: inputs.memoId.value.trim(),
+                estimateNumber: targetEstimateNumber,
                 customerName: inputs.name.value.trim(),
                 customerMobile: inputs.mobile.value.trim(),
                 memoDate: document.getElementById('memoDate').value,
@@ -554,23 +498,22 @@
                 subtotalAmount: document.getElementById('prevGross').innerText,
                 taxAppliedBool: inputs.taxToggle.checked,
                 grandTotalPayable: document.getElementById('invoiceGrandTotal').innerText,
-                serverCreationDate: firebase.firestore.FieldValue.serverTimestamp()
+                localTimestamp: new Date().toISOString()
             };
 
             db.collection("showroom_memos").doc(documentPayload.estimateNumber).set(documentPayload)
               .then(() => { 
-                  alert("☁️ Cloud Ledger Synced: Memo #" + documentPayload.estimateNumber + " has been successfully committed into cloud storage collections!"); 
-                  saveBtn.innerText = originalBtnText;
+                  alert("☁️ Success: Memo #" + documentPayload.estimateNumber + " has been recorded safely in the cloud database!"); 
+                  saveBtn.innerText = "☁️ Cloud Save Memo";
                   saveBtn.disabled = false;
               })
               .catch(error => { 
-                  alert("Cloud Failure Intercepted: " + error.message); 
-                  saveBtn.innerText = originalBtnText;
+                  alert("Cloud Failure: " + error.message); 
+                  saveBtn.innerText = "☁️ Cloud Save Memo";
                   saveBtn.disabled = false;
               });
         }
 
-        // ADVANCED LEDGER HISTORY DRAWER CONTROLLERS
         function toggleHistoryModal(show) {
             const modal = document.getElementById('historyModal');
             if (show) modal.classList.remove('opacity-0', 'pointer-events-none');
@@ -587,7 +530,7 @@
             const historyList = document.getElementById('historyMemosList');
             historyList.innerHTML = `<p class="text-center text-gray-400 font-bold py-12 animate-pulse">⏳ Fetching live ledger logs...</p>`;
 
-            db.collection("showroom_memos").orderBy("serverCreationDate", "desc").limit(40).get()
+            db.collection("showroom_memos").get()
                 .then((querySnapshot) => {
                     if (querySnapshot.empty) {
                         historyList.innerHTML = `<p class="text-center text-gray-400 py-12 font-bold">No saved files discovered in database.</p>`;
@@ -598,7 +541,7 @@
                     querySnapshot.forEach((doc) => {
                         const data = doc.data();
                         const rowCard = document.createElement('div');
-                        rowCard.className = "bg-gray-50 hover:bg-emerald-50/60 border border-gray-200 rounded-2xl p-4 transition-all cursor-pointer relative group shadow-sm";
+                        rowCard.className = "bg-gray-50 hover:bg-emerald-50/60 border border-gray-200 rounded-2xl p-4 transition-all cursor-pointer relative group shadow-sm mb-3";
                         
                         rowCard.innerHTML = `
                             <div class="flex justify-between items-start mb-1">
@@ -612,9 +555,6 @@
                                 </div>
                                 <span class="font-black text-[#047857] text-sm">₹${data.grandTotalPayable}</span>
                             </div>
-                            <div class="mt-2.5 pt-2 border-t border-gray-200/50 hidden group-hover:block text-right">
-                                <span class="text-[9px] font-black text-emerald-800 uppercase bg-emerald-100/80 px-2.5 py-1 rounded-lg">⚡ Tap to load onto canvas</span>
-                            </div>
                         `;
                         
                         rowCard.addEventListener('click', () => {
@@ -625,7 +565,7 @@
                     });
                 })
                 .catch((error) => {
-                    historyList.innerHTML = `<p class="text-center text-red-500 py-12 font-bold">Failed to load system logs: ${error.message}</p>`;
+                    historyList.innerHTML = `<p class="text-center text-red-500 py-12 font-bold">Failed to load logs: ${error.message}</p>`;
                 });
         }
 
@@ -644,22 +584,7 @@
             inputs.taxToggle.checked = data.taxAppliedBool || false;
             
             renderInvoice();
-            alert("⚡ Cloud Synced: Invoice record #" + data.estimateNumber + " has been successfully loaded into preview workspace layout sheets!");
         }
-
-        function executeShare(e) {
-            if (e) e.preventDefault();
-            if (!checkMandatoryDetails()) return;
-            const name = inputs.name.value.trim(); const id = inputs.memoId.value; const grandTotal = document.getElementById('invoiceGrandTotal').innerText;
-            let shareText = `*JINI JEWELS ESTIMATE*\nMemos No: ${id}\nCustomer: ${name}\n---------------------------\n`;
-            items.forEach((item, idx) => { shareText += `${idx+1}. ${item.desc} - ₹${item.total.toLocaleString('en-IN')}\n`; });
-            if(inputs.taxToggle.checked) { shareText += `Gst (3%): Included\n`; }
-            shareText += `---------------------------\n*Total Payable: ₹${grandTotal}*\n_E&OE_`;
-            if (navigator.share) { navigator.share({ title: 'Jini Jewels Estimate', text: shareText }); } 
-            else { navigator.clipboard.writeText(shareText); alert("Estimate data text copied directly to clipboard!"); }
-        }
-
-        inputs.taxToggle.addEventListener('change', renderInvoice);
     </script>
 </body>
 </html>
