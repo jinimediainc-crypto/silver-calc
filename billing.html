@@ -25,7 +25,7 @@
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
         @media print {
-            .no-print, .internal-only, button, input, #historyModal, #qrScannerBox, .toggle-container-discount { display: none !important; }
+            .no-print, .internal-only, button, input, #historyModal, #qrScannerBox, .toggle-container-discount, #searchSuggestions { display: none !important; }
             body, html { background: #ffffff !important; color: #000000 !important; overflow: visible !important; height: auto !important; padding: 0 !important; margin: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             div, main, .grid { display: block !important; overflow: visible !important; box-shadow: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important; }
             #printableMemoCard { display: block !important; width: 100% !important; max-width: 100% !important; border: none !important; padding: 40px !important; margin: 0 auto !important; background: #ffffff !important; box-shadow: none !important; }
@@ -72,12 +72,17 @@
         
         <div class="lg:col-span-7 space-y-5 no-print">
             
-            <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-4 shadow-xl border border-[#D4AF37] flex items-center gap-3">
-                <div class="flex-1 relative">
-                    <input type="text" id="liveSearchQuery" onkeypress="handleBarcodeGunScan(event)" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-3 pr-12 text-sm font-black text-gray-900 outline-none focus:border-[#047857]" placeholder="🔍 Type name (e.g. payal), scan tag code..." />
-                    <button type="button" onclick="executeDatabaseLookup()" class="absolute inset-y-0 right-0 font-black px-4 text-xs uppercase text-[#047857]">Find</button>
+            <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-4 shadow-xl border border-[#D4AF37] relative">
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 relative">
+                        <input type="text" id="liveSearchQuery" oninput="showSearchSuggestions()" onkeypress="handleBarcodeGunScan(event)" autocomplete="off" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-3 pr-12 text-sm font-black text-gray-900 outline-none focus:border-[#047857]" placeholder="🔍 Search name (e.g. payal), scan tag code..." />
+                        <button type="button" onclick="executeDatabaseLookup()" class="absolute inset-y-0 right-0 font-black px-4 text-xs uppercase text-[#047857]">Find</button>
+                    </div>
+                    <button type="button" onclick="startCameraScanner()" class="w-12 h-12 bg-[#064e3b] rounded-xl flex items-center justify-center text-white text-lg shadow-md">📷</button>
                 </div>
-                <button type="button" onclick="startCameraScanner()" class="w-12 h-12 bg-[#064e3b] rounded-xl flex items-center justify-center text-white text-lg shadow-md">📷</button>
+
+                <div id="searchSuggestions" class="absolute left-4 right-20 bg-white border border-gray-200 rounded-xl mt-1 shadow-2xl max-h-52 overflow-y-auto hidden z-30 font-bold text-xs text-left divide-y divide-gray-100">
+                    </div>
             </div>
 
             <div id="qrScannerBox" class="hidden bg-black rounded-2xl p-2 border max-w-sm mx-auto w-full relative">
@@ -87,7 +92,10 @@
 
             <div id="customerCard" class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
                 <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-2">
-                    <h3 class="text-lg font-black text-[#064e3b] uppercase tracking-wide">Customer Details</h3>
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-lg font-black text-[#064e3b] uppercase tracking-wide">Customer Details</h3>
+                        <span id="editModeIndicator" class="hidden bg-amber-100 text-amber-800 text-[9px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider">📝 Editing Old Record</span>
+                    </div>
                     <button type="button" onclick="fetchHistoryFromCloud()" class="bg-gray-900 hover:bg-black text-[#D4AF37] font-black text-[11px] px-3 py-1.5 rounded-xl uppercase tracking-wider">📋 View History</button>
                 </div>
                 
@@ -266,28 +274,31 @@
         let globalHistoryCache = [];
         let cameraScannerEngineInstance = null;
         
-        // INTERNALLY MAP THE ENTIRE JINI INVENTORY FOR MEMORY SUBSTRING SEARCH MATCHES
+        // NEW DECOUPLED TRACKING VARIABLES FOR SYSTEM SEQUENCES
+        let activeDocId = null; 
         window.localShowroomInventoryMemoryList = [];
 
         if (typeof db !== 'undefined') {
-            // Load sequence counters
+            runAutoSequenceIncrement();
+
+            // Stream inventory parameters locally for dynamic dropdown filtering
+            db.collection("jini_inventory").onSnapshot((snapshot) => {
+                window.localShowroomInventoryMemoryList = [];
+                snapshot.forEach(doc => { window.localShowroomInventoryMemoryList.push(doc.data()); });
+            });
+        }
+
+        function runAutoSequenceIncrement() {
             db.collection("showroom_memos").get().then((querySnapshot) => {
                 let maxNum = 1000;
                 querySnapshot.forEach((doc) => {
-                    const idNum = parseInt(doc.id);
+                    const data = doc.data();
+                    const idNum = parseInt(data.estimateNumber);
                     if (!isNaN(idNum) && idNum > maxNum) maxNum = idNum;
                 });
                 const nextSequenceId = maxNum + 1;
                 document.getElementById('memoId').value = nextSequenceId;
                 document.getElementById('prevMemoId').innerText = nextSequenceId;
-            });
-
-            // Stream inventory down into local high speed RAM strings array maps instantly
-            db.collection("jini_inventory").onSnapshot((snapshot) => {
-                window.localShowroomInventoryMemoryList = [];
-                snapshot.forEach(doc => {
-                    window.localShowroomInventoryMemoryList.push(doc.data());
-                });
             });
         }
 
@@ -309,32 +320,66 @@
             taxToggle: document.getElementById('taxToggle'), discType: document.getElementById('discountType'), discVal: document.getElementById('discountValue')
         };
 
-        // FIXED HIGH PERFORMANCE SUBSTRING LOGIC SEARCH CORES
+        // NEW: MULTI-MATCH DYNAMIC SEARCH SUGGESTION DROPDOWN ENGINE
+        function showSearchSuggestions() {
+            const query = document.getElementById('liveSearchQuery').value.trim().toLowerCase();
+            const suggestionBox = document.getElementById('searchSuggestions');
+            
+            if(!query) { suggestionBox.classList.add('hidden'); return; }
+
+            // Filter cache memory array for any string match position segment
+            const matches = window.localShowroomInventoryMemoryList.filter(i => 
+                i.tagNumberId.toLowerCase().includes(query) || 
+                i.itemNameDescription.toLowerCase().includes(query)
+            );
+
+            if(matches.length === 0) { suggestionBox.classList.add('hidden'); return; }
+
+            suggestionBox.innerHTML = "";
+            matches.slice(0, 6).forEach(item => {
+                const cardRow = document.createElement('div');
+                cardRow.className = "p-3 bg-white hover:bg-emerald-50 cursor-pointer flex justify-between items-center transition-colors";
+                
+                const rateInfo = item.pricingSaleMode === 'mrp' ? 'Fixed Price' : `₹${item.metalRateValue + item.labourChargeValue}/g`;
+                
+                cardRow.innerHTML = `
+                    <div>
+                        <p class="text-gray-900 font-black text-xs">#${item.tagNumberId} - ${item.itemNameDescription}</p>
+                        <p class="text-gray-400 text-[10px] mt-0.5">${item.itemCategory || 'Silver'} | ${rateInfo}</p>
+                    </div>
+                    <span class="text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded text-[10px] font-black">${item.netWeightValue ? item.netWeightValue.toFixed(2)+'g' : '-'}</span>
+                `;
+                
+                cardRow.addEventListener('click', () => {
+                    populateFormFieldsWithStockData(item);
+                    suggestionBox.classList.add('hidden');
+                });
+                suggestionBox.appendChild(cardRow);
+            });
+            suggestionBox.classList.remove('hidden');
+        }
+
         function executeDatabaseLookup() {
             const query = document.getElementById('liveSearchQuery').value.trim().toLowerCase();
             if(!query) return;
 
-            // First check for exact Tag ID match
             let foundRecord = window.localShowroomInventoryMemoryList.find(i => i.tagNumberId.toLowerCase() === query);
-            
-            // Fallback: Check if user typed a partial piece of the descriptive string
             if(!foundRecord) {
                 foundRecord = window.localShowroomInventoryMemoryList.find(i => i.itemNameDescription.toLowerCase().includes(query));
             }
 
             if(foundRecord) {
                 populateFormFieldsWithStockData(foundRecord);
+                document.getElementById('searchSuggestions').classList.add('hidden');
             } else {
-                alert(`No inventory matched under query string keyword: "${query}"`);
+                alert(`No inventory matched under query parameters: "${query}"`);
             }
         }
 
         function handleBarcodeGunScan(e) { if (e.key === 'Enter') { e.preventDefault(); executeDatabaseLookup(); } }
 
         function populateFormFieldsWithStockData(data) {
-            if(data.status === "Sold") {
-                alert(`⚠️ STOCK WARNING: Tag #${data.tagNumberId} is already marked as SOLD inside your system logs.`);
-            }
+            if(data.status === "Sold") { alert(`⚠️ STOCK WARNING: Tag #${data.tagNumberId} is already marked as SOLD inside your logs.`); }
             inputs.desc.value = data.itemNameDescription || '';
             inputs.cypher.value = data.itemCypherCode || '';
             inputs.stockTag.value = data.tagNumberId || ''; 
@@ -348,6 +393,11 @@
             }
             document.getElementById('liveSearchQuery').value = ""; inputs.itemWeight.focus();
         }
+
+        // Hide dynamic suggestion box container if user clicks outside anywhere on the application viewport canvas
+        document.addEventListener('click', (e) => {
+            if(e.target.id !== 'liveSearchQuery') document.getElementById('searchSuggestions').classList.add('hidden');
+        });
 
         function startCameraScanner() {
             document.getElementById('qrScannerBox').classList.remove('hidden');
@@ -465,16 +515,14 @@
                 grossRow.classList.remove('hide-on-print'); gstRow.classList.remove('hide-on-print');
             } else {
                 grossRow.style.display = "none"; gstRow.style.display = "none";
-                grossRow.classList.add('hide-on-print'); gstRow.classList.add('hide-on-print');
+                grossRow.classList.add('hide-on-print'); guestRow = null;
             }
 
             if (discAmt > 0) {
-                discRow.classList.remove('hidden');
-                discRow.classList.remove('hide-on-print');
+                discRow.classList.remove('hidden'); discRow.classList.remove('hide-on-print');
                 document.getElementById('prevDiscountAmt').innerText = discAmt.toLocaleString('en-IN');
             } else {
-                discRow.classList.add('hidden');
-                discRow.classList.add('hide-on-print');
+                discRow.classList.add('hidden'); discRow.classList.add('hide-on-print');
             }
 
             document.getElementById('itemCountLabel').innerText = `${items.length} Items`;
@@ -482,23 +530,35 @@
             document.getElementById('invoiceGrandTotal').innerText = finalTotal.toLocaleString('en-IN'); document.getElementById('printGrandTotal').innerText = finalTotal.toLocaleString('en-IN');
         }
 
+        // REENGINEERED CLOUD SAVE SYSTEM SEQUENCE INTEGRATION
         function executeCloudSave(e) {
             if (e) e.preventDefault(); if (!checkMandatoryDetails()) return;
             if (items.length === 0) { alert("Please add items first!"); return; }
-            if (!confirm("Are you sure you want to finalize and save this bill to the cloud database?")) return;
+            
+            if (!confirm("Confirm Action: Save/Update this estimate record to your cloud ledger database?")) return;
 
             const saveBtn = document.getElementById('btnCloudSave');
-            saveBtn.innerText = "⏳ Saving..."; saveBtn.disabled = true;
-            const targetId = inputs.memoId.value.trim();
+            saveBtn.innerText = "⏳ Syncing..."; saveBtn.disabled = true;
+            
+            const targetVisibleInvoiceNumber = inputs.memoId.value.trim();
 
             const payload = {
-                estimateNumber: targetId, customerName: inputs.name.value.trim(), customerMobile: inputs.mobile.value.trim(),
-                memoDate: document.getElementById('memoDate').value, itemsListArray: items, subtotalAmount: document.getElementById('prevGross').innerText,
-                taxAppliedBool: inputs.taxToggle.checked, discountGivenValue: document.getElementById('prevDiscountAmt').innerText || '0',
-                grandTotalPayable: document.getElementById('invoiceGrandTotal').innerText, localTimestamp: new Date().toISOString()
+                estimateNumber: targetVisibleInvoiceNumber, 
+                customerName: inputs.name.value.trim(), 
+                customerMobile: inputs.mobile.value.trim(),
+                memoDate: document.getElementById('memoDate').value, 
+                itemsListArray: items, 
+                subtotalAmount: document.getElementById('prevGross').innerText,
+                taxAppliedBool: inputs.taxToggle.checked, 
+                discountGivenValue: document.getElementById('prevDiscountAmt').innerText || '0',
+                grandTotalPayable: document.getElementById('invoiceGrandTotal').innerText, 
+                localTimestamp: new Date().toISOString()
             };
 
-            db.collection("showroom_memos").doc(targetId).set(payload).then(() => {
+            // SYSTEM SEQUENCE CONTROL RULE: Checks if updating an existing record vs creating a new record slot
+            const docReferenceRef = activeDocId ? db.collection("showroom_memos").doc(activeDocId) : db.collection("showroom_memos").doc();
+
+            docReferenceRef.set(payload).then(() => {
                 let updatePromises = [];
                 items.forEach(item => {
                     if (item.tagNumberId) {
@@ -508,39 +568,91 @@
                 });
 
                 Promise.all(updatePromises).then(() => {
-                    alert(`☁️ Invoice Saved! Stock levels updated automatically.`);
-                    saveBtn.innerText = "☁️ Cloud Save Memo"; saveBtn.disabled = false;
-                    inputs.memoId.value = parseInt(targetId) + 1; document.getElementById('prevMemoId').innerText = parseInt(targetId) + 1;
-                    items = []; inputs.discVal.value = 0; renderInvoice(); inputs.name.value = ''; inputs.mobile.value = '';
+                    alert(`☁️ Cloud Record Synced Safely!`);
+                    resetTerminalBillingState();
                 });
             }).catch(err => { alert(err.message); saveBtn.innerText = "☁️ Cloud Save Memo"; saveBtn.disabled = false; });
         }
 
+        function resetTerminalBillingState() {
+            activeDocId = null;
+            document.getElementById('editModeIndicator').classList.add('hidden');
+            document.getElementById('btnCloudSave').className = "bg-blue-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs w-full";
+            document.getElementById('btnCloudSave').innerText = "☁️ Cloud Save Memo";
+            document.getElementById('btnCloudSave').disabled = false;
+            
+            runAutoSequenceIncrement();
+            items = []; inputs.discVal.value = 0; renderInvoice(); 
+            inputs.name.value = ''; inputs.mobile.value = '';
+        }
+
         function toggleHistoryModal(s) { const m = document.getElementById('historyModal'); if(s) m.classList.remove('opacity-0', 'pointer-events-none'); else m.classList.add('opacity-0', 'pointer-events-none'); }
+        
         function fetchHistoryFromCloud() {
             toggleHistoryModal(true); const list = document.getElementById('historyMemosList');
             list.innerHTML = `<p class="text-center font-bold animate-pulse">⏳ Loading records...</p>`;
             db.collection("showroom_memos").get().then((snap) => {
                 globalHistoryCache = []; if (snap.empty) { list.innerHTML = `<p class="text-center">No memos found.</p>`; return; }
-                snap.forEach(d => globalHistoryCache.push(d.data())); renderHistoryList(globalHistoryCache);
+                snap.forEach(d => {
+                    let recordData = d.data();
+                    recordData.fbDocIdReferenceToken = d.id; // Map structural system sequence token ID
+                    globalHistoryCache.push(recordData);
+                }); 
+                renderHistoryList(globalHistoryCache);
             });
         }
+
         function renderHistoryList(arr) {
             const list = document.getElementById('historyMemosList'); list.innerHTML = "";
             arr.forEach(d => {
-                const card = document.createElement('div'); card.className = "bg-gray-50 border p-4 rounded-2xl mb-2 text-left cursor-pointer";
-                card.innerHTML = `<div class="flex justify-between font-black text-sm"><span>#${d.estimateNumber}</span><span class="text-xs font-bold text-gray-400">${d.memoDate}</span></div><div class="flex justify-between mt-1"><p class="text-xs uppercase">${d.customerName}</p><span class="font-black text-emerald-700">₹${d.grandTotalPayable}</span></div>`;
+                const card = document.createElement('div'); 
+                card.className = "bg-gray-50 border p-4 rounded-2xl mb-2 text-left cursor-pointer relative group transition-all hover:bg-emerald-50/60";
+                
+                card.innerHTML = `
+                    <div class="flex justify-between font-black text-sm pr-6">
+                        <span>#${d.estimateNumber}</span>
+                        <span class="text-xs font-bold text-gray-400">${d.memoDate}</span>
+                    </div>
+                    <div class="flex justify-between mt-1 pr-6">
+                        <p class="text-xs uppercase">${d.customerName}</p>
+                        <span class="font-black text-emerald-700">₹${d.grandTotalPayable}</span>
+                    </div>
+                    <button type="button" onclick="deleteHistoryRecord(event, '${d.fbDocIdReferenceToken}')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-red-600 text-base p-1 transition-colors">🗑️</button>
+                `;
+                
                 card.addEventListener('click', () => { loadOldRecordIntoTerminal(d); toggleHistoryModal(false); });
                 list.appendChild(card);
             });
         }
+
+        // NEW: DOUBLE-CHECK DELETION SECURITY ENGINE
+        function deleteHistoryRecord(event, docId) {
+            event.stopPropagation(); // Block event capture cascading loop bubble
+            if (!confirm("Are you sure you want to permanently delete this estimate out of cloud history records?")) return;
+            if (!confirm("CRITICAL WARNING: This action cannot be undone and will permanently wipe the entry. Confirm Deletion?")) return;
+
+            db.collection("showroom_memos").doc(docId).delete().then(() => {
+                alert("🗑️ Document entry removed out of cloud history files successfully.");
+                if(activeDocId === docId) resetTerminalBillingState();
+                fetchHistoryFromCloud(); // Refresh history panel loop entries
+            }).catch(err => alert("System Deletion Failure: " + err.message));
+        }
+
         function filterHistoryLedger() {
             const q = document.getElementById('historySearchInput').value.toLowerCase().trim();
             if(!q) { renderHistoryList(globalHistoryCache); return; }
             const matches = globalHistoryCache.filter(i => i.customerName.toLowerCase().includes(q) || i.customerMobile.includes(q) || i.estimateNumber.toString().includes(q));
             renderHistoryList(matches);
         }
+
         function loadOldRecordIntoTerminal(d) {
+            // Unlocks system sequences connection bindings properties maps
+            activeDocId = d.fbDocIdReferenceToken;
+            
+            document.getElementById('editModeIndicator').classList.remove('hidden');
+            document.getElementById('btnCloudSave').innerText = "💾 Update Existing Record";
+            document.getElementById('btnCloudSave').className = "bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs w-full";
+
             inputs.name.value = d.customerName || ''; inputs.mobile.value = d.customerMobile || ''; inputs.memoId.value = d.estimateNumber || '';
             document.getElementById('memoDate').value = d.memoDate || ''; document.getElementById('prevMemoId').innerText = d.estimateNumber || '--';
             document.getElementById('prevName').innerText = d.customerName || '--'; document.getElementById('prevMobile').innerText = d.customerMobile || '--';
