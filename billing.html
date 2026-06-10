@@ -17,11 +17,45 @@
         .toggle-checkbox:checked + .toggle-label { background-color: #D4AF37; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
+        /* THE PERFECT PRINT ENGINE FIX */
         @media print {
-            body { background: white !important; color: black !important; font-size: 12px; }
-            body > :not(#printableMemoCard) { display: none !important; }
-            #printableMemoCard { display: block !important; position: absolute; left: 0; top: 0; width: 100%; box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 !important; }
-            .internal-only { display: none !important; }
+            /* Hide all interactive components cleanly */
+            .no-print, .internal-only, button, input, .toggle-label { 
+                display: none !important; 
+            }
+            /* Strip page structures to prevent clipping or empty blanks */
+            body, html { 
+                background: #ffffff !important; 
+                color: #000000 !important; 
+                overflow: visible !important; 
+                height: auto !important;
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
+            }
+            /* Flatten parent grid containers so they don't break vertical rendering */
+            div, main, .grid {
+                display: block !important;
+                overflow: visible !important;
+                box-shadow: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            /* Force the memo card to present in full view */
+            #printableMemoCard { 
+                display: block !important; 
+                width: 100% !important; 
+                max-width: 100% !important; 
+                border: none !important;
+                padding: 20px !important;
+                margin: 0 auto !important;
+                background: #ffffff !important;
+                box-shadow: none !important;
+            }
+            /* Clean visible colors for print out contrast templates */
+            .text-gray-600, .text-gray-500, .text-gray-400 { color: #333333 !important; }
+            .text-gray-900, .text-[#064e3b] { color: #000000 !important; }
+            .bg-emerald-50\/50, .bg-gray-50\/60 { background: #fbfbfb !important; border: 1px dashed #cccccc !important; }
             .print-border { border-bottom: 2px dashed #000000 !important; }
         }
     </style>
@@ -32,7 +66,7 @@
         if (sessionStorage.getItem('jini_auth') !== 'true') { window.location.replace('index.html'); }
     </script>
 
-    <div class="flex-shrink-0 flex flex-col z-10 sticky top-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10">
+    <div class="flex-shrink-0 flex flex-col z-10 sticky top-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 no-print">
         <div class="flex items-center px-4 py-3 max-w-6xl mx-auto w-full">
             <a href="index.html" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20 active:scale-90 transition-transform">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
@@ -43,7 +77,7 @@
 
     <div class="flex-1 overflow-y-auto px-4 lg:px-8 py-4 pb-40 max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <div class="lg:col-span-7 space-y-5">
+        <div class="lg:col-span-7 space-y-5 no-print">
             
             <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
                 <h3 class="text-lg font-black text-[#064e3b] mb-4 uppercase tracking-wide">Customer Details</h3>
@@ -237,7 +271,6 @@
             taxToggle: document.getElementById('taxToggle')
         };
 
-        // FIXED: Added e.preventDefault() to rule out execution updates causing a reload
         function setSaleMode(e, mode) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
             saleMode = mode;
