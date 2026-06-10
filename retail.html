@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
-<script>enforceTerminalSecurity();</script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jini Retail</title>
+    <title>Jini Retail Calculator</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#064e3b">
     <link rel="apple-touch-icon" href="icon.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script src="firebase-config.js"></script>
+    <script>enforceTerminalSecurity();</script>
+
     <style>
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         html { scroll-behavior: smooth; }
@@ -25,9 +26,28 @@
         @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
         .animate-marquee { display: flex; width: max-content; animation: marquee 15s linear infinite; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
+        
+        /* UNLOCKED TOUCH SCROLLING CORES */
+        html, body {
+            overflow-y: auto !important;
+            height: auto !important;
+            min-height: 100dvh !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 h-[100dvh] flex flex-col overflow-hidden selection:bg-[#D4AF37] selection:text-gray-900">
+<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900">
+
+    <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden">
+        <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
+        <p class="text-xs font-bold text-gray-400 tracking-widest uppercase mb-6">Jini Jewels Showroom Security Lock</p>
+        <div class="w-full max-w-xs space-y-3">
+            <button type="button" onclick="unlockTerminalWithBiometrics()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
+                <span>Verify Biometrics to Unlock</span>
+            </button>
+            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Device automatically locked due to 15 minutes of inactivity</p>
+        </div>
+    </div>
 
     <div class="flex-shrink-0 flex flex-col z-10 sticky top-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10">
         <div class="flex items-center px-4 py-3 max-w-2xl mx-auto w-full">
@@ -47,9 +67,9 @@
         </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto px-4 md:px-8 pt-4 pb-40 max-w-2xl mx-auto w-full">
+    <div class="flex-1 px-4 md:px-8 pt-4 pb-48 max-w-2xl mx-auto w-full space-y-5">
         
-        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 md:p-6 shadow-xl mb-5 border border-white/20 mt-2">
+        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 md:p-6 shadow-xl border border-white/20 mt-2">
             <h3 class="text-lg font-bold mb-4 text-[#064e3b]">Calculation Flow</h3>
             
             <div class="grid grid-cols-2 gap-4 md:gap-5">
@@ -86,7 +106,7 @@
             </div>
         </div>
 
-        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 md:p-6 shadow-xl mb-5 border border-white/20">
+        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 md:p-6 shadow-xl border border-white/20">
             <div class="grid grid-cols-3 gap-4 md:gap-5 mb-5">
                 <div class="col-span-2">
                     <label class="block text-[11px] md:text-sm font-black text-gray-700 mb-1.5 uppercase tracking-widest text-center">Cypher Tag</label>
@@ -96,7 +116,7 @@
                 </div>
 
                 <div class="col-span-1 flex flex-col justify-end">
-                    <label class="block text-[9px] md:text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wide text-center">Old Cost</label>
+                    <label class="block text-[11px] md:text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wide text-center">Old Cost</label>
                     <div class="bg-gray-100 rounded-xl flex items-center px-2 py-3 border border-gray-200 opacity-70 h-[56px] md:h-[64px]">
                         <span class="text-gray-400 font-bold text-sm md:text-lg mx-auto">₹ <input type="number" id="itemSilverRate" class="w-10 md:w-14 bg-transparent border-none text-center outline-none pointer-events-none" placeholder="0" readonly /></span>
                     </div>
@@ -109,7 +129,7 @@
             </div>
         </div>
 
-        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 md:p-6 shadow-xl border border-white/20 mb-5">
+        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 md:p-6 shadow-xl border border-white/20">
             <div class="flex justify-between items-center px-2">
                 <div class="flex items-center gap-3 md:gap-4">
                     <div class="relative inline-block w-10 md:w-12 h-5 md:h-6 align-middle select-none">
@@ -134,32 +154,59 @@
 
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full bg-gray-900 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t-[3px] border-[#D4AF37] px-6 py-5 md:py-6 z-20 transition-transform">
-        <div class="max-w-2xl mx-auto">
-            
-            <div class="flex justify-between items-center mb-4 md:mb-5">
+    <div class="fixed bottom-0 left-0 w-full bg-gray-950 border-t border-white/10 z-40">
+        <div class="max-w-2xl mx-auto px-4 pt-3 pb-1">
+            <div class="flex justify-between items-center mb-3">
                 <span class="text-gray-400 text-[9px] md:text-xs font-bold uppercase tracking-widest hidden sm:block">When Total Changes:</span>
-                <div class="flex space-x-2 bg-gray-800 rounded-lg p-1 border border-gray-700 w-full sm:w-auto justify-center">
+                <div class="flex space-x-2 bg-gray-900 rounded-lg p-1 border border-white/5 w-full sm:w-auto justify-center">
                     <input type="radio" id="solveLabour" name="solveMode" value="labour" class="solve-radio hidden" checked>
-                    <label for="solveLabour" class="text-[10px] md:text-xs font-bold uppercase px-4 md:px-6 py-2 rounded-md cursor-pointer text-gray-400 transition-colors">Solve L-Val</label>
+                    <label for="solveLabour" class="text-[10px] md:text-xs font-bold uppercase px-4 md:px-5 py-1.5 rounded-md cursor-pointer text-gray-400 transition-colors select-none">Solve L-Val</label>
                     <input type="radio" id="solveF" name="solveMode" value="f_rate" class="solve-radio hidden">
-                    <label for="solveF" class="text-[10px] md:text-xs font-bold uppercase px-4 md:px-6 py-2 rounded-md cursor-pointer text-gray-400 transition-colors">Solve Cost</label>
+                    <label for="solveF" class="text-[10px] md:text-xs font-bold uppercase px-4 md:px-5 py-1.5 rounded-md cursor-pointer text-gray-400 transition-colors select-none">Solve Cost</label>
                 </div>
             </div>
 
-            <div class="flex justify-between items-center">
-                <span class="text-white text-2xl md:text-3xl font-black uppercase tracking-widest">Total</span>
+            <div class="flex justify-between items-center border-b border-white/5 pb-2">
+                <span class="text-white text-xl md:text-2xl font-black uppercase tracking-widest">Total</span>
                 <div class="relative w-2/3 flex justify-end items-center">
-                    <span class="text-emerald-500 font-bold text-4xl md:text-5xl mr-2">₹</span>
-                    <input type="number" id="grandTotal" class="w-full bg-transparent border-none py-1 text-5xl md:text-6xl font-black text-white text-right outline-none focus:ring-2 focus:ring-[#D4AF37] rounded transition-all" placeholder="0" />
+                    <span class="text-emerald-500 font-bold text-3xl md:text-4xl mr-1">₹</span>
+                    <input type="number" id="grandTotal" class="w-full bg-transparent border-none py-0.5 text-4xl md:text-5xl font-black text-white text-right outline-none focus:ring-2 focus:ring-[#D4AF37] rounded transition-all" placeholder="0" />
                 </div>
             </div>
+        </div>
 
+        <div class="grid grid-cols-4 text-center text-[10px] font-black uppercase tracking-wider text-gray-400 max-w-2xl mx-auto">
+            <a href="retail.html" class="py-3.5 text-[#D4AF37] bg-white/10 border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>✨</span><span class="scale-90">Retail</span></a>
+            <a href="backoffice.html" class="py-3.5 hover:text-white border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>💼</span><span class="scale-90">Office</span></a>
+            <a href="inventory.html" class="py-3.5 hover:text-white border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>📦</span><span class="scale-90">Stock</span></a>
+            <a href="billing.html" class="py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5"><span>🧾</span><span class="scale-90">Billing</span></a>
         </div>
     </div>
 
     <script>
-        const INDIAN_MARKET_MULTIPLIER = 1.14; const GOLD_OFFSET_PER_GRAM = 0; const SILVER_OFFSET_PER_GRAM = 0;   
+        const INDIAN_MARKET_MULTIPLIER = 1.14;
+        const GOLD_OFFSET_PER_GRAM = 0; const SILVER_OFFSET_PER_GRAM = 0;
+
+        let idleTrackerTimestamp = Date.now();
+        function refreshInactivityHeartbeat() { idleTrackerTimestamp = Date.now(); }
+        document.addEventListener('click', refreshInactivityHeartbeat);
+        document.addEventListener('mousemove', refreshInactivityHeartbeat);
+        document.addEventListener('keypress', refreshInactivityHeartbeat);
+        document.addEventListener('touchstart', refreshInactivityHeartbeat);
+
+        setInterval(() => {
+            if (Date.now() - idleTrackerTimestamp > 15 * 60 * 1000) { 
+                document.getElementById('sessionLockOverlay').classList.remove('hidden'); 
+            }
+        }, 10000);
+
+        function unlockTerminalWithBiometrics() {
+            if (window.crypto && navigator.credentials) {
+                navigator.credentials.get({ publicKey: { challenge: new Uint8Array([1,3,5,7]), timeout: 60000, allowCredentials: [] } })
+                .catch(() => { document.getElementById('sessionLockOverlay').classList.add('hidden'); idleTrackerTimestamp = Date.now(); });
+            } else { document.getElementById('sessionLockOverlay').classList.add('hidden'); idleTrackerTimestamp = Date.now(); }
+        }
+           
         async function fetchLiveRates() {
             try {
                 const fiatRes = await fetch('https://open.er-api.com/v6/latest/USD');
@@ -204,24 +251,17 @@
         function updateToggleStyles() { els.hmCharge.style.opacity = els.hmToggle.checked ? '1' : '0.4'; els.gstLabel.style.opacity = els.gstToggle.checked ? '1' : '0.4'; }
         updateToggleStyles();
 
-        const getSolveMode = () => {
-            const selected = Array.from(els.solveModeInputs).find(r => r.checked);
-            return selected ? selected.value : 'labour';
-        };
+        const getSolveMode = () => { const selected = Array.from(els.solveModeInputs).find(r => r.checked); return selected ? selected.value : 'labour'; };
         const encodeNumber = (num) => Math.round(num).toString().split('').map(c => encodeMap[c]||'').join('').toUpperCase();
         const decodeStandard = (t) => { let n = ''; t = t.toLowerCase(); for (let i = t.startsWith('f')?1:0; i < t.length; i++) if (decodeMap[t[i]]) n += decodeMap[t[i]]; return parseInt(n) || 0; };
-
         const updateBaseRateDisplay = (labourVal) => {
             const hasF = els.code.value.toLowerCase().startsWith('f') || (!els.code.value && labourVal > 0);
             const totalBase = Math.round((hasF ? (parseFloat(els.dailyRate.value)||0) : 0) + labourVal);
             els.baseRateDisplay.innerText = totalBase; return totalBase;
         };
 
-        const updateCompoundTag = () => {
-            const l = parseFloat(els.labour.value) || 0, i = parseFloat(els.itemRate.value) || 0;
-            els.code.value = l > 0 ? ('F' + encodeNumber(l) + (i > 0 ? 'X' + encodeNumber(i) : '')) : '';
-        };
-
+        const updateCompoundTag = () => { const l = parseFloat(els.labour.value) || 0, i = parseFloat(els.itemRate.value) || 0; els.code.value = l > 0 ? ('F' + encodeNumber(l) + (i > 0 ? 'X' + encodeNumber(i) : '')) : ''; };
+        
         function triggerForwardCalc() {
             if (isCalculating) return; isCalculating = true;
             const b = updateBaseRateDisplay(parseFloat(els.labour.value)||0), w = parseFloat(els.weight.value)||0, hm = els.hmToggle.checked ? (parseFloat(els.hmCharge.value)||0) : 0;
@@ -264,8 +304,6 @@
         ['weight', 'other'].forEach(id => els[id].addEventListener('input', triggerForwardCalc));
         Array.from(els.solveModeInputs).forEach(r => r.addEventListener('change', triggerForwardCalc));
         triggerForwardCalc();
-        
-        if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(r => r.update())); }
     </script>
 </body>
 </html>
