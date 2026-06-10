@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scalable=no, user-scalable=no">
     <title>Jini Back Office</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#064e3b">
@@ -12,7 +12,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    
     <script src="firebase-config.js"></script>
     <script>enforceTerminalSecurity();</script>
 
@@ -24,7 +23,7 @@
         .toggle-checkbox:checked + .toggle-label { background-color: #D4AF37; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
         
-        /* UNLOCKED HEIGHT FOR TOUCH SCREENS SCROLLS */
+        /* UNLOCKED HEIGHT SCROLL RECOVERY FOR TOUCH VIEWS */
         html, body {
             overflow-y: auto !important;
             height: auto !important;
@@ -34,12 +33,6 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900">
-
-    <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden">
-        <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
-        <p class="text-xs font-bold text-gray-400 tracking-widest uppercase mb-6">Office Console Locked</p>
-        <button type="button" onclick="unlockTerminalWithBiometrics()" class="bg-[#047857] text-white font-black py-4 px-6 rounded-2xl uppercase tracking-widest shadow-md active:scale-95">Verify Biometrics to Unlock</button>
-    </div>
 
     <div class="flex-shrink-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10">
         <div class="flex items-center px-4 py-4 max-w-2xl mx-auto w-full">
@@ -100,9 +93,7 @@
                     <span class="text-[11px] font-extrabold text-gray-700 uppercase tracking-wide">Apply GST (3%)</span>
                 </div>
             </div>
-            
             <hr class="border-gray-100 mb-4">
-            
             <div class="flex justify-between items-center px-2">
                 <div class="flex items-center gap-3">
                     <div class="relative inline-block w-10 h-5 align-middle select-none">
@@ -129,7 +120,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <div class="fixed bottom-0 left-0 w-full bg-gray-950 border-t border-white/10 z-40">
@@ -140,7 +130,6 @@
                 <span id="boGrandTotal" class="text-white font-black text-4xl">0</span>
             </div>
         </div>
-
         <div class="grid grid-cols-4 text-center text-[10px] font-black uppercase tracking-wider text-gray-400 max-w-2xl mx-auto">
             <a href="retail.html" class="py-3.5 hover:text-white border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>✨</span><span class="scale-90">Retail</span></a>
             <a href="backoffice.html" class="py-3.5 text-[#D4AF37] bg-white/10 border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>💼</span><span class="scale-90">Office</span></a>
@@ -150,26 +139,6 @@
     </div>
 
     <script>
-        let idleTrackerTimestamp = Date.now();
-        function refreshInactivityHeartbeat() { idleTrackerTimestamp = Date.now(); }
-        document.addEventListener('click', refreshInactivityHeartbeat);
-        document.addEventListener('mousemove', refreshInactivityHeartbeat);
-        document.addEventListener('keypress', refreshInactivityHeartbeat);
-        document.addEventListener('touchstart', refreshInactivityHeartbeat);
-
-        setInterval(() => {
-            if (Date.now() - idleTrackerTimestamp > 15 * 60 * 1000) { 
-                document.getElementById('sessionLockOverlay').classList.remove('hidden'); 
-            }
-        }, 10000);
-
-        function unlockTerminalWithBiometrics() {
-            if (window.crypto && navigator.credentials) {
-                navigator.credentials.get({ publicKey: { challenge: new Uint8Array([2,4,6,8]), timeout: 60000, allowCredentials: [] } })
-                .catch(() => { document.getElementById('sessionLockOverlay').classList.add('hidden'); idleTrackerTimestamp = Date.now(); });
-            } else { document.getElementById('sessionLockOverlay').classList.add('hidden'); idleTrackerTimestamp = Date.now(); }
-        }
-
         const els = { rate: document.getElementById('boSilverRate'), weight: document.getElementById('boWeight'), labour: document.getElementById('boLabour'), commToggle: document.getElementById('boCommToggle'), commPercent: document.getElementById('boCommPercent'), gstToggle: document.getElementById('boGstToggle'), vSilv: document.getElementById('valSilver'), vLab: document.getElementById('valLabour'), vComm: document.getElementById('valComm'), vGst: document.getElementById('valGst'), rComm: document.getElementById('rowComm'), rGst: document.getElementById('rowGst'), lComm: document.getElementById('lblComm'), total: document.getElementById('boGrandTotal') };
 
         els.rate.value = localStorage.getItem('bo_rate') || '';
@@ -180,36 +149,23 @@
         function formatCurrency(num) { return num.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
 
         function calculate() {
-            const r = parseFloat(els.rate.value) || 0;
-            const w = parseFloat(els.weight.value) || 0;
-            const l = parseFloat(els.labour.value) || 0;
-            const cp = parseFloat(els.commPercent.value) || 0;
+            const r = parseFloat(els.rate.value) || 0; const w = parseFloat(els.weight.value) || 0; const l = parseFloat(els.labour.value) || 0; const cp = parseFloat(els.commPercent.value) || 0;
             const silvVal = r * w; const labVal = l * w; const baseVal = silvVal + labVal;
 
-            let gstAmt = 0;
-            if (els.gstToggle.checked) { gstAmt = baseVal * 0.03; els.rGst.classList.remove('hidden'); } 
-            else { els.rGst.classList.add('hidden'); }
-
+            let gstAmt = 0; if (els.gstToggle.checked) { gstAmt = baseVal * 0.03; els.rGst.classList.remove('hidden'); } else { els.rGst.classList.add('hidden'); }
             const subTotalWithGst = baseVal + gstAmt;
-            let commAmt = 0;
-            if (els.commToggle.checked) { commAmt = subTotalWithGst * (cp / 100); els.rComm.classList.remove('hidden'); els.lComm.innerText = `Commission (${cp}%)`; } 
-            else { els.rComm.classList.add('hidden'); }
 
+            let commAmt = 0; if (els.commToggle.checked) { commAmt = subTotalWithGst * (cp / 100); els.rComm.classList.remove('hidden'); els.lComm.innerText = `Commission (${cp}%)`; } else { els.rComm.classList.add('hidden'); }
             const finalTotal = Math.round(subTotalWithGst + commAmt);
-            els.vSilv.innerText = formatCurrency(silvVal);
-            els.vLab.innerText = formatCurrency(labVal);
-            els.vGst.innerText = formatCurrency(gstAmt);
-            els.vComm.innerText = formatCurrency(commAmt);
-            els.total.innerText = formatCurrency(finalTotal);
+
+            els.vSilv.innerText = formatCurrency(silvVal); els.vLab.innerText = formatCurrency(labVal); els.vGst.innerText = formatCurrency(gstAmt); els.vComm.innerText = formatCurrency(commAmt); els.total.innerText = formatCurrency(finalTotal);
         }
 
         els.rate.addEventListener('input', (e) => { localStorage.setItem('bo_rate', e.target.value); calculate(); });
-        els.weight.addEventListener('input', calculate); 
-        els.labour.addEventListener('input', calculate);
+        els.weight.addEventListener('input', calculate); els.labour.addEventListener('input', calculate);
         els.commPercent.addEventListener('input', (e) => { localStorage.setItem('bo_commPercent', e.target.value); calculate(); });
         els.commToggle.addEventListener('change', (e) => { localStorage.setItem('bo_commToggle', e.target.checked); calculate(); });
         els.gstToggle.addEventListener('change', (e) => { localStorage.setItem('bo_gstToggle', e.target.checked); calculate(); });
-
         calculate();
     </script>
 </body>
