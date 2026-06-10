@@ -7,7 +7,6 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#064e3b">
     <link rel="apple-touch-icon" href="icon.png">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -24,23 +23,20 @@
         .toggle-checkbox:checked + .toggle-label { background-color: #047857; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
+        /* NATIVE VIEWPORT SCROLL OVERRIDES TO STABILIZE WINDOW PRINT EXECUTIONS */
         @media print {
-            .no-print, .internal-only, button, input, #historyModal, #qrScannerBox, .toggle-container-discount, #searchSuggestions { display: none !important; }
+            .no-print, .internal-only, button, input, select, #historyModal, #qrScannerBox, .toggle-container-discount, #searchSuggestionsWrapper { display: none !important; }
             body, html { background: #ffffff !important; color: #000000 !important; overflow: visible !important; height: auto !important; padding: 0 !important; margin: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             div, main, .grid { display: block !important; overflow: visible !important; box-shadow: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important; }
-            #printableMemoCard { display: block !important; width: 100% !important; max-width: 100% !important; border: none !important; padding: 40px !important; margin: 0 auto !important; background: #ffffff !important; box-shadow: none !important; }
-            .print-table { width: 100% !important; border-collapse: collapse !important; margin-top: 25px !important; margin-bottom: 25px !important; }
-            .print-table th { background-color: #f9fafb !important; color: #000000 !important; border-top: 2px solid #000000 !important; border-bottom: 2px solid #000000 !important; padding: 12px 10px !important; font-weight: 900 !important; text-transform: uppercase !important; font-size: 12px !important; letter-spacing: 0.05em !important; }
-            .print-table td { border-bottom: 1px solid #e5e7eb !important; padding: 14px 10px !important; font-size: 13px !important; color: #000000 !important; }
-            .text-gray-600, .text-gray-500, .text-gray-400 { color: #374151 !important; }
-            .text-gray-900, .text-[#064e3b] { color: #000000 !important; }
-            .print-border-dashed { border-bottom: 2px dashed #000000 !important; }
-            .print-total-highlight { border-top: 3px double #000000 !important; border-bottom: 3px double #000000 !important; background-color: #f9fafb !important; font-size: 18px !important; padding: 10px 4px !important; font-weight: 900 !important; }
+            #printableMemoCard { display: block !important; width: 100% !important; max-width: 100% !important; border: none !important; padding: 30px !important; margin: 0 auto !important; background: #ffffff !important; box-shadow: none !important; }
+            .print-table { width: 100% !important; border-collapse: collapse !important; margin-top: 20px !important; margin-bottom: 20px !important; }
+            .print-table th { background-color: #f9fafb !important; color: #000000 !important; border-top: 2px solid #000000 !important; border-bottom: 2px solid #000000 !important; padding: 10px 8px !important; font-weight: 900 !important; text-transform: uppercase !important; font-size: 11px; }
+            .print-table td { border-bottom: 1px solid #e5e7eb !important; padding: 12px 8px !important; font-size: 12px; color: #000000 !important; }
+            .print-total-highlight { border-top: 3px double #000000 !important; border-bottom: 3px double #000000 !important; background-color: #f9fafb !important; font-size: 18px !important; padding: 8px 4px !important; font-weight: 900 !important; }
+            .print-footer-container { display: block !important; width: 100% !important; margin-top: 50px !important; clear: both !important; }
+            .print-left-eoe { float: left !important; display: block !important; width: 40% !important; text-align: left !important; font-size: 11px; font-weight: 900; }
+            .print-right-sign { float: right !important; display: block !important; width: 40% !important; text-align: center !important; border-top: 1px solid #000000 !important; padding-top: 25px !important; font-size: 10px; font-weight: 900; }
             .hide-on-print { display: none !important; }
-            .print-cypher-lowercase { display: block !important; text-transform: lowercase !important; font-size: 10px !important; color: #555555 !important; font-family: monospace !important; margin-top: 1px !important; }
-            .print-footer-container { display: block !important; width: 100% !important; margin-top: 60px !important; clear: both !important; }
-            .print-left-eoe { float: left !important; display: block !important; width: 40% !important; text-align: left !important; }
-            .print-right-sign { float: right !important; display: block !important; width: 40% !important; text-align: center !important; border-top: 1px solid #000000 !important; padding-top: 30px !important; }
         }
     </style>
 </head>
@@ -72,23 +68,6 @@
         
         <div class="lg:col-span-7 space-y-5 no-print">
             
-            <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-4 shadow-xl border border-[#D4AF37] relative">
-                <div class="flex items-center gap-3">
-                    <div class="flex-1 relative">
-                        <input type="text" id="liveSearchQuery" oninput="showSearchSuggestions()" onkeypress="handleBarcodeGunScan(event)" autocomplete="off" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 pl-3 pr-12 text-sm font-black text-gray-900 outline-none focus:border-[#047857]" placeholder="🔍 Search name (e.g. payal), scan tag code..." />
-                        <button type="button" onclick="executeDatabaseLookup()" class="absolute inset-y-0 right-0 font-black px-4 text-xs uppercase text-[#047857]">Find</button>
-                    </div>
-                    <button type="button" onclick="startCameraScanner()" class="w-12 h-12 bg-[#064e3b] rounded-xl flex items-center justify-center text-white text-lg shadow-md">📷</button>
-                </div>
-
-                <div id="searchSuggestions" class="absolute left-4 right-20 bg-white border border-gray-200 rounded-xl mt-1 shadow-2xl max-h-52 overflow-y-auto hidden z-30 font-bold text-xs text-left divide-y divide-gray-100"></div>
-            </div>
-
-            <div id="qrScannerBox" class="hidden bg-black rounded-2xl p-2 border max-w-sm mx-auto w-full relative">
-                <div id="cameraViewfinder" class="w-full"></div>
-                <button type="button" onclick="stopCameraScanner()" class="absolute top-4 right-4 bg-red-600 text-white text-xs px-2.5 py-1 rounded-lg uppercase shadow">Close</button>
-            </div>
-
             <div id="customerCard" class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
                 <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-2">
                     <div class="flex items-center gap-2">
@@ -118,26 +97,40 @@
                 </div>
             </div>
 
-            <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+            <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20 space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-gray-100 pb-2">
                     <h3 class="text-lg font-black text-[#064e3b] uppercase tracking-wide">Add/Modify Item</h3>
                     <div class="flex bg-gray-100 p-1 rounded-xl border border-gray-200">
                         <button type="button" onclick="setSaleMode(event, 'weight')" id="btnModeWeight" class="text-xs font-black uppercase px-4 py-2 rounded-lg bg-[#047857] text-white">By Weight</button>
                         <button type="button" onclick="setSaleMode(event, 'mrp')" id="btnModeMrp" class="text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500">Fixed MRP</button>
                     </div>
                 </div>
+
+                <div class="bg-emerald-50/40 p-3 rounded-2xl border border-emerald-600/20 relative">
+                    <label class="block text-[11px] font-black text-[#064e3b] uppercase tracking-wide mb-1">Search Showroom Inventory Cache</label>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1 relative">
+                            <input type="text" id="liveSearchQuery" oninput="showSearchSuggestions()" onkeypress="handleBarcodeGunScan(event)" autocomplete="off" class="w-full bg-white border border-gray-200 rounded-xl py-2.5 pl-3 pr-12 text-xs font-bold text-gray-900 outline-none focus:border-[#047857]" placeholder="Type name pattern (e.g. kada, payal) or SKU tag..." />
+                            <button type="button" onclick="executeDatabaseLookup()" class="absolute inset-y-0 right-0 font-black px-3 text-[10px] uppercase text-[#047857]">Find</button>
+                        </div>
+                        <button type="button" onclick="startCameraScanner()" class="w-10 h-10 bg-[#064e3b] rounded-xl flex items-center justify-center text-white text-sm shadow shadow-emerald-900 active:scale-90 transition-transform">📷</button>
+                    </div>
+                    <div id="searchSuggestions" class="absolute left-3 right-3 bg-white border border-gray-200 rounded-xl mt-1 shadow-2xl max-h-48 overflow-y-auto hidden z-30 font-bold text-xs text-left divide-y divide-gray-100"></div>
+                </div>
+
+                <div id="qrScannerBox" class="hidden bg-black rounded-2xl p-2 border max-w-sm mx-auto w-full relative">
+                    <div id="cameraViewfinder" class="w-full"></div>
+                    <button type="button" onclick="stopCameraScanner()" class="absolute top-4 right-4 bg-red-600 text-white text-xs px-2.5 py-1 rounded-lg uppercase shadow">Close</button>
+                </div>
                 
-                <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2">
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Item Description *</label>
                         <input type="text" id="itemDesc" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none" placeholder="Description details" />
                     </div>
                     <div class="col-span-2 bg-stone-50 border border-stone-200 rounded-xl p-3">
-                        <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">Cypher Tag Code / Stock ID Reference</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="itemCypher" class="flex-1 bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black tracking-widest uppercase outline-none" placeholder="Cypher code" />
-                            <input type="text" id="itemAttachedStockTag" class="w-32 bg-stone-100 border border-stone-300 rounded-lg py-1.5 px-2 text-center text-xs font-black tracking-wider text-gray-500 outline-none" placeholder="TAG NO" readonly />
-                        </div>
+                        <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">Attached Stock Database Tag Reference ID</label>
+                        <input type="text" id="itemAttachedStockTag" class="w-full bg-stone-100 border border-stone-300 rounded-lg py-1.5 px-3 text-center text-xs font-black tracking-wider text-gray-500 outline-none" placeholder="SYSTEM DISCOVERED SKU REFS" readonly />
                     </div>
                     
                     <div id="rowWeightRate" class="col-span-2 grid grid-cols-2 gap-4">
@@ -207,7 +200,7 @@
                         <span>₹ <span id="prevTax">0</span></span>
                     </div>
 
-                    <div class="flex justify-between text-red-700 hidden" id="invoiceDiscountRow">
+                    <div class="flex justify-between text-red-700智能 hidden" id="invoiceDiscountRow">
                         <span class="font-medium">Settlement Discount</span>
                         <span>- ₹ <span id="prevDiscountAmt">0</span></span>
                     </div>
@@ -267,18 +260,34 @@
     </div>
 
     <script>
+        // 15-MINUTE INACTIVITY SESSION HEARTBEAT KICK ENGINE
+        function bumpSessionHeartbeatTracker() {
+            localStorage.setItem('jini_last_activity_timestamp', Date.now().toString());
+        }
+        window.addEventListener('mousemove', bumpSessionHeartbeatTracker);
+        window.addEventListener('keypress', bumpSessionHeartbeatTracker);
+        window.addEventListener('click', bumpSessionHeartbeatTracker);
+
+        setInterval(() => {
+            const lastSeen = localStorage.getItem('jini_last_activity_timestamp');
+            const now = Date.now();
+            if(lastSeen && (now - parseInt(lastSeen) > 15 * 60 * 1000)) {
+                auth.signOut();
+                localStorage.removeItem('has_logged_in_once');
+                window.location.replace("index.html");
+            }
+        }, 10000);
+
         document.getElementById('memoDate').valueAsDate = new Date();
         let items = [];
         let saleMode = "weight";
         let globalHistoryCache = [];
         let cameraScannerEngineInstance = null;
-        
-        let activeDocId = null; 
+        let activeDocId = null;
         window.localShowroomInventoryMemoryList = [];
 
         if (typeof db !== 'undefined') {
             runAutoSequenceIncrement();
-
             db.collection("jini_inventory").onSnapshot((snapshot) => {
                 window.localShowroomInventoryMemoryList = [];
                 snapshot.forEach(doc => { window.localShowroomInventoryMemoryList.push(doc.data()); });
@@ -310,7 +319,7 @@
 
         const inputs = {
             name: document.getElementById('custName'), mobile: document.getElementById('custMobile'), memoId: document.getElementById('memoId'),
-            desc: document.getElementById('itemDesc'), cypher: document.getElementById('itemCypher'), stockTag: document.getElementById('itemAttachedStockTag'),
+            desc: document.getElementById('itemDesc'), stockTag: document.getElementById('itemAttachedStockTag'),
             rate: document.getElementById('itemRate'), labour: document.getElementById('itemLabour'), mrp: document.getElementById('itemMrp'),
             itemWeight: document.getElementById('itemWeight'), other: document.getElementById('itemOther'),
             huidToggle: document.getElementById('itemHuidToggle'), huidPrice: document.getElementById('itemHuidPrice'),
@@ -327,16 +336,14 @@
                 i.tagNumberId.toLowerCase().includes(query) || 
                 i.itemNameDescription.toLowerCase().includes(query)
             );
-
             if(matches.length === 0) { suggestionBox.classList.add('hidden'); return; }
 
             suggestionBox.innerHTML = "";
             matches.slice(0, 6).forEach(item => {
                 const cardRow = document.createElement('div');
                 cardRow.className = "p-3 bg-white hover:bg-emerald-50 cursor-pointer flex justify-between items-center transition-colors";
-                
                 const rateInfo = item.pricingSaleMode === 'mrp' ? 'Fixed Price' : `₹${item.metalRateValue + item.labourChargeValue}/g`;
-                
+         
                 cardRow.innerHTML = `
                     <div>
                         <p class="text-gray-900 font-black text-xs">#${item.tagNumberId} - ${item.itemNameDescription}</p>
@@ -367,7 +374,7 @@
                 populateFormFieldsWithStockData(foundRecord);
                 document.getElementById('searchSuggestions').classList.add('hidden');
             } else {
-                alert(`No inventory matched under query parameters: "${query}"`);
+                alert(`No matched item reference discovered: "${query}"`);
             }
         }
 
@@ -376,11 +383,9 @@
         function populateFormFieldsWithStockData(data) {
             if(data.status === "Sold") { alert(`⚠️ STOCK WARNING: Tag #${data.tagNumberId} is already marked as SOLD inside your logs.`); }
             inputs.desc.value = data.itemNameDescription || '';
-            inputs.cypher.value = data.itemCypherCode || '';
             inputs.stockTag.value = data.tagNumberId || ''; 
             inputs.itemWeight.value = data.netWeightValue || '';
             inputs.other.value = data.otherChargesAmount || '0';
-            
             if (data.pricingSaleMode === 'mrp') {
                 setSaleMode(null, 'mrp'); inputs.mrp.value = data.fixedMrpAmount || '';
             } else {
@@ -431,13 +436,12 @@
 
         function addItem(e) {
             if (e) e.preventDefault(); if (!checkMandatoryDetails()) return;
-            const desc = inputs.desc.value.trim(), cypherStr = inputs.cypher.value.trim(), tagRef = inputs.stockTag.value;
+            const desc = inputs.desc.value.trim(), tagRef = inputs.stockTag.value;
             const other = parseFloat(inputs.other.value) || 0, weight = parseFloat(inputs.itemWeight.value) || 0;
             const huidAmt = inputs.huidToggle.checked ? (parseFloat(inputs.huidPrice.value) || 0) : 0;
 
             if (!desc) { alert("Please input Item Description!"); return; }
             let total = 0, rate = 0, labour = 0, mrp = 0;
-
             if (saleMode === "weight") {
                 rate = parseFloat(inputs.rate.value) || 0; labour = parseFloat(inputs.labour.value) || 0;
                 if (weight <= 0) { alert("Net Weight is mandatory!"); return; }
@@ -447,13 +451,13 @@
                 total = Math.round(mrp + other + huidAmt);
             }
 
-            items.push({ desc, cypher: cypherStr, tagNumberId: tagRef, total, rate, labour, mrp, weight, other, huidPriceVal: huidAmt });
-            inputs.desc.value = ''; inputs.cypher.value = ''; inputs.stockTag.value = ''; inputs.itemWeight.value = ''; inputs.other.value = '';
+            items.push({ desc, tagNumberId: tagRef, total, rate, labour, mrp, weight, other, huidPriceVal: huidAmt });
+            inputs.desc.value = ''; inputs.stockTag.value = ''; inputs.itemWeight.value = ''; inputs.other.value = '';
             renderInvoice();
         }
 
         function editItem(index) {
-            const item = items[index]; inputs.desc.value = item.desc; inputs.cypher.value = item.cypher || ''; inputs.stockTag.value = item.tagNumberId || '';
+            const item = items[index]; inputs.desc.value = item.desc; inputs.stockTag.value = item.tagNumberId || '';
             inputs.itemWeight.value = item.weight || ''; inputs.other.value = item.other || ''; inputs.huidPrice.value = item.huidPriceVal || '50';
             if (item.mrp > 0) { setSaleMode(null, 'mrp'); inputs.mrp.value = item.mrp; } 
             else { setSaleMode(null, 'weight'); inputs.rate.value = item.rate; inputs.labour.value = item.labour; }
@@ -464,7 +468,7 @@
         function renderInvoice() {
             const wrapper = document.getElementById('invoiceTableWrapper');
             if (items.length === 0) {
-                wrapper.innerHTML = `<p class="text-center text-gray-300 font-medium text-sm py-16">No items on canvas</p>`;
+                wrapper.innerHTML = `<p class="text-center text-gray-300 font-medium text-sm py-16">No active items on preview workspace</p>`;
                 document.getElementById('itemCountLabel').innerText = '0 Items'; document.getElementById('prevGross').innerText = '0';
                 document.getElementById('prevTax').innerText = '0'; document.getElementById('invoiceGrandTotal').innerText = '0';
                 document.getElementById('printGrandTotal').innerText = '0'; document.getElementById('invoiceDiscountRow').classList.add('hidden');
@@ -481,12 +485,7 @@
                 tableHtml += `
                     <tr class="align-top">
                         <td class="py-3 text-center text-gray-400">${idx+1}</td>
-                        <td>
-                            <div class="flex flex-col">
-                                <span class="font-black text-gray-800 text-sm">${item.desc}</span>
-                                ${item.cypher ? `<span class="print-cypher-lowercase font-mono text-gray-400 lowercase text-[10px]">${item.cypher.toLowerCase()}</span>` : ''}
-                            </div>
-                        </td>
+                        <td class="py-3 font-black text-gray-800 text-sm">${item.desc}</td>
                         <td class="py-3 text-right font-bold">${wDisp}</td>
                         <td class="py-3 text-right text-gray-500">${rDisp}</td>
                         <td class="py-3 text-right font-black pr-1">₹${item.total.toLocaleString('en-IN')}</td>
@@ -524,32 +523,29 @@
             document.getElementById('invoiceGrandTotal').innerText = finalTotal.toLocaleString('en-IN'); document.getElementById('printGrandTotal').innerText = finalTotal.toLocaleString('en-IN');
         }
 
-        // REENGINEERED CLOUD SAVE SYSTEM SEQUENCE INTEGRATION
+        function executePrint(e) {
+            if (e) e.preventDefault();
+            if (!checkMandatoryDetails()) return;
+            // Clean vertical parameters and pull native page printer engine frame alerts
+            window.print();
+        }
+
         function executeCloudSave(e) {
             if (e) e.preventDefault(); if (!checkMandatoryDetails()) return;
             if (items.length === 0) { alert("Please add items first!"); return; }
-            
-            if (!confirm("Confirm Action: Save/Update this estimate record to your cloud ledger database?")) return;
+            if (!confirm("Save this estimate record to your cloud database ledger?")) return;
 
             const saveBtn = document.getElementById('btnCloudSave');
             saveBtn.innerText = "⏳ Syncing..."; saveBtn.disabled = true;
-            
             const targetVisibleInvoiceNumber = inputs.memoId.value.trim();
 
             const payload = {
-                estimateNumber: targetVisibleInvoiceNumber, 
-                customerName: inputs.name.value.trim(), 
-                customerMobile: inputs.mobile.value.trim(),
-                memoDate: document.getElementById('memoDate').value, 
-                itemsListArray: items, 
-                subtotalAmount: document.getElementById('prevGross').innerText,
-                taxAppliedBool: inputs.taxToggle.checked, 
-                discountGivenValue: document.getElementById('prevDiscountAmt').innerText || '0',
-                grandTotalPayable: document.getElementById('invoiceGrandTotal').innerText, 
-                localTimestamp: new Date().toISOString()
+                estimateNumber: targetVisibleInvoiceNumber, customerName: inputs.name.value.trim(), customerMobile: inputs.mobile.value.trim(),
+                memoDate: document.getElementById('memoDate').value, itemsListArray: items, subtotalAmount: document.getElementById('prevGross').innerText,
+                taxAppliedBool: inputs.taxToggle.checked, discountGivenValue: document.getElementById('prevDiscountAmt').innerText || '0',
+                grandTotalPayable: document.getElementById('invoiceGrandTotal').innerText, localTimestamp: new Date().toISOString()
             };
 
-            // SYSTEM SEQUENCE CONTROL: Fixes old document references securely
             const docReferenceRef = activeDocId ? db.collection("showroom_memos").doc(activeDocId) : db.collection("showroom_memos").doc();
 
             docReferenceRef.set(payload).then(() => {
@@ -566,18 +562,6 @@
                     resetTerminalBillingState();
                 });
             }).catch(err => { alert(err.message); saveBtn.innerText = "☁️ Cloud Save Memo"; saveBtn.disabled = false; });
-        }
-
-        function resetTerminalBillingState() {
-            activeDocId = null;
-            document.getElementById('editModeIndicator').classList.add('hidden');
-            document.getElementById('btnCloudSave').className = "bg-blue-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs w-full";
-            document.getElementById('btnCloudSave').innerText = "☁️ Cloud Save Memo";
-            document.getElementById('btnCloudSave').disabled = false;
-            
-            runAutoSequenceIncrement();
-            items = []; inputs.discVal.value = 0; renderInvoice(); 
-            inputs.name.value = ''; inputs.mobile.value = '';
         }
 
         function toggleHistoryModal(s) { const m = document.getElementById('historyModal'); if(s) m.classList.remove('opacity-0', 'pointer-events-none'); else m.classList.add('opacity-0', 'pointer-events-none'); }
@@ -599,36 +583,54 @@
         function renderHistoryList(arr) {
             const list = document.getElementById('historyMemosList'); list.innerHTML = "";
             arr.forEach(d => {
-                const card = document.createElement('div'); 
-                card.className = "bg-gray-50 border p-4 rounded-2xl mb-2 text-left cursor-pointer relative group transition-all hover:bg-emerald-50/60";
-                
-                card.innerHTML = `
-                    <div class="flex justify-between font-black text-sm pr-6">
-                        <span>#${d.estimateNumber}</span>
-                        <span class="text-xs font-bold text-gray-400">${d.memoDate}</span>
-                    </div>
-                    <div class="flex justify-between mt-1 pr-6">
-                        <p class="text-xs uppercase">${d.customerName}</p>
-                        <span class="font-black text-emerald-700">₹${d.grandTotalPayable}</span>
-                    </div>
-                    <button type="button" onclick="deleteHistoryRecord(event, '${d.fbDocIdReferenceToken}')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-red-600 text-base p-1 transition-colors">🗑️</button>
-                `;
-                
+                const card = document.createElement('div'); card.className = "bg-gray-50 border p-4 rounded-2xl mb-2 text-left cursor-pointer relative transition-all hover:bg-emerald-50/60";
+                card.innerHTML = `<div class="flex justify-between font-black text-sm pr-6"><span>#${d.estimateNumber}</span><span class="text-xs font-bold text-gray-400">${d.memoDate}</span></div><div class="flex justify-between mt-1 pr-6"><p class="text-xs uppercase">${d.customerName}</p><span class="font-black text-emerald-700">₹${d.grandTotalPayable}</span></div><button type="button" onclick="deleteHistoryRecord(event, '${d.fbDocIdReferenceToken}')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-red-600 text-base p-1 transition-colors">🗑️</button>`;
                 card.addEventListener('click', () => { loadOldRecordIntoTerminal(d); toggleHistoryModal(false); });
                 list.appendChild(card);
             });
         }
 
+        // AUTOMATED REVERSE INVENTORY STOCK REVERSAL ON CANCELLATION
         function deleteHistoryRecord(event, docId) {
-            event.stopPropagation(); 
+            event.stopPropagation();
             if (!confirm("Are you sure you want to permanently delete this estimate out of cloud history records?")) return;
-            if (!confirm("CRITICAL WARNING: This action cannot be undone and will permanently wipe the entry. Confirm Deletion?")) return;
+            if (!confirm("CRITICAL WARNING: This will permanently wipe the entry. Confirm Deletion?")) return;
 
-            db.collection("showroom_memos").doc(docId).delete().then(() => {
-                alert("🗑️ Document entry removed out of cloud history files successfully.");
-                if(activeDocId === docId) resetTerminalBillingState();
-                fetchHistoryFromCloud(); 
-            }).catch(err => alert("System Deletion Failure: " + err.message));
+            // Fetch target record map structure to intercept tag reference bindings arrays
+            db.collection("showroom_memos").doc(docId).get().then((docSnapshot) => {
+                if(docSnapshot.exists) {
+                    const recordData = docSnapshot.data();
+                    const embeddedItemsArray = recordData.itemsListArray || [];
+                    let reversalStockPromises = [];
+
+                    // Loop items and swap statuses back from "Sold" to "In Stock"
+                    embeddedItemsArray.forEach(item => {
+                        if (item.tagNumberId) {
+                            const promise = db.collection("jini_inventory").doc(item.tagNumberId).update({ status: "In Stock" });
+                            reversalStockPromises.push(promise);
+                        }
+                    });
+
+                    // Execute batch state rewrites first, then clear document slot safely
+                    Promise.all(reversalStockPromises).then(() => {
+                        db.collection("showroom_memos").doc(docId).delete().then(() => {
+                            alert("🗑️ Estimate wiped successfully and related items returned to 'In Stock' status.");
+                            if(activeDocId === docId) resetTerminalBillingState();
+                            fetchHistoryFromCloud(); 
+                        });
+                    });
+                }
+            }).catch(err => alert("System Reversal Failure: " + err.message));
+        }
+
+        function resetTerminalBillingState() {
+            activeDocId = null;
+            document.getElementById('editModeIndicator').classList.add('hidden');
+            document.getElementById('btnCloudSave').className = "bg-blue-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs w-full";
+            document.getElementById('btnCloudSave').innerText = "☁️ Cloud Save Memo";
+            document.getElementById('btnCloudSave').disabled = false;
+            runAutoSequenceIncrement();
+            items = []; inputs.discVal.value = 0; renderInvoice(); inputs.name.value = ''; inputs.mobile.value = '';
         }
 
         function filterHistoryLedger() {
@@ -640,11 +642,9 @@
 
         function loadOldRecordIntoTerminal(d) {
             activeDocId = d.fbDocIdReferenceToken;
-            
             document.getElementById('editModeIndicator').classList.remove('hidden');
             document.getElementById('btnCloudSave').innerText = "💾 Update Existing Record";
             document.getElementById('btnCloudSave').className = "bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs w-full";
-
             inputs.name.value = d.customerName || ''; inputs.mobile.value = d.customerMobile || ''; inputs.memoId.value = d.estimateNumber || '';
             document.getElementById('memoDate').value = d.memoDate || ''; document.getElementById('prevMemoId').innerText = d.estimateNumber || '--';
             document.getElementById('prevName').innerText = d.customerName || '--'; document.getElementById('prevMobile').innerText = d.customerMobile || '--';
