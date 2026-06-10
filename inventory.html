@@ -18,45 +18,57 @@
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
         
+        /* FIXED: Native vertical screen scroll enablement across touch viewports */
+        body, html { overflow-y: auto !important; height: auto !important; min-h-screen: 100vh !important; }
+
+        /* JEWELRY PRINT STICKER LABEL SIZE SETTINGS */
         @media print {
             .no-print { display: none !important; }
-            body, html { background: #ffffff !important; color: #000000 !important; margin: 0 !important; padding: 0 !important; }
-            #tagPrintArea { display: block !important; width: 3.2in !important; height: 1.0in !important; padding: 5px !important; margin: 0 !important; page-break-inside: avoid; }
+            body, html { background: #ffffff !important; color: #000000 !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; }
+            #tagPrintArea { 
+                display: block !important; 
+                width: 3.2in !important;   /* Standard retail barcode sticker label width */
+                height: 1.0in !important;  /* Standard retail barcode sticker label height */
+                padding: 4px !important;
+                margin: 0 !important;
+                page-break-inside: avoid;
+            }
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen flex flex-col selection:bg-[#D4AF37] selection:text-gray-900">
+<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900">
 
     <div class="flex-shrink-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 no-print">
         <div class="flex items-center px-4 py-3 max-w-7xl mx-auto w-full">
             <a href="index.html" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20 active:scale-90 transition-transform">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
             </a>
-            <h1 class="flex-1 text-center text-lg md:text-xl font-black text-white tracking-widest uppercase mr-10">Inventory & Stock Tracking</h1>
+            <h1 class="flex-1 text-center text-lg md:text-xl font-black text-white tracking-widest uppercase mr-10">Inventory Management</h1>
         </div>
     </div>
 
     <div class="flex-1 px-4 py-6 max-w-7xl mx-auto w-full space-y-6 no-print">
         
-        <div class="grid grid-cols-3 gap-3 sm:gap-4">
-            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-white/10 text-left">
-                <span class="text-gray-400 text-[9px] sm:text-[10px] font-black uppercase tracking-wider block">Total Inward</span>
+        <div class="grid grid-cols-3 gap-3">
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 text-left">
+                <span class="text-gray-400 text-[10px] font-black uppercase tracking-wider block">Total Inward</span>
                 <span id="statInward" class="text-xl sm:text-2xl font-black text-white">0</span>
             </div>
-            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-white/10 text-left">
-                <span class="text-amber-400 text-[9px] sm:text-[10px] font-black uppercase tracking-wider block">Sold Outward</span>
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 text-left">
+                <span class="text-amber-400 text-[10px] font-black uppercase tracking-wider block">Sold Outward</span>
                 <span id="statOutward" class="text-xl sm:text-2xl font-black text-amber-400">0</span>
             </div>
-            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-[#D4AF37]/30 text-left bg-[#064e3b]/30">
-                <span class="text-emerald-400 text-[9px] sm:text-[10px] font-black uppercase tracking-wider block">Stock Available</span>
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-[#D4AF37]/30 text-left bg-[#064e3b]/30">
+                <span class="text-emerald-400 text-[10px] font-black uppercase tracking-wider block">In Stock Left</span>
                 <span id="statAvailable" class="text-xl sm:text-2xl font-black text-emerald-400">0</span>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-24">
+            
             <div class="lg:col-span-5 bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10 space-y-4 h-fit">
                 <div class="flex justify-between items-center border-b border-gray-100 pb-2">
-                    <h3 class="text-base font-black text-[#064e3b] uppercase tracking-wide">Stock Entry</h3>
+                    <h3 class="text-base font-black text-[#064e3b] uppercase tracking-wide">Stock Registration</h3>
                     <select id="invModeSelect" onchange="toggleFormSaleMode()" class="bg-gray-100 border border-gray-300 text-[10px] font-black uppercase rounded-lg p-1 outline-none">
                         <option value="weight">By Weight</option>
                         <option value="mrp">Fixed MRP</option>
@@ -89,11 +101,11 @@
 
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Item Name / Description *</label>
-                        <input type="text" id="invDesc" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 px-3 font-bold text-gray-800 outline-none" placeholder="e.g. Silver payal" />
+                        <input type="text" id="invDesc" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="e.g. Silver payal" />
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Internal Cypher Tag</label>
-                        <input type="text" id="invCypher" class="w-full bg-white border border-gray-200 rounded-xl py-2 px-3 font-mono text-sm font-black uppercase tracking-widest outline-none" placeholder="e.g. frar" />
+                        <input type="text" id="invCypher" class="w-full bg-white border border-gray-200 rounded-xl py-2 px-3 font-mono text-sm font-black uppercase tracking-widest outline-none focus:border-[#047857]" placeholder="e.g. frar" />
                     </div>
 
                     <div id="weightInputsRow" class="grid grid-cols-2 gap-3">
@@ -124,33 +136,30 @@
                     </div>
                 </div>
 
-                <button type="button" onclick="saveItemToInventory()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3 px-4 rounded-xl uppercase tracking-widest transition-all shadow-md mt-2">💾 Save & Generate Tag</button>
+                <button type="button" onclick="saveItemToInventory()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3.5 px-4 rounded-xl uppercase tracking-widest transition-all shadow-md mt-2">💾 Save Item Data</button>
                 
-                <div class="border border-dashed border-gray-400 p-2 rounded-xl bg-gray-50 flex items-center justify-between w-full h-[85px] mt-4 overflow-hidden">
+                <div class="border border-dashed border-gray-400 p-2.5 rounded-xl bg-gray-50 flex items-center justify-between w-full h-[90px] mt-4 overflow-hidden">
                     <div class="font-sans text-[10px] leading-tight text-black font-bold">
                         <p class="text-[11px] font-black text-[#064e3b]">JINI JEWELS</p>
                         <p id="tagTxtId" class="font-mono text-gray-400">#----</p>
-                        <div class="flex items-center gap-1">
-                            <p id="tagTxtDesc" class="truncate max-w-[100px]">Item Details</p>
-                            <span id="tagTxtCypher" class="text-gray-400 text-[8px] font-mono lowercase"></span>
-                        </div>
-                        <p id="tagTxtMetrics" class="text-[9px] text-gray-500">--</p>
+                        <p id="tagTxtDesc" class="truncate max-w-[150px] text-gray-900 font-black">Item Details</p>
+                        <p id="tagTxtMetrics" class="text-[9px] text-gray-500 font-medium">--</p>
                     </div>
-                    <div id="tagQrOutput" class="w-[65px] h-[65px] bg-white flex items-center justify-center border p-0.5"></div>
+                    <div id="tagQrOutput" class="w-[65px] h-[65px] bg-white flex items-center justify-center border p-0.5 shadow-sm"></div>
                 </div>
-                <button type="button" onclick="window.print()" class="w-full bg-gray-900 text-[#D4AF37] font-bold py-2 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md">Print String Tag</button>
+                <button type="button" onclick="window.print()" class="w-full bg-gray-900 text-[#D4AF37] font-bold py-2 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md">🖨 Honor Print String Tag</button>
             </div>
 
-            <div class="lg:col-span-7 bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10 flex flex-col min-h-[400px] max-h-screen overflow-hidden">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-gray-100 pb-3 mb-3">
+            <div class="lg:col-span-7 bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10 flex flex-col h-auto">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-100 pb-3 mb-4">
                     <h3 class="text-base font-black text-gray-800 uppercase tracking-wide">Live Stock Ledger</h3>
-                    <input type="text" id="ledgerSearch" oninput="filterLedgerTable()" class="bg-gray-100 border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-bold text-gray-800 outline-none w-full sm:w-44 focus:bg-white focus:border-[#047857]" placeholder="🔍 Filter stock list..." />
+                    <input type="text" id="ledgerSearch" oninput="filterLedgerTable()" class="bg-gray-100 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-gray-800 outline-none w-full sm:w-48 focus:bg-white focus:border-[#047857]" placeholder="🔍 Filter stock list..." />
                 </div>
 
-                <div class="flex-1 overflow-y-auto scroll-smooth">
+                <div class="w-full overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
                         <thead>
-                            <tr class="border-b border-gray-200 text-gray-400 font-black uppercase tracking-wider sticky top-0 bg-white z-10 py-1">
+                            <tr class="border-b-2 border-gray-200 text-gray-400 font-black uppercase tracking-wider text-[10px]">
                                 <th class="pb-2">Tag SKU</th>
                                 <th class="pb-2">Category</th>
                                 <th class="pb-2">Description</th>
@@ -158,8 +167,11 @@
                                 <th class="pb-2 text-center">Status</th>
                             </tr>
                         </thead>
-                        <tbody id="ledgerTableBody" class="divide-y divide-gray-100 font-bold text-gray-700">
-                            </tbody>
+                        <tbody id="ledgerTableBody" class="divide-y divide-gray-100 font-bold text-gray-700 text-xs">
+                            <tr>
+                                <td colspan="5" class="text-center py-12 text-gray-300 font-medium">Connecting to showroom inventory stream...</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -167,17 +179,17 @@
     </div>
 
     <div id="tagPrintArea" class="hidden font-sans text-black">
-        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; height: 100%;">
-            <div style="font-size: 11px; font-weight: 900; line-height: 1.1; max-width: 65%;">
-                <div style="font-size: 12px; font-weight: 990; color: #064e3b; display: flex; align-items: center; gap: 4px;">
-                    <span>JINI JEWELS</span>
-                    <span id="pTagCypher" style="font-size: 8px; font-weight: bold; font-family: monospace; text-transform: lowercase; color: #555555;"></span>
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; height: 100%; box-sizing: border-box;">
+            <div style="font-size: 11px; font-weight: 900; line-height: 1.2; max-width: 65%;">
+                <div style="font-size: 13px; font-weight: 950; color: #000000; letter-spacing: -0.02em;">JINI JEWELS</div>
+                <div style="font-size: 9px; font-weight: 800; color: #333333; margin-top: -1px; margin-bottom: 2px;">
+                    stock id: <span id="pTagId" style="font-family: monospace; font-size: 10px; font-weight: 900;">----</span> 
+                    <span id="pTagCypher" style="font-family: monospace; color: #555555; text-transform: lowercase; margin-left: 4px; font-weight: 900;"></span>
                 </div>
-                <div id="pTagId" style="font-family: monospace; font-size: 10px;">#----</div>
-                <div id="pTagDesc" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;">Description</div>
-                <div id="pTagMetrics" style="font-size: 9px; font-weight: 500; color: #444444;">Metrics Data</div>
+                <div id="pTagDesc" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; font-size: 10px;">Description</div>
+                <div id="pTagMetrics" style="font-size: 9px; font-weight: 700; color: #111111; margin-top: 1px;">Metrics Data</div>
             </div>
-            <div id="pTagQr" style="width: 72px; height: 72px; background: white;"></div>
+            <div id="pTagQr" style="width: 72px; height: 72px; background: white; flex-shrink: 0; display: block;"></div>
         </div>
     </div>
 
@@ -231,24 +243,28 @@
             let metricsStr = currentFormMode === 'weight' ? `${weight.toFixed(2)}g | ₹${rate + labour}/g` : `₹${mrp + other}`;
 
             document.getElementById('tagTxtId').innerText = "#" + tagId;
-            document.getElementById('tagTxtDesc').innerText = desc;
-            document.getElementById('tagTxtCypher').innerText = cypher ? `(${cypher})` : "";
+            document.getElementById('tagTxtDesc').innerText = desc + (cypher ? ` (${cypher})` : "");
             document.getElementById('tagTxtMetrics').innerText = metricsStr;
             
-            document.getElementById('pTagId').innerText = "#" + tagId;
+            document.getElementById('pTagId').innerText = tagId;
             document.getElementById('pTagDesc').innerText = desc;
-            document.getElementById('pTagCypher').innerText = cypher ? `(${cypher})` : "";
+            document.getElementById('pTagCypher').innerText = cypher ? `[${cypher}]` : "";
             document.getElementById('pTagMetrics').innerText = metricsStr;
 
             document.getElementById('tagQrOutput').innerHTML = "";
             document.getElementById('pTagQr').innerHTML = "";
             if (tagId !== "----") {
-                new QRCode(document.getElementById('tagQrOutput'), { text: tagId, width: 65, height: 65 });
-                new QRCode(document.getElementById('pTagQr'), { text: tagId, width: 72, height: 72 });
+                new QRCode(document.getElementById('tagQrOutput'), { text: tagId, width: 65, height: 65, correctLevel: QRCode.CorrectLevel.M });
+                new QRCode(document.getElementById('pTagQr'), { text: tagId, width: 72, height: 72, correctLevel: QRCode.CorrectLevel.M });
             }
         }
 
         function streamLiveEcosystemLedgers() {
+            if (typeof db === 'undefined') {
+                document.getElementById('ledgerTableBody').innerHTML = `<tr><td colspan="5" class="text-center py-12 text-red-500 font-bold">Ecosystem Configuration Key Bindings Missing inside 'firebase-config.js'!</td></tr>`;
+                return;
+            }
+
             db.collection("jini_inventory").onSnapshot((snapshot) => {
                 localLedgerCacheArray = [];
                 let total = 0, sold = 0, available = 0;
@@ -265,11 +281,17 @@
                 document.getElementById('statOutward').innerText = sold;
                 document.getElementById('statAvailable').innerText = available;
                 renderTableRecords(localLedgerCacheArray);
+            }, (error) => {
+                document.getElementById('ledgerTableBody').innerHTML = `<tr><td colspan="5" class="text-center py-12 text-red-400 font-bold">Cloud Error Encountered: ${error.message}</td></tr>`;
             });
         }
 
         function renderTableRecords(records) {
             const tableBody = document.getElementById('ledgerTableBody');
+            if(records.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-gray-300 font-bold">No registered items discovered in the cloud database ledger.</td></tr>`;
+                return;
+            }
             tableBody.innerHTML = "";
             records.forEach(item => {
                 const tr = document.createElement('tr');
@@ -281,10 +303,10 @@
                     <td class="py-3 text-gray-400 text-[11px] uppercase">${item.itemCategory || 'Silver'}</td>
                     <td class="py-3 text-gray-800 font-black">
                         <div>${item.itemNameDescription}</div>
-                        ${item.itemCypherCode ? `<div class="text-[9px] text-gray-400 font-mono font-normal lowercase">${item.itemCypherCode}</div>` : ''}
+                        ${item.itemCypherCode ? `<div class="text-[10px] text-gray-400 font-mono font-bold lowercase tracking-wider">cypher: ${item.itemCypherCode}</div>` : ''}
                     </td>
-                    <td class="py-3 text-right text-gray-900">${item.netWeightValue ? item.netWeightValue.toFixed(2) + ' g' : '-'}</td>
-                    <td class="py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide uppercase ${badgeColor}">${item.status || 'In Stock'}</span></td>
+                    <td class="py-3 text-right text-gray-900 font-black">${item.netWeightValue ? item.netWeightValue.toFixed(2) + ' g' : '-'}</td>
+                    <td class="py-3 text-center"><span class="px-2.5 py-0.5 rounded-full text-[9px] font-black tracking-wide uppercase ${badgeColor}">${item.status || 'In Stock'}</span></td>
                 `;
                 tableBody.appendChild(tr);
             });
@@ -310,10 +332,10 @@
 
             let selectedCategory = document.getElementById('invCategorySelect').value;
             if(selectedCategory === 'Custom') {
-                selectedCategory = document.getElementById('invCustomCategoryInput').value.trim() || "Silver";
+                selectedCategory = document.getElementById('invCustomCategoryInput').value.trim() || "Silver Item";
             }
 
-            if(!tagId || !desc) { alert("Tag ID and Description Name are compulsory fields!"); return; }
+            if(!tagId || !desc) { alert("Tag ID SKU and Description Name are compulsory fields!"); return; }
 
             const itemPayload = {
                 tagNumberId: tagId,
