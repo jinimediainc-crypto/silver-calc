@@ -9,21 +9,15 @@
     <link rel="apple-touch-icon" href="icon.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
     <style>
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         html { scroll-behavior: smooth; }
         .focus-ring:focus-within { box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.4); border-color: #D4AF37; }
-        .toggle-checkbox:checked { right: 0; border-color: #D4AF37; }
-        .toggle-checkbox:checked + .toggle-label { background-color: #D4AF37; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
+        /* ADVANCED FULL-PAGE LUXURY PRINT ENGINE */
         @media print {
-            .no-print, .internal-only, button, input, .toggle-label { 
+            .no-print, .internal-only, button, input { 
                 display: none !important; 
             }
             body, html { 
@@ -80,6 +74,7 @@
             .text-gray-600, .text-gray-500, .text-gray-400 { color: #374151 !important; }
             .text-gray-900, .text-[#064e3b] { color: #000000 !important; }
             .print-border-dashed { border-bottom: 2px dashed #000000 !important; }
+            
             .print-footer-flex {
                 display: flex !important;
                 flex-direction: row !important;
@@ -90,12 +85,12 @@
             }
             .hide-on-print { display: none !important; }
             
-            /* Ensures cypher printed code remains visible in small lowercase format on paper layout sheets */
+            /* Enforces lowercase print for internal cypher track letters */
             .print-cypher-lowercase {
                 display: block !important;
                 text-transform: lowercase !important;
                 font-size: 10px !important;
-                color: #6b7280 !important;
+                color: #555555 !important;
                 font-family: monospace !important;
                 margin-top: 2px !important;
             }
@@ -104,15 +99,9 @@
 </head>
 <body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 h-[100dvh] flex flex-col overflow-hidden selection:bg-[#D4AF37] selection:text-gray-900">
 
-    <div id="authScreen" class="hidden fixed inset-0 bg-[#022c22] z-50 flex flex-col items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-sm shadow-2xl text-center">
-            <h2 class="text-2xl font-black text-[#064e3b] mb-2">JINI JEWELS</h2>
-            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-6">Terminal Authentication</p>
-            <input type="email" id="loginEmail" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold mb-3 outline-none" placeholder="Email Address" />
-            <input type="password" id="loginPassword" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold mb-6 outline-none" placeholder="Password PIN" />
-            <button type="button" onclick="loginTerminal()" class="w-full bg-[#047857] text-white font-black py-3 rounded-xl uppercase tracking-widest">Verify Login</button>
-        </div>
-    </div>
+    <script>
+        if (sessionStorage.getItem('jini_auth') !== 'true') { window.location.replace('index.html'); }
+    </script>
 
     <div class="flex-shrink-0 flex flex-col z-10 sticky top-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 no-print">
         <div class="flex items-center px-4 py-3 max-w-6xl mx-auto w-full">
@@ -127,24 +116,24 @@
         
         <div class="lg:col-span-7 space-y-5 no-print">
             
-            <div id="formTop" class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
-                <h3 class="text-lg font-black text-[#064e3b] mb-4 uppercase tracking-wide">Customer Details (Mandatory)</h3>
+            <div id="customerCard" class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
+                <h3 class="text-lg font-black text-[#064e3b] mb-4 uppercase tracking-wide">Customer Details</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2 sm:col-span-1">
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Customer Name *</label>
-                        <input type="text" id="custName" class="w-full bg-gray-50 border-2 border-transparent rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857] focus:bg-white" placeholder="Enter full name" />
+                        <input type="text" id="custName" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="Required fields" />
                     </div>
                     <div class="col-span-2 sm:col-span-1">
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Mobile Number *</label>
-                        <input type="number" id="custMobile" class="w-full bg-gray-50 border-2 border-transparent rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857] focus:bg-white" placeholder="10-digit phone" />
+                        <input type="number" id="custMobile" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="Required fields" />
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Memo Date</label>
                         <input type="date" id="memoDate" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 px-3 font-bold text-gray-800 outline-none" />
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Estimate No.</label>
-                        <input type="text" id="memoId" class="w-full bg-gray-100 border border-gray-200 rounded-xl py-2 px-3 font-black text-gray-800 text-center outline-none" readonly />
+                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Estimate No. (Changeable)</label>
+                        <input type="text" id="memoId" class="w-full bg-gray-50 border-2 border-[#D4AF37] rounded-xl py-2 px-3 font-black text-gray-900 text-center outline-none focus:bg-white" placeholder="e.g. 1001" />
                     </div>
                 </div>
             </div>
@@ -161,12 +150,12 @@
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div class="col-span-2">
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Item Description *</label>
-                        <input type="text" id="itemDesc" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="e.g. Silver Handcrafted Payal" />
+                        <input type="text" id="itemDesc" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="e.g. Silver Payal Set" />
                     </div>
 
                     <div class="col-span-2 bg-stone-50 border border-stone-200 rounded-xl p-3">
-                        <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">Cypher Tag Code (Prints in small letter below name)</label>
-                        <input type="text" id="itemCypher" class="w-full bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black tracking-widest uppercase outline-none focus:border-[#047857]" placeholder="e.g. FRARXLAR" />
+                        <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">Cypher Tag Code (Prints in Small Case below name)</label>
+                        <input type="text" id="itemCypher" class="w-full bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black tracking-widest uppercase outline-none focus:border-[#047857]" placeholder="e.g. frarxlar" />
                     </div>
                     
                     <div id="rowWeightRate" class="col-span-2 grid grid-cols-2 gap-4">
@@ -197,31 +186,10 @@
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Other Charges (₹)</label>
                         <input type="number" id="itemOther" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-black text-gray-900 text-lg outline-none focus:border-[#047857] text-center" placeholder="0" />
                     </div>
-                </div>
 
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3 mb-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="relative inline-block w-10 h-5 align-middle select-none">
-                                <input type="checkbox" id="itemHuidToggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
-                                <label for="itemHuidToggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
-                            </div>
-                            <span class="text-xs font-extrabold text-gray-600 uppercase">Apply HUID Amt</span>
-                        </div>
-                        <input type="number" id="itemHuidPrice" class="w-20 bg-white border border-gray-300 rounded-lg text-center text-sm font-bold py-1 outline-none" value="50" />
-                    </div>
-                    
-                    <hr class="border-gray-200">
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="relative inline-block w-10 h-5 align-middle select-none">
-                                <input type="checkbox" id="cardToggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" />
-                                <label for="cardToggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
-                            </div>
-                            <span class="text-xs font-extrabold text-gray-600 uppercase">Card Charges (%)</span>
-                        </div>
-                        <input type="number" id="cardPercent" class="w-20 bg-white border border-gray-300 rounded-lg text-center text-sm font-bold py-1 outline-none" value="2" />
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold text-[#047857] mb-1 uppercase">HUID / Cert Charges (₹)</label>
+                        <input type="number" id="itemHuidPrice" class="w-full bg-emerald-50/20 border border-emerald-200 rounded-xl py-2.5 px-3 font-bold text-gray-900 text-lg outline-none focus:border-[#047857]" value="50" />
                     </div>
                 </div>
 
@@ -240,7 +208,7 @@
                 </div>
 
                 <div class="text-xs font-bold text-gray-600 space-y-1.5 mb-4 px-1">
-                    <div class="flex justify-between"><span>Estimate No:</span><span class="text-gray-900" id="prevMemoId">--</span></div>
+                    <div class="flex justify-between"><span>Estimate No:</span><span class="text-gray-900 font-black" id="prevMemoId">--</span></div>
                     <div class="flex justify-between"><span>Date:</span><span class="text-gray-900" id="prevDate">--</span></div>
                     <div class="flex justify-between"><span>Customer:</span><span class="text-gray-900" id="prevName">--</span></div>
                     <div class="flex justify-between"><span>Mobile:</span><span class="text-gray-900" id="prevMobile">--</span></div>
@@ -259,11 +227,6 @@
                     <div class="flex justify-between text-emerald-800" id="invoiceGstRow">
                         <span>GST (3%)</span>
                         <span>₹ <span id="prevTax">0</span></span>
-                    </div>
-
-                    <div class="flex justify-between text-blue-800" id="invoiceCardRow">
-                        <span>Card Charges (<span id="lblCardPct">2</span>%)</span>
-                        <span>₹ <span id="prevCardAmt">0</span></span>
                     </div>
 
                     <div class="flex justify-between items-center text-emerald-800 internal-only no-print bg-emerald-50/30 p-2 rounded-xl border border-emerald-100 mt-1">
@@ -290,7 +253,7 @@
 
             <div class="grid grid-cols-2 gap-3 internal-only">
                 <button type="button" onclick="executePrint(event)" class="bg-gray-900 hover:bg-black text-[#D4AF37] font-bold py-3.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md flex items-center justify-center gap-2">Print / Save PDF</button>
-                <button type="button" onclick="executeCloudSave(event)" id="btnCloudSave" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-3.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md flex items-center justify-center gap-2">☁️ Cloud Save Memo</button>
+                <button type="button" onclick="executeShare(event)" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md flex items-center justify-center gap-2">Share via Text</button>
             </div>
         </div>
     </div>
@@ -309,28 +272,20 @@
     </div>
 
     <script>
-        // =================================================================
-        // OPTIONAL: CONFIG YOUR FIREBASE DETAILS HERE TO ACTIVATE CLOUD SAVE
-        // =================================================================
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-        // To turn on cloud feature: uncomment line below once config is pasted
-        // firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
-        // =================================================================
-
+        // Init automated default baseline number package setup
         document.getElementById('memoDate').valueAsDate = new Date();
-        const randId = 'JJ-' + Math.floor(100000 + Math.random() * 900000);
-        document.getElementById('memoId').value = randId;
-        document.getElementById('prevMemoId').innerText = randId;
+        const initialId = Math.floor(1000 + Math.random() * 9000);
+        document.getElementById('memoId').value = initialId;
+        document.getElementById('prevMemoId').innerText = initialId;
 
         let items = [];
         let saleMode = "weight";
+
+        // Real-time sequential input listener synchronization hook logic loop block
+        const memoIdInput = document.getElementById('memoId');
+        memoIdInput.addEventListener('input', () => {
+            document.getElementById('prevMemoId').innerText = memoIdInput.value || '--';
+        });
 
         const setupSync = (inputId, prevId, fallback) => {
             const input = document.getElementById(inputId);
@@ -345,19 +300,38 @@
         const inputs = {
             name: document.getElementById('custName'),
             mobile: document.getElementById('custMobile'),
+            memoId: document.getElementById('memoId'),
             desc: document.getElementById('itemDesc'),
             cypher: document.getElementById('itemCypher'),
             rate: document.getElementById('itemRate'),
             labour: document.getElementById('itemLabour'),
             mrp: document.getElementById('itemMrp'),
-            weight: document.getElementById('itemWeight'),
+            weight: document.getElementById('weight'), // Sync id fix compatibility checks
+            itemWeight: document.getElementById('itemWeight'),
             other: document.getElementById('itemOther'),
-            huidToggle: document.getElementById('itemHuidToggle'),
             huidPrice: document.getElementById('itemHuidPrice'),
-            cardToggle: document.getElementById('cardToggle'),
-            cardPercent: document.getElementById('cardPercent'),
             taxToggle: document.getElementById('taxToggle')
         };
+
+        // EXPLICIT MANDATORY SHIELD VALIDATION CHECKER FUNCTION
+        function checkMandatoryDetails() {
+            const nameVal = inputs.name.value.trim();
+            const mobileVal = inputs.mobile.value.trim();
+            
+            if (!nameVal || !mobileVal) {
+                alert("ALERT: Customer Name and Mobile Number are strictly compulsory!");
+                
+                if(!nameVal) inputs.name.className = "w-full bg-red-50 border-2 border-red-500 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none";
+                if(!mobileVal) inputs.mobile.className = "w-full bg-red-50 border-2 border-red-500 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none";
+                
+                document.getElementById('customerCard').scrollIntoView({ behavior: 'smooth' });
+                return false;
+            }
+            
+            inputs.name.className = "w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]";
+            inputs.mobile.className = "w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]";
+            return true;
+        }
 
         function setSaleMode(e, mode) {
             if (e) { e.preventDefault(); e.stopPropagation(); }
@@ -386,24 +360,14 @@
         function addItem(e) {
             if (e) e.preventDefault();
 
-            // MANDATORY ENFORCEMENT VERIFICATION RULE
-            const cName = inputs.name.value.trim();
-            const cMobile = inputs.mobile.value.trim();
-            if (!cName || !cMobile) {
-                alert("Customer Name and Mobile Number are strictly mandatory before adding items!");
-                inputs.name.classList.add('border-red-500');
-                inputs.mobile.classList.add('border-red-500');
-                document.getElementById('formTop').scrollIntoView({ behavior: 'smooth' });
-                return;
-            }
-            inputs.name.classList.remove('border-red-500');
-            inputs.mobile.classList.remove('border-red-500');
+            // 1. BLOCKS ADDITION IF MANDATORY FIELD MISSING
+            if (!checkMandatoryDetails()) return;
 
             const desc = inputs.desc.value.trim();
             const cypherStr = inputs.cypher.value.trim();
             const other = parseFloat(inputs.other.value) || 0;
-            const weight = parseFloat(inputs.weight.value) || 0;
-            const huidAmt = inputs.huidToggle.checked ? (parseFloat(inputs.huidPrice.value) || 0) : 0;
+            const weight = parseFloat(inputs.itemWeight.value) || 0;
+            const huidAmt = parseFloat(inputs.huidPrice.value) || 0;
 
             if (!desc) { alert("Please input Item Description!"); return; }
 
@@ -426,10 +390,10 @@
             items.push({ 
                 desc, cypher: cypherStr, total: calculatedItemTotal,
                 rate: savedRate, labour: savedLabour, mrp: savedMrp,
-                weight, other, huidChecked: inputs.huidToggle.checked, huidPriceVal: huidAmt
+                weight, other, huidPriceVal: huidAmt
             });
 
-            inputs.desc.value = ''; inputs.cypher.value = ''; inputs.weight.value = ''; inputs.other.value = ''; inputs.mrp.value = '';
+            inputs.desc.value = ''; inputs.cypher.value = ''; inputs.itemWeight.value = ''; inputs.other.value = ''; inputs.mrp.value = ''; inputs.huidPrice.value = '50';
             renderInvoice();
         }
 
@@ -438,8 +402,8 @@
             inputs.desc.value = item.desc;
             inputs.cypher.value = item.cypher || '';
             inputs.other.value = item.other || '';
-            inputs.weight.value = item.weight || '';
-            inputs.huidToggle.checked = item.huidChecked;
+            inputs.itemWeight.value = item.weight || '';
+            inputs.huidPrice.value = item.huidPriceVal;
 
             if (item.mrp > 0) {
                 setSaleMode(null, 'mrp');
@@ -462,12 +426,12 @@
 
         function renderInvoice() {
             const wrapper = document.getElementById('invoiceTableWrapper');
+            
             if (items.length === 0) {
                 wrapper.innerHTML = `<p class="text-center text-gray-300 font-medium text-sm py-16" id="emptyCartMsg">No items added to invoice yet</p>`;
                 document.getElementById('itemCountLabel').innerText = '0 Items Added';
                 document.getElementById('prevGross').innerText = '0'; document.getElementById('prevTax').innerText = '0';
-                document.getElementById('prevCardAmt').innerText = '0'; document.getElementById('invoiceGrandTotal').innerText = '0';
-                document.getElementById('printGrandTotal').innerText = '0';
+                document.getElementById('invoiceGrandTotal').innerText = '0'; document.getElementById('printGrandTotal').innerText = '0';
                 return;
             }
 
@@ -475,7 +439,7 @@
                 <table class="print-table w-full text-left border-collapse">
                     <thead>
                         <tr class="border-b-2 border-black">
-                            <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider w-8">Sr.</th>
+                            <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider w-8 text-center">Sr.</th>
                             <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider">Description</th>
                             <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider text-right w-20">Weight</th>
                             <th class="py-2 text-xs font-black text-gray-800 uppercase tracking-wider text-right w-24">Rate/g</th>
@@ -490,9 +454,10 @@
 
             items.forEach((item, index) => {
                 grossSubtotal += item.total;
+                
                 const weightDisplay = item.weight > 0 ? `${item.weight.toFixed(2)} g` : `-`;
                 const rateDisplay = item.mrp > 0 ? `-` : `₹${item.rate + item.labour}`;
-                const hasAddons = item.huidChecked || item.other > 0;
+                const hasAddons = item.huidPriceVal > 0 || item.other > 0;
 
                 tableHtml += `
                     <tr class="align-top">
@@ -502,14 +467,14 @@
                                 <span class="font-black text-gray-800 text-sm tracking-tight">${item.desc}</span>
                                 ${item.cypher ? `<span class="print-cypher-lowercase block text-[10px] font-mono text-gray-400 lowercase">${item.cypher.toLowerCase()}</span>` : ''}
                             </div>
-                            ${hasAddons ? `<span class="text-[10px] text-gray-400 block font-bold uppercase tracking-wide mt-0.5">(Inc. ${item.huidChecked ? 'HUID' : ''}${item.huidChecked && item.other > 0 ? ' + ' : ''}${item.other > 0 ? 'Charges' : ''})</span>` : ''}
+                            ${hasAddons ? `<span class="text-[10px] text-gray-400 block font-bold uppercase tracking-wide mt-0.5">(Inc. ${item.huidPriceVal > 0 ? 'HUID/Cert' : ''}${item.huidPriceVal > 0 && item.other > 0 ? ' + ' : ''}${item.other > 0 ? 'Charges' : ''})</span>` : ''}
                         </td>
                         <td class="py-3 text-right font-bold text-gray-900 text-xs md:text-sm">${weightDisplay}</td>
                         <td class="py-3 text-right font-bold text-gray-500 text-xs md:text-sm">${rateDisplay}</td>
                         <td class="py-3 text-right font-black text-gray-900 text-xs md:text-sm pr-1">₹${item.total.toLocaleString('en-IN')}</td>
                         <td class="py-3 text-center internal-only no-print space-x-1">
-                            <button type="button" onclick="editItem(${index})" class="text-amber-500 hover:text-amber-700 active:scale-90 transition-transform inline-block">✏️</button>
-                            <button type="button" onclick="deleteItem(${index})" class="text-red-400 hover:text-red-600 active:scale-90 transition-transform inline-block">🗑️</button>
+                            <button type="button" onclick="editItem(${index})" class="text-amber-500 font-bold hover:text-amber-700">✏️</button>
+                            <button type="button" onclick="deleteItem(${index})" class="text-red-400 font-bold hover:text-red-600">🗑️</button>
                         </td>
                     </tr>
                 `;
@@ -518,72 +483,53 @@
             tableHtml += `</tbody></table>`;
             wrapper.innerHTML = tableHtml;
 
-            // TAX & CARD CHARGE ACCOUNTING BALANCES
             const taxApplied = inputs.taxToggle.checked;
             const gstAmount = taxApplied ? Math.round(grossSubtotal * 0.03) : 0;
-            
-            const cardApplied = inputs.cardToggle.checked;
-            const cardPctVal = parseFloat(inputs.cardPercent.value) || 0;
-            const cardAmount = cardApplied ? Math.round((grossSubtotal + gstAmount) * (cardPctVal / 100)) : 0;
+            const finalGrandTotal = grossSubtotal + gstAmount;
 
-            const finalGrandTotal = grossSubtotal + gstAmount + cardAmount;
+            const grossRow = document.getElementById('invoiceGrossRow');
+            const gstRow = document.getElementById('invoiceGstRow');
 
-            // Handle Print States Visibility
-            document.getElementById('invoiceGrossRow').className = taxApplied ? "flex justify-between" : "flex justify-between hide-on-print";
-            document.getElementById('invoiceGstRow').className = taxApplied ? "flex justify-between text-emerald-800" : "flex justify-between text-emerald-800 hidden";
-            document.getElementById('invoiceCardRow').className = cardApplied ? "flex justify-between text-blue-800" : "flex justify-between text-blue-800 hidden";
-            document.getElementById('lblCardPct').innerText = cardPctVal;
+            if (taxApplied) {
+                grossRow.classList.remove('hide-on-print');
+                gstRow.classList.remove('hide-on-print');
+            } else {
+                grossRow.classList.add('hide-on-print'); 
+                gstRow.classList.add('hide-on-print');
+            }
 
             document.getElementById('itemCountLabel').innerText = `${items.length} Item${items.length > 1 ? 's' : ''} Added`;
             document.getElementById('prevGross').innerText = grossSubtotal.toLocaleString('en-IN');
             document.getElementById('prevTax').innerText = gstAmount.toLocaleString('en-IN');
-            document.getElementById('prevCardAmt').innerText = cardAmount.toLocaleString('en-IN');
             document.getElementById('invoiceGrandTotal').innerText = finalGrandTotal.toLocaleString('en-IN');
             document.getElementById('printGrandTotal').innerText = finalGrandTotal.toLocaleString('en-IN');
         }
 
-        function executePrint(e) { if (e) e.preventDefault(); window.print(); }
-
-        // DYNAMIC CLOUD INTERACTION PLATFORM Blueprints
-        function executeCloudSave(e) {
-            if (e) e.preventDefault();
-            if(typeof firebase === 'undefined' || !firebase.apps.length) {
-                alert("Database Offline: Please fill out your real Firebase credentials in the script configuration area to activate Cloud Syncing!");
-                return;
-            }
-            // Active Execution Code when Config parameters are updated:
-            /*
-            const payload = {
-                memoId: document.getElementById('memoId').value,
-                customerName: inputs.name.value,
-                customerMobile: inputs.mobile.value,
-                date: document.getElementById('memoDate').value,
-                items: items,
-                grandTotal: document.getElementById('invoiceGrandTotal').innerText,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            db.collection("estimates").doc(payload.memoId).set(payload)
-              .then(() => alert("☁️ Success: Memo saved safely to Jini cloud storage!"))
-              .catch(err => alert("Cloud Error: " + err.message));
-            */
+        function executePrint(e) { 
+            if (e) e.preventDefault(); 
+            // 2. BLOCKS PRINT DIALOGUE IF MANDATORY FIELD MISSING
+            if (!checkMandatoryDetails()) return;
+            window.print(); 
         }
 
         function executeShare(e) {
             if (e) e.preventDefault();
-            const name = inputs.name.value.trim() || "Valued Customer";
-            const id = document.getElementById('memoId').value;
+            if (!checkMandatoryDetails()) return;
+            
+            const name = inputs.name.value.trim();
+            const id = inputs.memoId.value;
             const grandTotal = document.getElementById('invoiceGrandTotal').innerText;
+            
             let shareText = `*JINI JEWELS ESTIMATE*\nMemos No: ${id}\nCustomer: ${name}\n---------------------------\n`;
             items.forEach((item, idx) => { shareText += `${idx+1}. ${item.desc} - ₹${item.total.toLocaleString('en-IN')}\n`; });
-            shareText += `---------------------------\n*Total: ₹${grandTotal}*\n_E&OE_`;
+            if(inputs.taxToggle.checked) { shareText += `Gst (3%): Included\n`; }
+            shareText += `---------------------------\n*Total Payable: ₹${grandTotal}*\n_E&OE_`;
 
             if (navigator.share) { navigator.share({ title: 'Jini Jewels Estimate', text: shareText }); } 
-            else { navigator.clipboard.writeText(shareText); alert("Copied to clipboard!"); }
+            else { navigator.clipboard.writeText(shareText); alert("Estimate breakdown copied safely to clipboard!"); }
         }
 
         inputs.taxToggle.addEventListener('change', renderInvoice);
-        inputs.cardToggle.addEventListener('change', renderInvoice);
-        inputs.cardPercent.addEventListener('input', renderInvoice);
     </script>
 </body>
 </html>
