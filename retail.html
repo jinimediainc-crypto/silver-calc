@@ -12,7 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
+    
     <script src="firebase-config.js"></script>
     <script>enforceTerminalSecurity();</script>
 
@@ -27,7 +27,7 @@
         .animate-marquee { display: flex; width: max-content; animation: marquee 15s linear infinite; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
         
-        /* UNLOCKED TOUCH SCROLLING CORES */
+        /* UNLOCKED SCROLL ENGINE FOR MOBILE RECOVERY */
         html, body {
             overflow-y: auto !important;
             height: auto !important;
@@ -38,14 +38,14 @@
 </head>
 <body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900">
 
-    <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden">
+    <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden no-print">
         <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
         <p class="text-xs font-bold text-gray-400 tracking-widest uppercase mb-6">Jini Jewels Showroom Security Lock</p>
         <div class="w-full max-w-xs space-y-3">
             <button type="button" onclick="unlockTerminalWithBiometrics()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
                 <span>Verify Biometrics to Unlock</span>
             </button>
-            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Device automatically locked due to 15 minutes of inactivity</p>
+            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Device locked automatically after 15 minutes of inactivity</p>
         </div>
     </div>
 
@@ -116,7 +116,7 @@
                 </div>
 
                 <div class="col-span-1 flex flex-col justify-end">
-                    <label class="block text-[11px] md:text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wide text-center">Old Cost</label>
+                    <label class="block text-[9px] md:text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wide text-center">Old Cost</label>
                     <div class="bg-gray-100 rounded-xl flex items-center px-2 py-3 border border-gray-200 opacity-70 h-[56px] md:h-[64px]">
                         <span class="text-gray-400 font-bold text-sm md:text-lg mx-auto">₹ <input type="number" id="itemSilverRate" class="w-10 md:w-14 bg-transparent border-none text-center outline-none pointer-events-none" placeholder="0" readonly /></span>
                     </div>
@@ -160,17 +160,17 @@
                 <span class="text-gray-400 text-[9px] md:text-xs font-bold uppercase tracking-widest hidden sm:block">When Total Changes:</span>
                 <div class="flex space-x-2 bg-gray-900 rounded-lg p-1 border border-white/5 w-full sm:w-auto justify-center">
                     <input type="radio" id="solveLabour" name="solveMode" value="labour" class="solve-radio hidden" checked>
-                    <label for="solveLabour" class="text-[10px] md:text-xs font-bold uppercase px-4 md:px-5 py-1.5 rounded-md cursor-pointer text-gray-400 transition-colors select-none">Solve L-Val</label>
+                    <label for="solveLabour" class="text-[10px] md:text-xs font-bold uppercase px-4 md:px-6 py-2 rounded-md cursor-pointer text-gray-400 transition-colors">Solve L-Val</label>
                     <input type="radio" id="solveF" name="solveMode" value="f_rate" class="solve-radio hidden">
-                    <label for="solveF" class="text-[10px] md:text-xs font-bold uppercase px-4 md:px-5 py-1.5 rounded-md cursor-pointer text-gray-400 transition-colors select-none">Solve Cost</label>
+                    <label for="solveF" class="text-[10px] md:text-xs font-bold uppercase px-4 md:px-6 py-2 rounded-md cursor-pointer text-gray-400 transition-colors">Solve Cost</label>
                 </div>
             </div>
 
             <div class="flex justify-between items-center border-b border-white/5 pb-2">
                 <span class="text-white text-xl md:text-2xl font-black uppercase tracking-widest">Total</span>
                 <div class="relative w-2/3 flex justify-end items-center">
-                    <span class="text-emerald-500 font-bold text-3xl md:text-4xl mr-1">₹</span>
-                    <input type="number" id="grandTotal" class="w-full bg-transparent border-none py-0.5 text-4xl md:text-5xl font-black text-white text-right outline-none focus:ring-2 focus:ring-[#D4AF37] rounded transition-all" placeholder="0" />
+                    <span class="text-emerald-500 font-bold text-4xl md:text-5xl mr-2">₹</span>
+                    <input type="number" id="grandTotal" class="w-full bg-transparent border-none py-1 text-5xl md:text-6xl font-black text-white text-right outline-none focus:ring-2 focus:ring-[#D4AF37] rounded transition-all" placeholder="0" />
                 </div>
             </div>
         </div>
@@ -185,8 +185,8 @@
 
     <script>
         const INDIAN_MARKET_MULTIPLIER = 1.14;
-        const GOLD_OFFSET_PER_GRAM = 0; const SILVER_OFFSET_PER_GRAM = 0;
-
+        const GOLD_OFFSET_PER_GRAM = 0; const SILVER_OFFSET_PER_GRAM = 0;   
+        
         let idleTrackerTimestamp = Date.now();
         function refreshInactivityHeartbeat() { idleTrackerTimestamp = Date.now(); }
         document.addEventListener('click', refreshInactivityHeartbeat);
@@ -206,7 +206,7 @@
                 .catch(() => { document.getElementById('sessionLockOverlay').classList.add('hidden'); idleTrackerTimestamp = Date.now(); });
             } else { document.getElementById('sessionLockOverlay').classList.add('hidden'); idleTrackerTimestamp = Date.now(); }
         }
-           
+
         async function fetchLiveRates() {
             try {
                 const fiatRes = await fetch('https://open.er-api.com/v6/latest/USD');
@@ -254,21 +254,13 @@
         const getSolveMode = () => { const selected = Array.from(els.solveModeInputs).find(r => r.checked); return selected ? selected.value : 'labour'; };
         const encodeNumber = (num) => Math.round(num).toString().split('').map(c => encodeMap[c]||'').join('').toUpperCase();
         const decodeStandard = (t) => { let n = ''; t = t.toLowerCase(); for (let i = t.startsWith('f')?1:0; i < t.length; i++) if (decodeMap[t[i]]) n += decodeMap[t[i]]; return parseInt(n) || 0; };
-        const updateBaseRateDisplay = (labourVal) => {
-            const hasF = els.code.value.toLowerCase().startsWith('f') || (!els.code.value && labourVal > 0);
-            const totalBase = Math.round((hasF ? (parseFloat(els.dailyRate.value)||0) : 0) + labourVal);
-            els.baseRateDisplay.innerText = totalBase; return totalBase;
-        };
-
+        const updateBaseRateDisplay = (labourVal) => { const hasF = els.code.value.toLowerCase().startsWith('f') || (!els.code.value && labourVal > 0); const totalBase = Math.round((hasF ? (parseFloat(els.dailyRate.value)||0) : 0) + labourVal); els.baseRateDisplay.innerText = totalBase; return totalBase; };
         const updateCompoundTag = () => { const l = parseFloat(els.labour.value) || 0, i = parseFloat(els.itemRate.value) || 0; els.code.value = l > 0 ? ('F' + encodeNumber(l) + (i > 0 ? 'X' + encodeNumber(i) : '')) : ''; };
-        
+
         function triggerForwardCalc() {
             if (isCalculating) return; isCalculating = true;
             const b = updateBaseRateDisplay(parseFloat(els.labour.value)||0), w = parseFloat(els.weight.value)||0, hm = els.hmToggle.checked ? (parseFloat(els.hmCharge.value)||0) : 0;
-            if (w > 0 && b > 0) {
-                let sub = (b * w) + (parseFloat(els.other.value)||0) + hm;
-                els.total.value = Math.round(els.gstToggle.checked ? sub * 1.03 : sub);
-            } else els.total.value = ''; 
+            if (w > 0 && b > 0) { let sub = (b * w) + (parseFloat(els.other.value)||0) + hm; els.total.value = Math.round(els.gstToggle.checked ? sub * 1.03 : sub); } else els.total.value = ''; 
             isCalculating = false;
         }
 
@@ -278,32 +270,20 @@
         els.hmCharge.addEventListener('input', (e) => { localStorage.setItem('retail_hmCharge', e.target.value); triggerForwardCalc(); });
         els.gstToggle.addEventListener('change', (e) => { localStorage.setItem('retail_gstToggle', e.target.checked); updateToggleStyles(); triggerForwardCalc(); });
 
-        els.code.addEventListener('input', () => {
-            if (isCalculating) return; isCalculating = true;
-            const t = els.code.value.toLowerCase().split('x');
-            if (t[1]) els.itemRate.value = decodeStandard(t[1]) || els.itemRate.value;
-            els.labour.value = decodeStandard(t[0]) || '';
-            isCalculating = false; triggerForwardCalc();
-        });
+        els.code.addEventListener('input', () => { if (isCalculating) return; isCalculating = true; const t = els.code.value.toLowerCase().split('x'); if (t[1]) els.itemRate.value = decodeStandard(t[1]) || els.itemRate.value; els.labour.value = decodeStandard(t[0]) || ''; isCalculating = false; triggerForwardCalc(); });
         els.labour.addEventListener('input', () => { if (isCalculating) return; isCalculating = true; updateCompoundTag(); isCalculating = false; triggerForwardCalc(); });
         els.total.addEventListener('input', () => {
-            if (isCalculating) return; isCalculating = true;
-            const w = parseFloat(els.weight.value)||0, t = parseFloat(els.total.value)||0;
+            if (isCalculating) return; isCalculating = true; const w = parseFloat(els.weight.value)||0, t = parseFloat(els.total.value)||0;
             if (w > 0 && t > 0) {
                 let reqBase = ((els.gstToggle.checked ? t / 1.03 : t) - (parseFloat(els.other.value)||0) - (els.hmToggle.checked ? (parseFloat(els.hmCharge.value)||0) : 0)) / w;
-                if (getSolveMode() === 'labour') {
-                    els.labour.value = Math.round(Math.max(0, reqBase - (parseFloat(els.dailyRate.value)||0)));
-                } else {
-                    els.dailyRate.value = els.itemRate.value = Math.round(Math.max(0, reqBase - (parseFloat(els.labour.value)||0)));
-                    localStorage.setItem('retail_compact_silverRate', els.dailyRate.value);
-                }
+                if (getSolveMode() === 'labour') { els.labour.value = Math.round(Math.max(0, reqBase - (parseFloat(els.dailyRate.value)||0))); } 
+                else { els.dailyRate.value = els.itemRate.value = Math.round(Math.max(0, reqBase - (parseFloat(els.labour.value)||0))); localStorage.setItem('retail_compact_silverRate', els.dailyRate.value); }
                 updateCompoundTag(); updateBaseRateDisplay(parseFloat(els.labour.value)||0);
             }
             isCalculating = false;
         });
         ['weight', 'other'].forEach(id => els[id].addEventListener('input', triggerForwardCalc));
-        Array.from(els.solveModeInputs).forEach(r => r.addEventListener('change', triggerForwardCalc));
-        triggerForwardCalc();
+        Array.from(els.solveModeInputs).forEach(r => r.addEventListener('change', triggerForwardCalc)); triggerForwardCalc();
     </script>
 </body>
 </html>
