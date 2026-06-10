@@ -17,7 +17,7 @@
         .toggle-checkbox:checked + .toggle-label { background-color: #D4AF37; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* ADVANCED FULL-PAGE LUXURY PRINT ENGINE */
+        /* THE PERFECT PRINT ENGINE ENGINE OVERRIDE */
         @media print {
             .no-print, .internal-only, button, input, .toggle-label { 
                 display: none !important; 
@@ -31,14 +31,6 @@
                 margin: 0 !important;
                 -webkit-print-color-adjust: exact; 
                 print-color-adjust: exact;
-            }
-            div, main, .grid {
-                display: block !important;
-                overflow: visible !important;
-                box-shadow: none !important;
-                background: transparent !important;
-                padding: 0 !important;
-                margin: 0 !important;
             }
             #printableMemoCard { 
                 display: block !important; 
@@ -76,6 +68,19 @@
             .text-gray-600, .text-gray-500, .text-gray-400 { color: #374151 !important; }
             .text-gray-900, .text-[#064e3b] { color: #000000 !important; }
             .print-border-dashed { border-bottom: 2px dashed #000000 !important; }
+            
+            /* High priority print layouts to fix alignments */
+            .print-footer-flex {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: flex-end !important;
+                width: 100% !important;
+                margin-top: 40px !important;
+            }
+            .hide-on-print {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -238,17 +243,15 @@
                     </div>
                 </div>
 
-                <div class="mt-8 pt-4 border-t border-gray-100 text-left">
-                    <div class="flex justify-between items-end text-xs font-bold text-gray-400 tracking-wider">
-                        <div>
-                            <p class="text-gray-900 font-black tracking-widest text-sm">E. & O.E.</p>
-                        </div>
-                        <div class="text-right border-t border-gray-300 pt-6 w-32 text-center uppercase text-[9px] text-gray-500 font-black">
-                            Authorized Sign
-                        </div>
+                <div class="print-footer-flex flex justify-between items-end mt-8 pt-4 border-t border-gray-100 text-left w-full">
+                    <div>
+                        <p class="text-gray-900 font-black tracking-widest text-xs">E. & O.E.</p>
                     </div>
-                    <p class="text-center text-xs font-black text-[#064e3b] tracking-widest mt-6 uppercase italic">~ Thank You For Visiting Jini Jewels ~</p>
+                    <div class="text-right border-t border-gray-300 pt-6 w-32 text-center uppercase text-[10px] font-black text-gray-600">
+                        Authorized Sign
+                    </div>
                 </div>
+                <p class="text-center text-[10px] font-black text-[#064e3b] tracking-widest mt-6 uppercase italic no-print">~ Thank You For Visiting Jini Jewels ~</p>
             </div>
 
             <div class="grid grid-cols-2 gap-3 internal-only">
@@ -482,11 +485,11 @@
             const gstRow = document.getElementById('invoiceGstRow');
 
             if (taxApplied) {
-                grossRow.classList.remove('print:hidden');
-                gstRow.classList.remove('hidden');
+                grossRow.classList.remove('hide-on-print');
+                gstRow.classList.remove('hide-on-print');
             } else {
-                grossRow.classList.add('print:hidden'); 
-                gstRow.classList.add('hidden');
+                grossRow.classList.add('hide-on-print'); 
+                gstRow.classList.add('hide-on-print');
             }
 
             document.getElementById('itemCountLabel').innerText = `${items.length} Item${items.length > 1 ? 's' : ''} Added`;
