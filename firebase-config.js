@@ -14,27 +14,44 @@ const firebaseConfig = {
   measurementId: "G-JGZS4GB8VL"
 };
 
-// Initialize Firebase App Instance
+// Initialize Firebase App Instance cleanly
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// Global Core Reference Variables
+// Global Core References for Ecosystem Modules
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// GLOBAL SECURITY ENFORCEMENT: Guard all app windows from unauthorized URL bypass
+// Set permanent device persistence so you don't get kicked out on app restart
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+/**
+ * Global Security Shield: Verifies active cloud tokens.
+ * Prevents URL bypass attempts and safely manages redirects.
+ */
 function enforceTerminalSecurity() {
-    // Skip verification only if the user is already on the index.html login page
-    const isLoginPage = window.location.pathname.endsWith('index.html') || window.location.pathname === '/';
-    
+    const currentPath = window.location.pathname;
+    const isLoginPage = currentPath.endsWith('index.html') || currentPath === '/';
+
     auth.onAuthStateChanged((user) => {
-        if (!user && !isLoginPage) {
-            // No active secure session -> instantly kick user back to login vault
-            window.location.replace('index.html');
-        } else if (user && isLoginPage) {
-            // User is already signed in -> skip login screen, send straight into app hub
-            // We default to billing.html or can stay on a menu dashboard
+        if (!user) {
+            // No active session detected -> send unauthorized traffic to vault
+            if (!isLoginPage) {
+                window.location.replace('index.html');
+            }
+        } else {
+            // Device is verified -> if sitting on login screen, pass to dashboard instantly
+            if (isLoginPage) {
+                const loginCard = document.getElementById('loginGatewayPanel');
+                const dashboard = document.getElementById('showroomHubDashboard');
+                if (loginCard && dashboard) {
+                    loginCard.classList.add('hidden');
+                    dashboard.classList.remove('hidden');
+                }
+            }
+            // Safely log active terminal instance details internally
+            localStorage.setItem('has_logged_in_once', 'true');
         }
     });
 }
