@@ -2,13 +2,16 @@
 // JINI JEWELS - MASTER FIREBASE CONFIGURATION
 // Paste your unique Firebase SDK snippet values here
 // =================================================================
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "YOUR_REAL_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyD6eG22cNgeUOus3w3S4uDOB8j84AnqKLk",
+  authDomain: "jinijewels-github.firebaseapp.com",
+  databaseURL: "https://jinijewels-github-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "jinijewels-github",
+  storageBucket: "jinijewels-github.firebasestorage.app",
+  messagingSenderId: "578815043824",
+  appId: "1:578815043824:web:27014b622834fc57d9ba35",
+  measurementId: "G-JGZS4GB8VL"
 };
 
 // Initialize Firebase App Instance
