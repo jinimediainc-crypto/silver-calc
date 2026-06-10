@@ -11,114 +11,39 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script src="firebase-config.js"></script>
+    <script>enforceTerminalSecurity();</script>
 
     <style>
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         html { scroll-behavior: smooth; }
-        
-        /* Premium thematic target colors for active states */
+        .focus-ring:focus-within { box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.4); border-color: #D4AF37; }
         .toggle-checkbox:checked { right: 0; border-color: #D4AF37; }
         .toggle-checkbox:checked + .toggle-label { background-color: #047857; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
 
         @media print {
-            .no-print, .internal-only, button, input { 
-                display: none !important; 
-            }
-            body, html { 
-                background: #ffffff !important; 
-                color: #000000 !important; 
-                overflow: visible !important; 
-                height: auto !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                -webkit-print-color-adjust: exact; 
-                print-color-adjust: exact;
-            }
-            div, main, .grid {
-                display: block !important;
-                overflow: visible !important;
-                box-shadow: none !important;
-                background: transparent !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            #printableMemoCard { 
-                display: block !important; 
-                width: 100% !important; 
-                max-width: 100% !important; 
-                border: none !important;
-                padding: 40px !important; 
-                margin: 0 auto !important;
-                background: #ffffff !important;
-                box-shadow: none !important;
-            }
-            .print-table {
-                width: 100% !important;
-                border-collapse: collapse !important;
-                margin-top: 25px !important;
-                margin-bottom: 25px !important;
-            }
-            .print-table th {
-                background-color: #f9fafb !important;
-                color: #000000 !important;
-                border-top: 2px solid #000000 !important;
-                border-bottom: 2px solid #000000 !important;
-                padding: 12px 10px !important;
-                font-weight: 900 !important;
-                text-transform: uppercase !important;
-                font-size: 12px !important;
-                letter-spacing: 0.05em !important;
-            }
-            .print-table td {
-                border-bottom: 1px solid #e5e7eb !important;
-                padding: 14px 10px !important;
-                font-size: 13px !important;
-                color: #000000 !important;
-            }
-            
-            /* High Contrast Print Mode Assignments */
-            .text-gray-600, .text-gray-500, .text-gray-400 { color: #111111 !important; }
+            .no-print, .internal-only, button, input { display: none !important; }
+            body, html { background: #ffffff !important; color: #000000 !important; overflow: visible !important; height: auto !important; padding: 0 !important; margin: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            div, main, .grid { display: block !important; overflow: visible !important; box-shadow: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important; }
+            #printableMemoCard { display: block !important; width: 100% !important; max-width: 100% !important; border: none !important; padding: 40px !important; margin: 0 auto !important; background: #ffffff !important; box-shadow: none !important; }
+            .print-table { width: 100% !important; border-collapse: collapse !important; margin-top: 25px !important; margin-bottom: 25px !important; }
+            .print-table th { background-color: #f9fafb !important; color: #000000 !important; border-top: 2px solid #000000 !important; border-bottom: 2px solid #000000 !important; padding: 12px 10px !important; font-weight: 900 !important; text-transform: uppercase !important; font-size: 12px !important; letter-spacing: 0.05em !important; }
+            .print-table td { border-bottom: 1px solid #e5e7eb !important; padding: 14px 10px !important; font-size: 13px !important; color: #000000 !important; }
+            .text-gray-600, .text-gray-500, .text-gray-400 { color: #374151 !important; }
             .text-gray-900, .text-[#064e3b] { color: #000000 !important; }
             .print-border-dashed { border-bottom: 2px dashed #000000 !important; }
-            
-            /* Premium highlighted total box layout rules on sheet print outs */
-            .print-total-highlight {
-                border-top: 3px double #000000 !important;
-                border-bottom: 3px double #000000 !important;
-                background-color: #f9fafb !important;
-                font-size: 18px !important;
-                padding: 10px 4px !important;
-                font-weight: 900 !important;
-            }
-
-            .print-footer-flex {
-                display: flex !important;
-                flex-direction: row !important;
-                justify-content: space-between !important;
-                align-items: flex-end !important;
-                width: 100% !important;
-                margin-top: 50px !important;
-            }
+            .print-total-highlight { border-top: 3px double #000000 !important; border-bottom: 3px double #000000 !important; background-color: #f9fafb !important; font-size: 18px !important; padding: 10px 4px !important; font-weight: 900 !important; }
+            .print-footer-flex { display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: flex-end !important; width: 100% !important; margin-top: 50px !important; }
             .hide-on-print { display: none !important; }
-            
-            .print-cypher-lowercase {
-                display: block !important;
-                text-transform: lowercase !important;
-                font-size: 10px !important;
-                color: #555555 !important;
-                font-family: monospace !important;
-                margin-top: 1px !important;
-            }
+            .print-cypher-lowercase { display: block !important; text-transform: lowercase !important; font-size: 10px !important; color: #555555 !important; font-family: monospace !important; margin-top: 1px !important; }
         }
     </style>
 </head>
 <body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 h-[100dvh] flex flex-col overflow-hidden selection:bg-[#D4AF37] selection:text-gray-900">
-
-    <script>
-        if (sessionStorage.getItem('jini_auth') !== 'true') { window.location.replace('index.html'); }
-    </script>
 
     <div class="flex-shrink-0 flex flex-col z-10 sticky top-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 no-print">
         <div class="flex items-center px-4 py-3 max-w-6xl mx-auto w-full">
@@ -298,23 +223,6 @@
     </div>
 
     <script>
-        // =================================================================
-        // DYNAMIC CLOUD INTERACTION FIRING PORTALS (PASTE KEYS TO INITIALIZE)
-        // =================================================================
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "jini-jewels-pos.firebaseapp.com",
-            projectId: "jini-jewels-pos",
-            storageBucket: "jini-jewels-pos.appspot.com",
-            appId: "YOUR_APP_ID"
-        };
-        // Activate Cloud database pipeline loop execution once parameters are updated:
-        if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
-            firebase.initializeApp(firebaseConfig);
-            var db = firebase.firestore();
-        }
-        // =================================================================
-
         document.getElementById('memoDate').valueAsDate = new Date();
         const initialId = Math.floor(1000 + Math.random() * 9000);
         document.getElementById('memoId').value = initialId;
@@ -352,17 +260,14 @@
             taxToggle: document.getElementById('taxToggle')
         };
 
-        // RIGID MANDATORY BOUNDARY VERIFICATION ENGINE RUNS (ADD & PRINT PROTECTION SHIELDS)
         function checkMandatoryDetails() {
             const nameVal = inputs.name.value.trim();
             const mobileVal = inputs.mobile.value.trim();
             
             if (!nameVal || !mobileVal) {
                 alert("STRICT MANDATORY LOCK: You must enter both Customer Name and Mobile Number first!");
-                
                 if(!nameVal) inputs.name.className = "w-full bg-red-50 border-2 border-red-500 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none";
                 if(!mobileVal) inputs.mobile.className = "w-full bg-red-50 border-2 border-red-500 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none";
-                
                 document.getElementById('customerCard').scrollIntoView({ behavior: 'smooth' });
                 return false;
             }
@@ -515,7 +420,6 @@
             const gstAmount = taxApplied ? Math.round(grossSubtotal * 0.03) : 0;
             const finalGrandTotal = grossSubtotal + gstAmount;
 
-            // Strict hide state conditional formatting package bindings on final summaries
             document.getElementById('invoiceGrossRow').className = taxApplied ? "flex justify-between" : "flex justify-between hide-on-print";
             document.getElementById('invoiceGstRow').className = taxApplied ? "flex justify-between text-emerald-800" : "flex justify-between text-emerald-800 hidden";
 
@@ -532,14 +436,13 @@
             window.print(); 
         }
 
-        // CONNECTED SECURE CORE LIVE CLOUD PRODUCTION SAVING ROUTINE
         function executeCloudSave(e) {
             if (e) e.preventDefault();
             if (!checkMandatoryDetails()) return;
             if (items.length === 0) { alert("Please add at least one item before cloud saving!"); return; }
 
             if (typeof db === 'undefined') {
-                alert("Configuration Required: Please fill out your real Firebase credentials in the script header block to link this live counter terminal to Jini Jewels secure storage cloud!");
+                alert("Configuration Key Missing: Please update your real project identifiers inside 'firebase-config.js' to initialize your database collection stream!");
                 return;
             }
 
@@ -556,7 +459,9 @@
             };
 
             db.collection("showroom_memos").doc(documentPayload.estimateNumber).set(documentPayload)
-              .then(() => { alert("☁️ Security Safe: Quote saved securely to Jini Jewels cloud ledger system!"); })
+              .then(() => { 
+                  alert("☁️ Cloud Ledger Locked: Estimate record committed safely to Firebase Firestore database!"); 
+              })
               .catch(error => { alert("Cloud Failure Encountered: " + error.message); });
         }
 
