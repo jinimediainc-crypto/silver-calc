@@ -15,7 +15,7 @@
     
     <script src="firebase-config.js"></script>
 </head>
-<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 flex flex-col justify-center items-center min-h-[100dvh] font-sans p-4 select-none">
+<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 h-[100dvh] flex flex-col justify-center items-center p-4 select-none overflow-hidden relative">
 
     <div id="loginGatewayPanel" class="w-full max-w-sm bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 md:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 text-center transition-all duration-300">
         <h1 class="text-3xl font-black text-[#064e3b] tracking-tight mb-1">JINI JEWELS</h1>
@@ -38,26 +38,31 @@
             Verify Terminal
         </button>
 
-        <button type="button" onclick="authenticateWithDeviceBiometrics()" class="w-full bg-gray-950 text-[#D4AF37] font-black py-3.5 px-4 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center gap-2 border border-gray-800 active:scale-95 mt-3">
-            Fingerprint / Face ID Quick Log
-        </button>
+        <div id="biometricContainer" class="hidden mt-4 pt-3 border-t border-gray-100">
+            <button type="button" onclick="authenticateWithDeviceBiometrics()" class="w-full bg-gray-900 text-[#D4AF37] font-black py-3 px-4 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 border border-gray-800 active:scale-95">
+                Fingerprint / Face ID Quick Log
+            </button>
+        </div>
     </div>
 
-    <div id="showroomHubDashboard" class="hidden w-full max-w-md text-center transition-all duration-300">
-        <div class="mb-8">
-            <h1 class="text-4xl font-black text-white tracking-tight mb-2">Jini Jewels</h1>
+    <div id="showroomHubDashboard" class="hidden w-full max-w-sm md:max-w-md text-center transition-all duration-300">
+        <div class="mb-6">
+            <h1 class="text-4xl font-black text-white tracking-tight mb-1">Jini Jewels</h1>
             <p class="text-xs font-bold text-emerald-400 tracking-widest uppercase">Showroom Ecosystem</p>
         </div>
 
-        <div class="flex flex-col gap-4 w-full">
-            <a href="retail.html" class="bg-white/95 backdrop-blur-md border-2 border-transparent rounded-2xl p-5 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all active:scale-95">
-                <span class="font-black text-[#064e3b] text-lg uppercase tracking-widest">Retail Calculator</span>
+        <div class="flex flex-col gap-3.5 w-full">
+            <a href="retail.html" class="bg-white/95 backdrop-blur-md border-2 border-transparent rounded-2xl p-4.5 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all active:scale-[0.98]">
+                <span class="font-black text-[#064e3b] text-base uppercase tracking-widest">Retail Calculator</span>
             </a>
-            <a href="backoffice.html" class="bg-white/95 backdrop-blur-md border-2 border-transparent rounded-2xl p-5 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all active:scale-95">
-                <span class="font-black text-[#064e3b] text-lg uppercase tracking-widest">Back Office Calculator</span>
+            <a href="backoffice.html" class="bg-white/95 backdrop-blur-md border-2 border-transparent rounded-2xl p-4.5 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all active:scale-[0.98]">
+                <span class="font-black text-[#064e3b] text-base uppercase tracking-widest">Back Office Calculator</span>
             </a>
-            <a href="billing.html" class="bg-white/95 backdrop-blur-md border-2 border-transparent rounded-2xl p-5 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all active:scale-95">
-                <span class="font-black text-[#064e3b] text-lg uppercase tracking-widest">POS & Billing System</span>
+            <a href="inventory.html" class="bg-white/95 backdrop-blur-md border-2 border-transparent rounded-2xl p-4.5 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all active:scale-[0.98]">
+                <span class="font-black text-amber-700 text-base uppercase tracking-widest">📦 Inventory & Tag Generation</span>
+            </a>
+            <a href="billing.html" class="bg-white/95 backdrop-blur-md border-2 border-transparent rounded-2xl p-4.5 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all active:scale-[0.98]">
+                <span class="font-black text-[#064e3b] text-base uppercase tracking-widest">POS & Billing System</span>
             </a>
             
             <button type="button" onclick="logoutShowroomTerminal()" class="mt-4 text-white/40 hover:text-red-400 font-bold uppercase tracking-wider text-xs transition-colors py-2 active:scale-95">
@@ -67,14 +72,19 @@
     </div>
 
     <script>
-        // Check local session tokens
+        // Check if device hardware supports WebAuthn Biometric prompts
+        if (window.PublicKeyCredential) {
+            document.getElementById('biometricContainer').classList.remove('hidden');
+        }
+
+        // Monitor Cloud Session State transitions
         auth.onAuthStateChanged((user) => {
             const loginCard = document.getElementById('loginGatewayPanel');
             const dashboard = document.getElementById('showroomHubDashboard');
+            
             if (user) {
                 loginCard.classList.add('hidden');
                 dashboard.classList.remove('hidden');
-                // Store structural state confirmation parameter
                 localStorage.setItem('has_logged_in_once', 'true');
             } else {
                 dashboard.classList.add('hidden');
@@ -90,11 +100,14 @@
             errorLabel.innerText = "Connecting...";
 
             auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-                .then(() => { return auth.signInWithEmailAndPassword(email, password); })
-                .catch(error => { errorLabel.innerText = "Access Denied: Invalid Credentials"; });
+                .then(() => {
+                    return auth.signInWithEmailAndPassword(email, password);
+                })
+                .catch(error => {
+                    errorLabel.innerText = "Access Denied: Invalid Terminal Login";
+                });
         }
 
-        // BULLETPROOF WEB BIOMETRICS HANDSHAKE SIMULATION INTERFACE
         function authenticateWithDeviceBiometrics() {
             const errorLabel = document.getElementById('authErrorMsg');
             
@@ -103,12 +116,10 @@
                 return;
             }
 
-            // Challenge hardware sensors securely
             if (window.crypto && navigator.credentials) {
                 navigator.credentials.get({
                     publicKey: { challenge: new Uint8Array([16, 32, 48, 64]), timeout: 60000, allowCredentials: [] }
                 }).catch(() => {
-                    // Browser unlocks state locally using cached Firebase authorization tokens
                     if (auth.currentUser) {
                         document.getElementById('loginGatewayPanel').classList.add('hidden');
                         document.getElementById('showroomHubDashboard').classList.remove('hidden');
