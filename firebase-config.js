@@ -14,34 +14,25 @@ const firebaseConfig = {
   measurementId: "G-JGZS4GB8VL"
 };
 
-// Initialize Firebase App Instance cleanly
+// Initialize infrastructure engines safely
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// Global Core References for Ecosystem Modules
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Set permanent device persistence so you don't get kicked out on app restart
+// Locks in local device storage persistence permanently
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-/**
- * Global Security Shield: Verifies active cloud tokens.
- * Prevents URL bypass attempts and safely manages redirects.
- */
 function enforceTerminalSecurity() {
     const currentPath = window.location.pathname;
-    const isLoginPage = currentPath.endsWith('index.html') || currentPath === '/';
+    const isLoginPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('index.html/');
 
     auth.onAuthStateChanged((user) => {
         if (!user) {
-            // No active session detected -> send unauthorized traffic to vault
-            if (!isLoginPage) {
-                window.location.replace('index.html');
-            }
+            if (!isLoginPage) { window.location.replace('index.html'); }
         } else {
-            // Device is verified -> if sitting on login screen, pass to dashboard instantly
             if (isLoginPage) {
                 const loginCard = document.getElementById('loginGatewayPanel');
                 const dashboard = document.getElementById('showroomHubDashboard');
@@ -50,7 +41,6 @@ function enforceTerminalSecurity() {
                     dashboard.classList.remove('hidden');
                 }
             }
-            // Safely log active terminal instance details internally
             localStorage.setItem('has_logged_in_once', 'true');
         }
     });
