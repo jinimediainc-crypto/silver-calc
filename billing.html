@@ -81,8 +81,7 @@
                     <button type="button" onclick="startCameraScanner()" class="w-12 h-12 bg-[#064e3b] rounded-xl flex items-center justify-center text-white text-lg shadow-md">📷</button>
                 </div>
 
-                <div id="searchSuggestions" class="absolute left-4 right-20 bg-white border border-gray-200 rounded-xl mt-1 shadow-2xl max-h-52 overflow-y-auto hidden z-30 font-bold text-xs text-left divide-y divide-gray-100">
-                    </div>
+                <div id="searchSuggestions" class="absolute left-4 right-20 bg-white border border-gray-200 rounded-xl mt-1 shadow-2xl max-h-52 overflow-y-auto hidden z-30 font-bold text-xs text-left divide-y divide-gray-100"></div>
             </div>
 
             <div id="qrScannerBox" class="hidden bg-black rounded-2xl p-2 border max-w-sm mx-auto w-full relative">
@@ -274,14 +273,12 @@
         let globalHistoryCache = [];
         let cameraScannerEngineInstance = null;
         
-        // NEW DECOUPLED TRACKING VARIABLES FOR SYSTEM SEQUENCES
         let activeDocId = null; 
         window.localShowroomInventoryMemoryList = [];
 
         if (typeof db !== 'undefined') {
             runAutoSequenceIncrement();
 
-            // Stream inventory parameters locally for dynamic dropdown filtering
             db.collection("jini_inventory").onSnapshot((snapshot) => {
                 window.localShowroomInventoryMemoryList = [];
                 snapshot.forEach(doc => { window.localShowroomInventoryMemoryList.push(doc.data()); });
@@ -320,14 +317,12 @@
             taxToggle: document.getElementById('taxToggle'), discType: document.getElementById('discountType'), discVal: document.getElementById('discountValue')
         };
 
-        // NEW: MULTI-MATCH DYNAMIC SEARCH SUGGESTION DROPDOWN ENGINE
         function showSearchSuggestions() {
             const query = document.getElementById('liveSearchQuery').value.trim().toLowerCase();
             const suggestionBox = document.getElementById('searchSuggestions');
             
             if(!query) { suggestionBox.classList.add('hidden'); return; }
 
-            // Filter cache memory array for any string match position segment
             const matches = window.localShowroomInventoryMemoryList.filter(i => 
                 i.tagNumberId.toLowerCase().includes(query) || 
                 i.itemNameDescription.toLowerCase().includes(query)
@@ -394,7 +389,6 @@
             document.getElementById('liveSearchQuery').value = ""; inputs.itemWeight.focus();
         }
 
-        // Hide dynamic suggestion box container if user clicks outside anywhere on the application viewport canvas
         document.addEventListener('click', (e) => {
             if(e.target.id !== 'liveSearchQuery') document.getElementById('searchSuggestions').classList.add('hidden');
         });
@@ -515,7 +509,7 @@
                 grossRow.classList.remove('hide-on-print'); gstRow.classList.remove('hide-on-print');
             } else {
                 grossRow.style.display = "none"; gstRow.style.display = "none";
-                grossRow.classList.add('hide-on-print'); guestRow = null;
+                grossRow.classList.add('hide-on-print'); gstRow.classList.add('hide-on-print');
             }
 
             if (discAmt > 0) {
@@ -555,7 +549,7 @@
                 localTimestamp: new Date().toISOString()
             };
 
-            // SYSTEM SEQUENCE CONTROL RULE: Checks if updating an existing record vs creating a new record slot
+            // SYSTEM SEQUENCE CONTROL: Fixes old document references securely
             const docReferenceRef = activeDocId ? db.collection("showroom_memos").doc(activeDocId) : db.collection("showroom_memos").doc();
 
             docReferenceRef.set(payload).then(() => {
@@ -568,7 +562,7 @@
                 });
 
                 Promise.all(updatePromises).then(() => {
-                    alert(`☁️ Cloud Record Synced Safely!`);
+                    alert(`☁️ Cloud Record Saved Successfully!`);
                     resetTerminalBillingState();
                 });
             }).catch(err => { alert(err.message); saveBtn.innerText = "☁️ Cloud Save Memo"; saveBtn.disabled = false; });
@@ -595,7 +589,7 @@
                 globalHistoryCache = []; if (snap.empty) { list.innerHTML = `<p class="text-center">No memos found.</p>`; return; }
                 snap.forEach(d => {
                     let recordData = d.data();
-                    recordData.fbDocIdReferenceToken = d.id; // Map structural system sequence token ID
+                    recordData.fbDocIdReferenceToken = d.id; 
                     globalHistoryCache.push(recordData);
                 }); 
                 renderHistoryList(globalHistoryCache);
@@ -625,16 +619,15 @@
             });
         }
 
-        // NEW: DOUBLE-CHECK DELETION SECURITY ENGINE
         function deleteHistoryRecord(event, docId) {
-            event.stopPropagation(); // Block event capture cascading loop bubble
+            event.stopPropagation(); 
             if (!confirm("Are you sure you want to permanently delete this estimate out of cloud history records?")) return;
             if (!confirm("CRITICAL WARNING: This action cannot be undone and will permanently wipe the entry. Confirm Deletion?")) return;
 
             db.collection("showroom_memos").doc(docId).delete().then(() => {
                 alert("🗑️ Document entry removed out of cloud history files successfully.");
                 if(activeDocId === docId) resetTerminalBillingState();
-                fetchHistoryFromCloud(); // Refresh history panel loop entries
+                fetchHistoryFromCloud(); 
             }).catch(err => alert("System Deletion Failure: " + err.message));
         }
 
@@ -646,7 +639,6 @@
         }
 
         function loadOldRecordIntoTerminal(d) {
-            // Unlocks system sequences connection bindings properties maps
             activeDocId = d.fbDocIdReferenceToken;
             
             document.getElementById('editModeIndicator').classList.remove('hidden');
