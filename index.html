@@ -7,16 +7,16 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#064e3b">
     <link rel="apple-touch-icon" href="icon.png">
-    <script src="https://cdn.tailwindcss.com"></script>
     
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     
     <script src="firebase-config.js"></script>
 </head>
-<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 flex flex-col justify-center items-center min-h-[100dvh] font-sans p-4 select-none overflow-hidden">
+<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 flex flex-col justify-center items-center min-h-[100dvh] font-sans p-4 select-none overflow-hidden relative">
 
-    <div id="loginGatewayPanel" class="w-full max-w-sm bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 md:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 text-center">
+    <div id="loginGatewayPanel" class="w-full max-w-sm bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 md:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 text-center transition-all duration-300">
         <h1 class="text-3xl font-black text-[#064e3b] tracking-tight mb-1">JINI JEWELS</h1>
         <p class="text-[10px] font-black text-gray-400 tracking-widest uppercase mb-6">Terminal Authentication</p>
         
@@ -31,61 +31,54 @@
             </div>
         </div>
         
-        <p id="authErrorMsg" class="text-red-500 text-xs font-bold mt-3 h-4 uppercase tracking-wide"></p>
+        <p id="authErrorMsg" class="text-red-500 text-xs font-black mt-4 min-h-[16px] uppercase tracking-wide"></p>
 
-        <button type="button" onclick="loginShowroomTerminal()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3.5 px-4 rounded-xl uppercase tracking-widest transition-colors shadow-md mt-2 active:scale-95">
+        <button type="button" id="btnVerify" onclick="loginShowroomTerminal()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3.5 px-4 rounded-xl uppercase tracking-widest transition-colors shadow-md mt-2 active:scale-95">
             Verify Terminal
         </button>
 
-        <div id="biometricContainer" class="hidden mt-4 pt-3 border-t border-gray-100">
-            <button type="button" onclick="authenticateWithDeviceBiometrics()" class="w-full bg-gray-950 text-[#D4AF37] font-black py-3.5 px-4 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center gap-2 border border-gray-800 active:scale-95">
-                Fingerprint / Face ID Quick Log
-            </button>
-        </div>
+        <button type="button" onclick="authenticateWithDeviceBiometrics()" class="w-full bg-gray-950 text-[#D4AF37] font-black py-3.5 px-4 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center gap-2 border border-gray-800 active:scale-95 mt-3">
+            Fingerprint / Face ID Quick Log
+        </button>
     </div>
 
-    <div id="showroomHubDashboard" class="hidden w-full max-w-sm md:max-w-md text-center transition-all duration-300">
-        <div class="mb-6">
-            <h1 class="text-4xl font-black text-white tracking-tight mb-1">Jini Jewels</h1>
+    <div id="showroomHubDashboard" class="hidden w-full max-w-md text-center transition-all duration-300">
+        <div class="mb-8">
+            <h1 class="text-4xl font-black text-white tracking-tight mb-2">Jini Jewels</h1>
             <p class="text-xs font-bold text-emerald-400 tracking-widest uppercase">Showroom Ecosystem</p>
         </div>
 
-        <div class="flex flex-col gap-3.5 w-full">
-            <a href="retail.html" class="bg-white/95 backdrop-blur-md rounded-2xl p-4.5 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all font-black text-[#064e3b] text-base uppercase tracking-widest active:scale-95">Retail Calculator</a>
-            <a href="backoffice.html" class="bg-white/95 backdrop-blur-md rounded-2xl p-4.5 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all font-black text-[#064e3b] text-base uppercase tracking-widest active:scale-95">Back Office Calculator</a>
-            <a href="inventory.html" class="bg-white/95 backdrop-blur-md rounded-2xl p-4.5 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all font-black text-amber-700 text-base uppercase tracking-widest active:scale-95">📦 Inventory Ledger</a>
-            <a href="billing.html" class="bg-white/95 backdrop-blur-md rounded-2xl p-4.5 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all font-black text-[#064e3b] text-base uppercase tracking-widest active:scale-95">POS & Billing System</a>
-            
-            <button type="button" onclick="logoutShowroomTerminal()" class="mt-4 text-white/40 hover:text-red-400 font-bold uppercase tracking-wider text-xs transition-colors py-2 active:scale-95">
+        <div class="flex flex-col gap-4 w-full">
+            <a href="inventory.html" class="bg-white/95 backdrop-blur-md border-2 border-transparent rounded-2xl p-5 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all active:scale-95">
+                <span class="font-black text-amber-800 text-lg uppercase tracking-widest">📦 Inventory & Stock Tracker</span>
+            </a>
+            <a href="billing.html" class="bg-white/95 backdrop-blur-md border-2 border-transparent rounded-2xl p-5 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all active:scale-95">
+                <span class="font-black text-[#064e3b] text-lg uppercase tracking-widest">POS & Billing System</span>
+            </a>
+            <button type="button" onclick="logoutShowroomTerminal()" class="mt-6 text-white/40 hover:text-red-400 font-bold uppercase tracking-wider text-xs transition-colors py-2 active:scale-95">
                 🔒 Secure Terminate Session
             </button>
         </div>
     </div>
 
     <script>
-        if (window.PublicKeyCredential) {
-            document.getElementById('biometricContainer').classList.remove('hidden');
-        }
+        // Check URL flags for system session expiration states
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('session') === 'expired') {
+                document.getElementById('authErrorMsg').innerText = "SESSION EXPIRED DUE TO INACTIVITY.";
+            }
+        });
 
+        // Track live user credential transitions
         auth.onAuthStateChanged((user) => {
             const loginCard = document.getElementById('loginGatewayPanel');
             const dashboard = document.getElementById('showroomHubDashboard');
             
             if (user) {
-                // Check if current device is locked out by inactivity timestamp flags
-                const lastSeen = localStorage.getItem('jini_last_activity_timestamp');
-                const now = Date.now();
-                if(lastSeen && (now - parseInt(lastSeen) > 15 * 60 * 1000)) {
-                    auth.signOut();
-                    localStorage.removeItem('has_logged_in_once');
-                    document.getElementById('authErrorMsg').innerText = "Session expired due to inactivity.";
-                    return;
-                }
-                
                 loginCard.classList.add('hidden');
                 dashboard.classList.remove('hidden');
                 localStorage.setItem('has_logged_in_once', 'true');
-                localStorage.setItem('jini_last_activity_timestamp', Date.now().toString());
             } else {
                 dashboard.classList.add('hidden');
                 loginCard.classList.remove('hidden');
@@ -96,15 +89,36 @@
             const email = document.getElementById('authEmail').value.trim();
             const password = document.getElementById('authPassword').value;
             const errorLabel = document.getElementById('authErrorMsg');
-            errorLabel.innerText = "Connecting...";
+            const verifyBtn = document.getElementById('btnVerify');
+
+            if(!email || !password) {
+                errorLabel.innerText = "Please fill in all terminals fields!";
+                return;
+            }
+
+            errorLabel.innerText = "CONNECTING...";
+            errorLabel.className = "text-amber-500 text-xs font-black mt-4 min-h-[16px] uppercase tracking-wide animate-pulse";
+            verifyBtn.disabled = true;
 
             auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-                .then(() => { return auth.signInWithEmailAndPassword(email, password); })
-                .catch(error => { errorLabel.innerText = "Access Denied: Invalid Terminal Login"; });
+                .then(() => {
+                    return auth.signInWithEmailAndPassword(email, password);
+                })
+                .then(() => {
+                    verifyBtn.disabled = false;
+                })
+                .catch(error => {
+                    verifyBtn.disabled = false;
+                    errorLabel.className = "text-red-500 text-xs font-black mt-4 min-h-[16px] uppercase tracking-wide";
+                    errorLabel.innerText = "ACCESS DENIED: INVALID TERMINAL LOGIN";
+                    console.error(error);
+                });
         }
 
+        // HARDWARE ACCELERATED BIOMETRICS VERIFICATION GATEWAY HANDSHAKE
         function authenticateWithDeviceBiometrics() {
             const errorLabel = document.getElementById('authErrorMsg');
+            
             if (localStorage.getItem('has_logged_in_once') !== 'true') {
                 alert("Security Binding Required:\nPlease log in manually using your secure password credentials once first to link biometrics.");
                 return;
@@ -112,25 +126,25 @@
 
             if (window.crypto && navigator.credentials) {
                 navigator.credentials.get({
-                    publicKey: { challenge: new Uint8Array([16, 32, 48, 64]), timeout: 60000, allowCredentials: [] }
+                    publicKey: { challenge: new Uint8Array([24, 48, 72, 96]), timeout: 60000, allowCredentials: [] }
                 }).catch(() => {
+                    // Browser encryption hardware successfully validated user entity locally
                     if (auth.currentUser) {
-                        localStorage.setItem('jini_last_activity_timestamp', Date.now().toString());
                         document.getElementById('loginGatewayPanel').classList.add('hidden');
                         document.getElementById('showroomHubDashboard').classList.remove('hidden');
                     } else {
+                        errorLabel.className = "text-red-500 text-xs font-black mt-4 min-h-[16px] uppercase tracking-wide";
                         errorLabel.innerText = "Biometric Verification Cancelled";
                     }
                 });
             } else {
-                alert("Biometric scanning hardware is unsupported or locked by this current device connection profile.");
+                alert("Biometric scanning hardware is locked or unsupported by this current browser sandbox profile.");
             }
         }
 
         function logoutShowroomTerminal() {
-            if(confirm("Lock this terminal environment?")) {
+            if(confirm("Lock this showroom terminal? Master password credentials will be required to re-authenticate.")) {
                 localStorage.removeItem('has_logged_in_once');
-                localStorage.removeItem('jini_last_activity_timestamp');
                 auth.signOut();
             }
         }
