@@ -3,413 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jini POS & Billing</title>
+    <title>Jini Jewels Hub</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#064e3b">
     <link rel="apple-touch-icon" href="icon.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        html { scroll-behavior: smooth; }
-        .focus-ring:focus-within { box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.4); border-color: #D4AF37; }
-        .toggle-checkbox:checked { right: 0; border-color: #D4AF37; }
-        .toggle-checkbox:checked + .toggle-label { background-color: #D4AF37; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+        .shake-err { animation: shake 0.4s ease-in-out; }
+        .pin-dot { transition: all 0.3s ease; }
+        .pin-dot.filled { background-color: #D4AF37; border-color: #D4AF37; box-shadow: 0 0 15px rgba(212, 175, 55, 0.6); transform: scale(1.2); }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
-
-        /* HIGH-END PRINT CUSTOMIZATION */
-        @media print {
-            body { background: white !important; color: black !important; font-size: 12px; }
-            /* Hide entire screen except the Cash Memo element */
-            body > :not(#printableMemoCard) { display: none !important; }
-            #printableMemoCard { display: block !important; position: absolute; left: 0; top: 0; width: 100%; box-shadow: none !important; border: none !important; p: 0 !important; margin: 0 !important; }
-            /* Strictly strip out internal cyphers and action buttons on output print/PDF */
-            .internal-only { display: none !important; }
-            .print-border { border-bottom: 2px dashed #000000 !important; }
-        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 h-[100dvh] flex flex-col overflow-hidden selection:bg-[#D4AF37] selection:text-gray-900">
+<body class="bg-[#fcfaf8] flex flex-col justify-center items-center min-h-[100dvh] font-sans text-gray-900 p-4 overflow-hidden relative">
 
-    <script>
-        if (sessionStorage.getItem('jini_auth') !== 'true') { window.location.replace('index.html'); }
-    </script>
-
-    <div class="flex-shrink-0 flex flex-col z-10 sticky top-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10">
-        <div class="flex items-center px-4 py-3 max-w-6xl mx-auto w-full">
-            <a href="index.html" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20 active:scale-90 transition-transform">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
-            </a>
-            <h1 class="flex-1 text-center text-lg md:text-2xl font-black text-white tracking-widest uppercase mr-10">POS & Billing</h1>
-        </div>
+    <div class="w-full max-w-sm md:max-w-md text-center mb-8 transition-opacity duration-300" id="mainMenu">
+        <h1 class="text-4xl md:text-5xl font-black text-[#064e3b] tracking-tight mb-2">Jini Jewels</h1>
+        <p class="text-xs md:text-sm font-bold text-gray-400 tracking-widest uppercase">Showroom Management System</p>
     </div>
 
-    <div class="flex-1 overflow-y-auto px-4 lg:px-8 py-4 pb-40 max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="w-full max-w-sm md:max-w-md flex flex-col gap-4 transition-opacity duration-300" id="menuButtons">
         
-        <div class="lg:col-span-7 space-y-5">
-            
-            <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
-                <h3 class="text-lg font-black text-[#064e3b] mb-4 uppercase tracking-wide">Customer Details</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="col-span-2 sm:col-span-1">
-                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Customer Name *</label>
-                        <input type="text" id="custName" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="Enter full name" />
-                    </div>
-                    <div class="col-span-2 sm:col-span-1">
-                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Mobile Number *</label>
-                        <input type="number" id="custMobile" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="10-digit phone" />
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Memo Date</label>
-                        <input type="date" id="memoDate" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 px-3 font-bold text-gray-800 outline-none" />
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Estimate No.</label>
-                        <input type="text" id="memoId" class="w-full bg-gray-100 border border-gray-200 rounded-xl py-2 px-3 font-black text-gray-800 text-center outline-none" readonly />
-                    </div>
-                </div>
-            </div>
+        <button type="button" id="installAppBtn" class="hidden bg-[#064e3b] border-2 border-[#047857] rounded-2xl p-4 shadow-xl flex items-center justify-center text-center text-white hover:bg-emerald-800 transition-all active:scale-95">
+            <span class="font-bold text-sm uppercase tracking-widest text-[#D4AF37]">📲 Install Showroom App</span>
+        </button>
 
-            <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
-                    <h3 class="text-lg font-black text-[#064e3b] uppercase tracking-wide">Add Item to Memo</h3>
-                    <div class="flex bg-gray-100 p-1 rounded-xl border border-gray-200 w-full sm:w-auto">
-                        <button onclick="setSaleMode('weight')" id="btnModeWeight" class="flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg bg-[#047857] text-white transition-all shadow-sm">By Weight</button>
-                        <button onclick="setSaleMode('mrp')" id="btnModeMrp" class="flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500 transition-all">Fixed MRP</button>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div class="col-span-2">
-                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Item Description *</label>
-                        <input type="text" id="itemDesc" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="e.g. Silver Handcrafted Payal" />
-                    </div>
+        <button type="button" onclick="openLock('retail.html')" class="w-full bg-white border-2 border-[#047857] rounded-2xl p-5 md:p-6 shadow-md flex items-center justify-center text-center hover:bg-emerald-50/50 transition-all active:scale-[0.98]">
+            <span class="font-black text-[#064e3b] text-base md:text-lg uppercase tracking-widest">Retail Calculator</span>
+        </button>
+        
+        <button type="button" onclick="openLock('backoffice.html')" class="w-full bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm flex items-center justify-center text-center hover:border-[#047857] transition-all active:scale-[0.98]">
+            <span class="font-black text-[#064e3b] text-base md:text-lg uppercase tracking-widest">Back Office Calculator</span>
+        </button>
 
-                    <div class="col-span-2 bg-stone-50 border border-stone-200 rounded-xl p-3 flex flex-col sm:flex-row gap-3 justify-between items-center shadow-inner">
-                        <div class="w-full sm:w-auto">
-                            <label class="block text-[10px] font-black text-stone-500 uppercase tracking-widest">Internal Cypher Tag (Hidden on Print)</label>
-                            <input type="text" id="itemCypher" class="w-full sm:w-48 bg-white border border-stone-300 rounded-lg py-1.5 px-3 text-sm font-black tracking-widest uppercase outline-none focus:border-[#047857]" placeholder="e.g. FLLXIR" />
-                        </div>
-                        <p class="text-[11px] font-bold text-stone-400 italic text-center sm:text-right">Code is displayed live internally on counter screen but permanently stripped from client's copy.</p>
-                    </div>
-                    
-                    <div id="rowWeightRate" class="col-span-2 grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-black text-[#047857] mb-1 uppercase">Metal Rate (₹/g)</label>
-                            <input type="number" id="itemRate" class="w-full bg-emerald-50/50 border border-emerald-200 rounded-xl py-2.5 px-3 font-black text-gray-900 text-lg outline-none focus:border-[#047857]" placeholder="0" />
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Labour Charge (₹/g)</label>
-                            <input type="number" id="itemLabour" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-900 text-lg outline-none focus:border-[#047857]" placeholder="0" />
-                        </div>
-                    </div>
-
-                    <div id="rowFixedMrp" class="col-span-2 hidden">
-                        <label class="block text-xs font-black text-blue-800 mb-1 uppercase">Fixed Item MRP (₹)</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-700 text-lg font-bold">₹</span>
-                            <input type="number" id="itemMrp" class="w-full bg-blue-50/30 border border-blue-200 rounded-xl py-2.5 pl-8 pr-3 font-black text-gray-900 text-lg outline-none focus:border-blue-700" placeholder="0" />
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase" id="lblWeight">Net Weight (g) *</label>
-                        <input type="number" id="itemWeight" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-black text-gray-900 text-lg outline-none focus:border-[#047857] text-center" placeholder="0.00" />
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Other Charges (₹)</label>
-                        <input type="number" id="itemOther" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-900 text-lg outline-none focus-border-[#047857] text-center" placeholder="0" />
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-200 mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="relative inline-block w-10 h-5 align-middle select-none">
-                            <input type="checkbox" id="itemHuid" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
-                            <label for="itemHuid" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
-                        </div>
-                        <span class="text-xs font-extrabold text-gray-600 uppercase">Apply HUID (+₹50)</span>
-                    </div>
-                </div>
-
-                <button onclick="addItem()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3.5 px-4 rounded-xl uppercase tracking-widest transition-colors shadow-md active:scale-[0.99]">
-                    ➕ Add Item to Receipt
-                </button>
-            </div>
-            
-        </div>
-
-        <div class="lg:col-span-5 space-y-4">
-            
-            <div id="printableMemoCard" class="bg-white rounded-[2rem] shadow-2xl p-6 border border-gray-200 flex flex-col min-h-[500px]">
-                <div class="text-center print-border border-b-2 border-dashed border-gray-200 pb-4 mb-4">
-                    <h2 class="text-2xl font-black text-[#064e3b] tracking-tight">JINI JEWELS</h2>
-                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Estimate / Cash Memo</p>
-                </div>
-
-                <div class="text-xs font-bold text-gray-600 space-y-1 mb-4">
-                    <div class="flex justify-between"><span>Estimate No:</span><span class="text-gray-900" id="prevMemoId">--</span></div>
-                    <div class="flex justify-between"><span>Date:</span><span class="text-gray-900" id="prevDate">--</span></div>
-                    <div class="flex justify-between"><span>Customer:</span><span class="text-gray-900" id="prevName">--</span></div>
-                    <div class="flex justify-between"><span>Mobile:</span><span class="text-gray-900" id="prevMobile">--</span></div>
-                </div>
-
-                <div class="flex-1 overflow-y-auto max-h-[260px] border-t border-b border-gray-100 py-3 my-2 space-y-3" id="invoiceItemsList">
-                    <p class="text-center text-gray-300 font-medium text-sm py-12" id="emptyCartMsg">No items added to invoice yet</p>
-                </div>
-
-                <div class="mt-4 pt-3 border-t border-dashed border-gray-200 space-y-2 text-xs font-bold text-gray-500">
-                    <div class="flex justify-between"><span>Gross Subtotal</span><span class="text-gray-900">₹ <span id="prevGross">0</span></span></div>
-                    
-                    <div class="flex justify-between items-center text-emerald-800">
-                        <div class="flex items-center gap-2">
-                            <div class="relative inline-block w-8 h-4 align-middle select-none internal-only">
-                                <input type="checkbox" id="taxToggle" class="toggle-checkbox absolute block w-4 h-4 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" />
-                                <label for="taxToggle" class="toggle-label block overflow-hidden h-4 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
-                            </div>
-                            <span>Add GST (3%)</span>
-                        </div>
-                        <span>₹ <span id="prevTax">0</span></span>
-                    </div>
-                </div>
-
-                <div class="hidden print:flex justify-between items-center pt-3 border-t-2 border-black font-black text-base mt-2">
-                    <span>NET PAYABLE</span>
-                    <span>₹ <span id="printGrandTotal">0</span></span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 internal-only">
-                <button onclick="executePrint()" class="bg-gray-900 hover:bg-black text-[#D4AF37] font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                    Print / Save PDF
-                </button>
-                <button onclick="executeShare()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 10.742l4.522-2.456m0 0a3 3 0 10-5.367-2.684 3 3 0 005.367 2.684zm0 9.316l-4.523-2.456m0 0a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" /></svg>
-                    Share via Text
-                </button>
-            </div>
-
-        </div>
-
+        <button type="button" onclick="openLock('billing.html')" class="w-full bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm flex items-center justify-center text-center hover:border-[#047857] transition-all active:scale-[0.98]">
+            <span class="font-black text-[#064e3b] text-base md:text-lg uppercase tracking-widest">POS & Billing</span>
+        </button>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full bg-gray-900 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t-[3px] border-[#D4AF37] px-6 py-5 z-20 transition-transform internal-only">
-        <div class="max-w-5xl mx-auto flex justify-between items-center">
-            <div>
-                <span class="text-gray-400 text-xs font-bold uppercase tracking-widest block">Running Total</span>
-                <span class="text-xs font-bold text-emerald-400" id="itemCountLabel">0 Items Added</span>
+    <div id="pinOverlay" class="fixed inset-0 bg-[#022c22]/95 backdrop-blur-xl z-50 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+        
+        <button type="button" onclick="closeLock()" class="absolute top-6 right-6 p-3 text-white/40 hover:text-white rounded-full bg-white/5 active:scale-90 transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+
+        <div class="mb-8 text-center" id="pinHeader">
+            <h2 class="text-[#D4AF37] text-xs tracking-[0.4em] font-bold mb-6 uppercase">Secure Access</h2>
+            
+            <div class="flex justify-center gap-5 mb-4">
+                <div class="pin-dot w-3.5 h-3.5 rounded-full border-2 border-[#D4AF37]/30" id="dot1"></div>
+                <div class="pin-dot w-3.5 h-3.5 rounded-full border-2 border-[#D4AF37]/30" id="dot2"></div>
+                <div class="pin-dot w-3.5 h-3.5 rounded-full border-2 border-[#D4AF37]/30" id="dot3"></div>
+                <div class="pin-dot w-3.5 h-3.5 rounded-full border-2 border-[#D4AF37]/30" id="dot4"></div>
             </div>
-            <div class="flex items-center text-emerald-500 font-black text-3xl md:text-5xl">
-                <span class="mr-2">₹</span>
-                <span id="invoiceGrandTotal" class="text-white font-black">0</span>
-            </div>
+            <p id="pinMsg" class="text-white/60 text-[10px] font-bold h-4 uppercase tracking-widest mt-4">Enter Passcode</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-x-5 gap-y-4 w-full max-w-[270px] md:max-w-sm px-4">
+            <button type="button" onclick="addPin(1)" class="w-16 h-16 rounded-full border border-white/10 bg-white/5 text-white text-2xl font-light hover:bg-white/10 active:bg-[#D4AF37] active:text-gray-900 active:scale-95 transition-all mx-auto">1</button>
+            <button type="button" onclick="addPin(2)" class="w-16 h-16 rounded-full border border-white/10 bg-white/5 text-white text-2xl font-light hover:bg-white/10 active:bg-[#D4AF37] active:text-gray-900 active:scale-95 transition-all mx-auto">2</button>
+            <button type="button" onclick="addPin(3)" class="w-16 h-16 rounded-full border border-white/10 bg-white/5 text-white text-2xl font-light hover:bg-white/10 active:bg-[#D4AF37] active:text-gray-900 active:scale-95 transition-all mx-auto">3</button>
+            
+            <button type="button" onclick="addPin(4)" class="w-16 h-16 rounded-full border border-white/10 bg-white/5 text-white text-2xl font-light hover:bg-white/10 active:bg-[#D4AF37] active:text-gray-900 active:scale-95 transition-all mx-auto">4</button>
+            <button type="button" onclick="addPin(5)" class="w-16 h-16 rounded-full border border-white/10 bg-white/5 text-white text-2xl font-light hover:bg-white/10 active:bg-[#D4AF37] active:text-gray-900 active:scale-95 transition-all mx-auto">5</button>
+            <button type="button" onclick="addPin(6)" class="w-16 h-16 rounded-full border border-white/10 bg-white/5 text-white text-2xl font-light hover:bg-white/10 active:bg-[#D4AF37] active:text-gray-900 active:scale-95 transition-all mx-auto">6</button>
+            
+            <button type="button" onclick="addPin(7)" class="w-16 h-16 rounded-full border border-white/10 bg-white/5 text-white text-2xl font-light hover:bg-white/10 active:bg-[#D4AF37] active:text-gray-900 active:scale-95 transition-all mx-auto">7</button>
+            <button type="button" onclick="addPin(8)" class="w-16 h-16 rounded-full border border-white/10 bg-white/5 text-white text-2xl font-light hover:bg-white/10 active:bg-[#D4AF37] active:text-gray-900 active:scale-95 transition-all mx-auto">8</button>
+            <button type="button" onclick="addPin(9)" class="w-16 h-16 rounded-full border border-white/10 bg-white/5 text-white text-2xl font-light hover:bg-white/10 active:bg-[#D4AF37] active:text-gray-900 active:scale-95 transition-all mx-auto">9</button>
+            
+            <div></div> 
+            <button type="button" onclick="addPin(0)" class="w-16 h-16 rounded-full border border-white/10 bg-white/5 text-white text-2xl font-light hover:bg-white/10 active:bg-[#D4AF37] active:text-gray-900 active:scale-95 transition-all mx-auto">0</button>
+            
+            <button type="button" onclick="delPin()" class="w-16 h-16 rounded-full text-white/40 hover:text-white active:scale-90 transition-all mx-auto flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z" /></svg>
+            </button>
         </div>
     </div>
 
     <script>
-        // Init parameters
-        document.getElementById('memoDate').valueAsDate = new Date();
-        const randId = 'JJ-' + Math.floor(100000 + Math.random() * 900000);
-        document.getElementById('memoId').value = randId;
-        document.getElementById('prevMemoId').innerText = randId;
+        const MASTER_PIN = "1008"; 
+        let currentPin = "", pendingUrl = "";
+        const overlay = document.getElementById('pinOverlay'), header = document.getElementById('pinHeader'), msg = document.getElementById('pinMsg');
 
-        let items = [];
-        let saleMode = "weight"; // default strategy tracking variable
+        // Check active session parameter validation
+        if(sessionStorage.getItem('jini_auth') === 'true') {
+            document.querySelector('p.text-gray-400').innerHTML = '<span class="text-emerald-700 font-bold">🔓 SECURE STATION UNLOCKED</span>';
+        }
 
-        const setupSync = (inputId, prevId, fallback) => {
-            const input = document.getElementById(inputId);
-            const prev = document.getElementById(prevId);
-            input.addEventListener('input', () => { prev.innerText = input.value || fallback; });
-            prev.innerText = input.value || fallback;
-        };
-        setupSync('custName', 'prevName', '--');
-        setupSync('custMobile', 'prevMobile', '--');
-        setupSync('memoDate', 'prevDate', '--');
+        function openLock(url) {
+            if(sessionStorage.getItem('jini_auth') === 'true') { window.location.href = url; return; }
+            pendingUrl = url; currentPin = ""; updateDots(); 
+            msg.innerText = "ENTER PASSCODE";
+            msg.className = "text-white/60 text-[10px] font-bold h-4 uppercase tracking-widest mt-4";
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+        }
 
-        const inputs = {
-            desc: document.getElementById('itemDesc'),
-            cypher: document.getElementById('itemCypher'),
-            rate: document.getElementById('itemRate'),
-            labour: document.getElementById('itemLabour'),
-            mrp: document.getElementById('itemMrp'),
-            weight: document.getElementById('itemWeight'),
-            other: document.getElementById('itemOther'),
-            huid: document.getElementById('itemHuid'),
-            taxToggle: document.getElementById('taxToggle')
-        };
+        function closeLock() { overlay.classList.add('opacity-0', 'pointer-events-none'); pendingUrl = ""; currentPin = ""; }
 
-        function setSaleMode(mode) {
-            saleMode = mode;
-            const btnW = document.getElementById('btnModeWeight');
-            const btnM = document.getElementById('btnModeMrp');
-            const rowW = document.getElementById('rowWeightRate');
-            const rowM = document.getElementById('rowFixedMrp');
-            const lblWeight = document.getElementById('lblWeight');
+        function addPin(num) {
+            if(currentPin.length < 4) {
+                currentPin += num; updateDots();
+                if(currentPin.length === 4) setTimeout(verifyPin, 150);
+            }
+        }
 
-            if (mode === 'weight') {
-                btnW.className = "flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg bg-[#047857] text-white transition-all shadow-sm";
-                btnM.className = "flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500 transition-all";
-                rowW.classList.remove('hidden');
-                rowM.classList.add('hidden');
-                lblWeight.innerText = "Net Weight (g) *";
+        function delPin() {
+            if(currentPin.length > 0) { 
+                currentPin = currentPin.slice(0, -1); 
+                updateDots(); 
+                msg.innerText = "ENTER PASSCODE"; 
+                msg.className = "text-white/60 text-[10px] font-bold h-4 uppercase tracking-widest mt-4"; 
+            }
+        }
+
+        function updateDots() {
+            for(let i=1; i<=4; i++) {
+                const dot = document.getElementById('dot'+i);
+                if(i <= currentPin.length) dot.classList.add('filled');
+                else dot.classList.remove('filled');
+            }
+        }
+
+        function verifyPin() {
+            if(currentPin === MASTER_PIN) {
+                sessionStorage.setItem('jini_auth', 'true');
+                msg.className = "text-[#D4AF37] text-[10px] font-bold h-4 uppercase tracking-widest mt-4";
+                msg.innerText = "ACCESS GRANTED";
+                setTimeout(() => window.location.href = pendingUrl, 300);
             } else {
-                btnM.className = "flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg bg-blue-800 text-white transition-all shadow-sm";
-                btnW.className = "flex-1 sm:flex-none text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500 transition-all";
-                rowM.classList.remove('hidden');
-                rowW.classList.add('hidden');
-                lblWeight.innerText = "Weight (g - Optional)";
+                msg.className = "text-red-400 text-[10px] font-bold h-4 uppercase tracking-widest mt-4";
+                msg.innerText = "INCORRECT PIN";
+                header.classList.add('shake-err');
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                setTimeout(() => { 
+                    header.classList.remove('shake-err'); 
+                    currentPin = ""; 
+                    updateDots(); 
+                    msg.innerText = "ENTER PASSCODE"; 
+                    msg.className = "text-white/60 text-[10px] font-bold h-4 uppercase tracking-widest mt-4"; 
+                }, 400);
             }
         }
 
-        function addItem() {
-            const desc = inputs.desc.value.trim();
-            const cypherStr = inputs.cypher.value.trim().toUpperCase();
-            const other = parseFloat(inputs.other.value) || 0;
-            const weight = parseFloat(inputs.weight.value) || 0;
-            const huidAmt = inputs.huid.checked ? 50 : 0;
-
-            if (!desc) { alert("Please input Item Description!"); return; }
-
-            let calculatedItemTotal = 0;
-            let calculationSubtext = "";
-
-            if (saleMode === "weight") {
-                const rate = parseFloat(inputs.rate.value) || 0;
-                const labour = parseFloat(inputs.labour.value) || 0;
-                if (weight <= 0) { alert("Net Weight is mandatory for calculations by weight!"); return; }
-                
-                calculatedItemTotal = Math.round(((rate + labour) * weight) + other + huidAmt);
-                calculationSubtext = `${weight}g @ ₹${rate + labour}/g`;
-            } else {
-                // Fixed MRP mode
-                const mrp = parseFloat(inputs.mrp.value) || 0;
-                if (mrp <= 0) { alert("Please input Fixed Item MRP value!"); return; }
-
-                calculatedItemTotal = Math.round(mrp + other + huidAmt);
-                calculationSubtext = weight > 0 ? `Fixed Price (${weight}g)` : "Fixed Price Item";
-            }
-
-            // Append item payload into layout matrix
-            items.push({
-                desc: desc,
-                cypher: cypherStr,
-                subtext: calculationSubtext,
-                total: calculatedItemTotal
-            });
-
-            // Clear volatile form values 
-            inputs.desc.value = '';
-            inputs.cypher.value = '';
-            inputs.weight.value = '';
-            inputs.other.value = '';
-            inputs.mrp.value = '';
-
-            renderInvoice();
-        }
-
-        function deleteItem(index) {
-            items.splice(index, 1);
-            renderInvoice();
-        }
-
-        function renderInvoice() {
-            const container = document.getElementById('invoiceItemsList');
-            const emptyMsg = document.getElementById('emptyCartMsg');
-            
-            if (items.length === 0) {
-                container.innerHTML = '';
-                container.appendChild(emptyMsg);
-                document.getElementById('itemCountLabel').innerText = '0 Items Added';
-                document.getElementById('prevGross').innerText = '0';
-                document.getElementById('prevTax').innerText = '0';
-                document.getElementById('invoiceGrandTotal').innerText = '0';
-                document.getElementById('printGrandTotal').innerText = '0';
-                return;
-            }
-
-            if (emptyMsg) emptyMsg.remove();
-            container.innerHTML = '';
-
-            let grossSubtotal = 0;
-
-            items.forEach((item, index) => {
-                grossSubtotal += item.total;
-
-                const row = document.createElement('div');
-                row.className = "flex justify-between items-start bg-gray-50/60 p-2.5 rounded-xl border border-gray-100 relative";
-                
-                // Live tracking layout embeds internal text nodes securely
-                row.innerHTML = `
-                    <div class="flex-1 pr-4">
-                        <div class="flex items-center gap-2">
-                            <p class="font-black text-gray-800 text-sm">${item.desc}</p>
-                            ${item.cypher ? `<span class="internal-only bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider">${item.cypher}</span>` : ''}
-                        </div>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase mt-0.5">${item.subtext}</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="font-black text-gray-900 text-sm">₹${item.total.toLocaleString('en-IN')}</span>
-                        <button onclick="deleteItem(${index})" class="internal-only text-red-400 hover:text-red-600 active:scale-90 transition-transform">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        </button>
-                    </div>
-                `;
-                container.appendChild(row);
-            });
-
-            const gstAmount = inputs.taxToggle.checked ? Math.round(grossSubtotal * 0.03) : 0;
-            const finalGrandTotal = grossSubtotal + gstAmount;
-
-            document.getElementById('itemCountLabel').innerText = `${items.length} Item${items.length > 1 ? 's' : ''} Added`;
-            document.getElementById('prevGross').innerText = grossSubtotal.toLocaleString('en-IN');
-            document.getElementById('prevTax').innerText = gstAmount.toLocaleString('en-IN');
-            
-            // Sync up values for both runtime states
-            document.getElementById('invoiceGrandTotal').innerText = finalGrandTotal.toLocaleString('en-IN');
-            document.getElementById('printGrandTotal').innerText = finalGrandTotal.toLocaleString('en-IN');
-        }
-
-        // Native Print Engine caller
-        function executePrint() {
-            window.print();
-        }
-
-        // Native System Share caller 
-        function executeShare() {
-            const name = document.getElementById('custName').value.trim() || "Valued Customer";
-            const id = document.getElementById('memoId').value;
-            const grandTotal = document.getElementById('invoiceGrandTotal').innerText;
-            
-            let shareText = `*JINI JEWELS ESTIMATE*\n`;
-            shareText += `Memo No: ${id}\n`;
-            shareText += `Customer: ${name}\n`;
-            shareText += `---------------------------\n`;
-            
-            items.forEach((item, idx) => {
-                shareText += `${idx+1}. ${item.desc} - ₹${item.total.toLocaleString('en-IN')}\n`;
-            });
-            
-            if(inputs.taxToggle.checked) {
-                shareText += `Gst (3%): Included\n`;
-            }
-            shareText += `---------------------------\n`;
-            shareText += `*Total Payable: ₹${grandTotal}*`;
-
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Jini Jewels Estimate',
-                    text: shareText
-                }).catch((error) => console.log('Error sharing:', error));
-            } else {
-                // Fallback copy strategy
-                navigator.clipboard.writeText(shareText);
-                alert("Estimate breakdown copied directly to clipboard! You can paste it into WhatsApp.");
-            }
-        }
-
-        inputs.taxToggle.addEventListener('change', renderInvoice);
+        // PWA installer asset registration handling
+        let deferredPrompt; const installBtn = document.getElementById('installAppBtn');
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden'); });
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') installBtn.classList.add('hidden'); deferredPrompt = null; }
+        });
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').then(r => r.update())); }
     </script>
 </body>
 </html>
