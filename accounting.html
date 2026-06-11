@@ -252,26 +252,38 @@
             document.getElementById('statNet').innerText = formatCurrency(netCash);
         }
 
-        function fetchDailyFinancials() {
+                function fetchDailyFinancials() {
             const targetDate = document.getElementById('ledgerDate').value;
             if (!targetDate) return;
 
             if (expensesUnsubscribe) expensesUnsubscribe();
             if (salesUnsubscribe) salesUnsubscribe();
 
+            // 1. Fetch Sales Inflow
             salesUnsubscribe = db.collection("showroom_memos")
                 .where("memoDate", "==", targetDate)
                 .onSnapshot((snapshot) => {
                     globalSalesTotal = 0;
                     snapshot.forEach(doc => {
                         const data = doc.data();
-                        const amount = parseFloat(data.grandTotalPayable.toString().replace(/,/g, '')) || 0;
+                        
+                        // NEW LOGIC: Only count actual amount paid today!
+                        // If amountPaid is undefined (older invoices), fallback to grandTotalPayable
+                        let amount = 0;
+                        if (data.amountPaid !== undefined && data.amountPaid !== "") {
+                            amount = parseFloat(data.amountPaid) || 0;
+                        } else {
+                            // Fallback for older string-based formats
+                            amount = parseFloat(data.grandTotalPayable.toString().replace(/,/g, '')) || 0;
+                        }
+                        
                         globalSalesTotal += amount;
                     });
                     document.getElementById('statInflow').innerText = formatCurrency(globalSalesTotal);
                     updateNetCash();
                 }, (error) => console.error("Error fetching sales data: ", error));
 
+            // 2. Fetch Expenses Outflow
             expensesUnsubscribe = db.collection("jini_expenses")
                 .where("expenseDate", "==", targetDate)
                 .orderBy("creationTimestamp", "desc")
@@ -316,6 +328,7 @@
                     updateNetCash();
                 }, (error) => console.error("Error fetching expenses data: ", error));
         }
+
 
         function saveExpenseRecord() {
             const desc = document.getElementById('expDesc').value.trim();
