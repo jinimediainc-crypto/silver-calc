@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jini Client CRM</title>
+    <title>Jini Client CRM & Ledger</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#064e3b">
-    <link rel="apple-touch-icon" href="icon.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -19,43 +18,20 @@
 
     <style>
         input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
-        
-        /* Hides scrollbar for the horizontal bottom menu */
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* UNLOCKED SCROLL ENGINE */
-        html, body {
-            height: 100dvh !important;
-            width: 100vw !important;
-            overflow: hidden !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
+        html, body { overflow-y: auto !important; height: auto !important; min-height: 100dvh !important; -webkit-overflow-scrolling: touch !important; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 h-[100dvh] w-screen flex flex-col overflow-hidden selection:bg-[#D4AF37] selection:text-gray-900">
-
-    <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden no-print">
-        <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
-        <p class="text-xs font-bold text-gray-400 tracking-widest uppercase mb-6">Jini Jewels Showroom Security Lock</p>
-        <div class="w-full max-w-xs space-y-3">
-            <button type="button" onclick="unlockTerminalWithBiometrics()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
-                <span>Verify Biometrics to Unlock</span>
-            </button>
-        </div>
-    </div>
+<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900">
 
     <div class="flex-shrink-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 z-10 sticky top-0">
         <div class="flex items-center px-4 py-3 max-w-7xl mx-auto w-full">
             <a href="index.html" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20 active:scale-90 transition-transform">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
             </a>
-            <h1 class="flex-1 text-center text-lg md:text-xl font-black text-white tracking-widest uppercase mr-10">Client CRM</h1>
+            <h1 class="flex-1 text-center text-lg md:text-xl font-black text-white tracking-widest uppercase mr-10">Client Ledger (Khata)</h1>
         </div>
     </div>
 
@@ -70,47 +46,69 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <div class="lg:col-span-5 bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10 space-y-4 h-fit">
-                <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
-                    <h3 class="text-base font-black text-[#064e3b] uppercase tracking-wide">Client Profile</h3>
-                    <span id="profileStatus" class="bg-gray-100 text-gray-500 text-[10px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider">New Record</span>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Full Name *</label>
-                        <input type="text" id="crmName" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="Customer Name" />
+            <div class="lg:col-span-5 space-y-6 h-fit">
+                
+                <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10 space-y-4">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
+                        <h3 class="text-base font-black text-[#064e3b] uppercase tracking-wide">Client Profile</h3>
+                        <span id="profileStatus" class="bg-gray-100 text-gray-500 text-[10px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider">New Record</span>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Mobile Number *</label>
-                        <input type="number" id="crmMobile" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="Mobile Number" readonly />
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-4">
                         <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Birth Date</label>
-                            <input type="date" id="crmDob" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" />
-                            <button type="button" onclick="sendGreeting('Birthday')" class="w-full mt-2 bg-[#25D366]/20 text-[#075E54] hover:bg-[#25D366] hover:text-white font-bold py-1.5 rounded-lg text-[10px] uppercase tracking-wide transition-colors">🎂 Send Wish</button>
+                            <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Full Name *</label>
+                            <input type="text" id="crmName" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="Customer Name" />
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Anniversary</label>
-                            <input type="date" id="crmAnniversary" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" />
-                            <button type="button" onclick="sendGreeting('Anniversary')" class="w-full mt-2 bg-[#25D366]/20 text-[#075E54] hover:bg-[#25D366] hover:text-white font-bold py-1.5 rounded-lg text-[10px] uppercase tracking-wide transition-colors">💍 Send Wish</button>
+                            <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Mobile Number *</label>
+                            <input type="number" id="crmMobile" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="Mobile Number" readonly />
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Birth Date</label>
+                                <input type="date" id="crmDob" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" />
+                                <button type="button" onclick="sendGreeting('Birthday')" class="w-full mt-2 bg-[#25D366]/20 text-[#075E54] hover:bg-[#25D366] hover:text-white font-bold py-1.5 rounded-lg text-[10px] uppercase tracking-wide transition-colors">🎂 WhatsApp</button>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Anniversary</label>
+                                <input type="date" id="crmAnniversary" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" />
+                                <button type="button" onclick="sendGreeting('Anniversary')" class="w-full mt-2 bg-[#25D366]/20 text-[#075E54] hover:bg-[#25D366] hover:text-white font-bold py-1.5 rounded-lg text-[10px] uppercase tracking-wide transition-colors">💍 WhatsApp</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="saveCustomerProfile()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3.5 px-4 rounded-xl uppercase tracking-widest transition-all shadow-md mt-4 active:scale-95">💾 Update Profile</button>
+                </div>
+
+                <div id="debtSettlementCard" class="bg-red-50 border border-red-200 rounded-[1.5rem] p-5 shadow-lg hidden">
+                    <h3 class="text-sm font-black text-red-800 uppercase border-b border-red-200 pb-2 mb-4">⚠️ Clear Pending Dues</h3>
+                    
+                    <div class="flex justify-between items-end mb-4">
+                        <span class="text-red-800 text-xs font-bold uppercase tracking-wide">Total Balance Due</span>
+                        <div class="text-right">
+                            <span class="text-red-800 font-bold text-xl mr-1">₹</span>
+                            <span id="activeDueDisplay" class="text-3xl font-black text-red-600">0</span>
                         </div>
                     </div>
 
-                    <div class="bg-amber-50 border border-[#D4AF37]/50 rounded-xl p-4 mt-2">
-                        <label class="block text-xs font-black text-amber-800 mb-2 uppercase tracking-wide">Store Credit / Advance Balance (₹)</label>
-                        <div class="flex items-center gap-2">
-                            <input type="number" id="crmCredit" class="flex-1 bg-white border border-amber-200 rounded-lg py-2 px-3 font-black text-lg text-gray-900 outline-none focus:border-[#D4AF37]" placeholder="0" />
+                    <div class="space-y-3 bg-white p-4 rounded-xl border border-red-100">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Payment Mode</label>
+                                <select id="settleMode" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-2 text-sm font-bold outline-none focus:border-red-400">
+                                    <option value="Cash">Cash 💵</option>
+                                    <option value="UPI">UPI / Card 📱</option>
+                                    <option value="Bank">Bank Transfer 🏦</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Amount Receiving (₹)</label>
+                                <input type="number" id="settleAmount" class="w-full bg-emerald-50 border border-emerald-200 rounded-lg py-2 px-2 text-sm font-black text-emerald-800 outline-none focus:border-emerald-600" placeholder="0" />
+                            </div>
                         </div>
+                        <button type="button" onclick="processDebtSettlement()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 px-4 rounded-lg uppercase tracking-widest transition-all shadow-md active:scale-95 text-xs">✅ Receive Payment</button>
                     </div>
                 </div>
 
-                <button type="button" onclick="saveCustomerProfile()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3.5 px-4 rounded-xl uppercase tracking-widest transition-all shadow-md mt-4 active:scale-95">
-                    💾 Save / Update Profile
-                </button>
             </div>
 
             <div class="lg:col-span-7 space-y-6">
@@ -122,12 +120,11 @@
                         <span class="text-[#D4AF37] font-bold text-3xl mr-1">₹</span>
                         <span id="statLtv" class="text-4xl font-black text-white">0</span>
                     </div>
-                    <p class="text-gray-400 text-[10px] font-bold uppercase mt-2">Total spend generated by this client across all historic invoices</p>
                 </div>
 
                 <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10 flex flex-col h-auto">
                     <div class="border-b border-gray-100 pb-3 mb-4">
-                        <h3 class="text-base font-black text-gray-800 uppercase tracking-wide">Past Purchase History</h3>
+                        <h3 class="text-base font-black text-gray-800 uppercase tracking-wide">Ledger & History</h3>
                     </div>
                     
                     <div class="w-full overflow-x-auto">
@@ -135,13 +132,14 @@
                             <thead>
                                 <tr class="border-b-2 border-gray-200 text-gray-400 font-black uppercase text-[10px]">
                                     <th class="pb-2">Date</th>
-                                    <th class="pb-2">Estimate No.</th>
-                                    <th class="pb-2">Items Bought</th>
-                                    <th class="pb-2 text-right">Invoice Total</th>
+                                    <th class="pb-2">Reference</th>
+                                    <th class="pb-2">Details</th>
+                                    <th class="pb-2 text-right">Inv Total</th>
+                                    <th class="pb-2 text-right">Paid</th>
                                 </tr>
                             </thead>
                             <tbody id="historyTableBody" class="divide-y divide-gray-100 font-bold text-gray-700 text-xs">
-                                <tr><td colspan="4" class="text-center py-10 text-gray-300">Search a mobile number to view history...</td></tr>
+                                <tr><td colspan="5" class="text-center py-10 text-gray-300">Search a mobile number to view history...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -165,100 +163,57 @@
     </div>
 
     <script>
-        // ----------------------------------------------------
-        // SECURITY: 15-MINUTE INACTIVITY LOCK TRACKER
-        // ----------------------------------------------------
-        let idleTrackerTimestamp = Date.now();
-        
-        function refreshInactivityHeartbeat() { 
-            idleTrackerTimestamp = Date.now(); 
-        }
-        
-        document.addEventListener('click', refreshInactivityHeartbeat);
-        document.addEventListener('touchstart', refreshInactivityHeartbeat);
-        document.addEventListener('mousemove', refreshInactivityHeartbeat);
-        document.addEventListener('keypress', refreshInactivityHeartbeat);
-        
-        setInterval(() => { 
-            if (Date.now() - idleTrackerTimestamp > 15 * 60 * 1000) {
-                document.getElementById('sessionLockOverlay').classList.remove('hidden'); 
-            }
-        }, 10000);
-        
-        function unlockTerminalWithBiometrics() {
-            if (window.crypto && navigator.credentials) { 
-                navigator.credentials.get({ 
-                    publicKey: { challenge: new Uint8Array([8,16,24,32]), timeout: 60000, allowCredentials: [] } 
-                }).then(() => {
-                    document.getElementById('sessionLockOverlay').classList.add('hidden'); 
-                    idleTrackerTimestamp = Date.now();
-                }).catch(() => { 
-                    document.getElementById('sessionLockOverlay').classList.add('hidden'); 
-                    idleTrackerTimestamp = Date.now(); 
-                }); 
-            } else { 
-                document.getElementById('sessionLockOverlay').classList.add('hidden'); 
-                idleTrackerTimestamp = Date.now(); 
-            }
-        }
+        function formatCurrency(num) { return num.toLocaleString('en-IN'); }
 
-        // ----------------------------------------------------
-        // CRM LOGIC: FETCHING AND SAVING CLIENTS
-        // ----------------------------------------------------
+        let currentPendingDue = 0;
+
         function handleSearch(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                lookupCustomer();
-            }
-        }
-
-        function formatCurrency(num) {
-            return num.toLocaleString('en-IN');
+            if (e.key === 'Enter') { e.preventDefault(); lookupCustomer(); }
         }
 
         function lookupCustomer() {
             const mobile = document.getElementById('searchMobile').value.trim();
-            
-            if (!mobile || mobile.length < 5) {
-                alert("Please enter a valid mobile number to search.");
-                return;
-            }
+            if (!mobile || mobile.length < 5) { alert("Enter a valid mobile number."); return; }
 
             document.getElementById('crmMobile').value = mobile;
             document.getElementById('profileStatus').innerText = "Searching...";
-            document.getElementById('profileStatus').className = "bg-amber-100 text-amber-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider animate-pulse";
-
-            // 1. Fetch Profile Data from `client_profiles`
+            
+            // 1. Fetch Profile Data & Dues
             db.collection("client_profiles").doc(mobile).get().then((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
                     document.getElementById('crmName').value = data.name || '';
                     document.getElementById('crmDob').value = data.dob || '';
                     document.getElementById('crmAnniversary').value = data.anniversary || '';
-                    document.getElementById('crmCredit').value = data.storeCredit || '0';
+                    
+                    currentPendingDue = parseFloat(data.pendingDue) || 0;
+                    
+                    if (currentPendingDue > 0) {
+                        document.getElementById('debtSettlementCard').classList.remove('hidden');
+                        document.getElementById('activeDueDisplay').innerText = formatCurrency(currentPendingDue);
+                        document.getElementById('settleAmount').value = currentPendingDue; // Auto-fill
+                    } else {
+                        document.getElementById('debtSettlementCard').classList.add('hidden');
+                    }
                     
                     document.getElementById('profileStatus').innerText = "Existing Client";
-                    document.getElementById('profileStatus').className = "bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider";
+                    document.getElementById('profileStatus').className = "bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-md";
                 } else {
-                    document.getElementById('crmName').value = '';
-                    document.getElementById('crmDob').value = '';
-                    document.getElementById('crmAnniversary').value = '';
-                    document.getElementById('crmCredit').value = '0';
-
+                    document.getElementById('crmName').value = ''; document.getElementById('crmDob').value = ''; document.getElementById('crmAnniversary').value = '';
+                    currentPendingDue = 0; document.getElementById('debtSettlementCard').classList.add('hidden');
                     document.getElementById('profileStatus').innerText = "New Client";
-                    document.getElementById('profileStatus').className = "bg-blue-100 text-blue-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider";
+                    document.getElementById('profileStatus').className = "bg-blue-100 text-blue-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-md";
                 }
-            }).catch(e => console.error("Error fetching profile:", e));
+            });
 
-            // 2. Fetch Purchase History & Calculate LTV from `showroom_memos`
-            db.collection("showroom_memos").where("customerMobile", "==", mobile).get().then((querySnapshot) => {
+            // 2. Fetch Detailed Invoice & Payment Ledger
+            db.collection("showroom_memos").where("customerMobile", "==", mobile).orderBy("localTimestamp", "desc").get().then((querySnapshot) => {
                 const tableBody = document.getElementById('historyTableBody');
                 tableBody.innerHTML = "";
-                
                 let lifetimeValue = 0;
 
                 if (querySnapshot.empty) {
-                    tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-10 text-gray-300 font-bold">No purchase history found for this number.</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-300 font-bold">No ledger history found.</td></tr>`;
                     document.getElementById('statLtv').innerText = "0";
                     return;
                 }
@@ -266,89 +221,110 @@
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     
-                    let invTotal = 0;
-                    if (typeof data.grandTotalPayable === 'string') {
-                        invTotal = parseFloat(data.grandTotalPayable.replace(/,/g, '')) || 0;
-                    } else {
-                        invTotal = parseFloat(data.grandTotalPayable) || 0;
-                    }
-                    lifetimeValue += invTotal;
+                    // Is this a normal invoice or a payment receipt?
+                    const isPaymentReceipt = data.isPaymentReceipt === true;
+                    
+                    let invTotal = parseFloat(data.grandTotalPayable) || 0;
+                    let amtPaid = parseFloat(data.amountPaid) || 0;
+                    
+                    if (!isPaymentReceipt) lifetimeValue += invTotal;
 
-                    let itemsString = "";
-                    if (data.itemsListArray && data.itemsListArray.length > 0) {
-                        const descriptions = data.itemsListArray.map(i => i.desc);
-                        itemsString = descriptions.join(", ");
-                        if (itemsString.length > 40) itemsString = itemsString.substring(0, 40) + "...";
+                    let detailsStr = "";
+                    if (isPaymentReceipt) {
+                        detailsStr = `<span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Payment Received (${data.paymentMode})</span>`;
+                    } else if (data.itemsListArray && data.itemsListArray.length > 0) {
+                        detailsStr = data.itemsListArray.map(i => i.desc).join(", ");
+                        if (detailsStr.length > 25) detailsStr = detailsStr.substring(0, 25) + "...";
                     }
+
+                    const refStr = isPaymentReceipt ? "RECEIPT" : `#${data.estimateNumber}`;
+                    const rowColor = isPaymentReceipt ? "bg-emerald-50/30" : "hover:bg-gray-50";
 
                     const tr = document.createElement('tr');
-                    tr.className = "border-b border-gray-100 hover:bg-gray-50 transition-colors";
-                    
+                    tr.className = `border-b border-gray-100 transition-colors ${rowColor}`;
                     tr.innerHTML = `
-                        <td class="py-3 text-gray-500">${data.memoDate}</td>
-                        <td class="py-3 font-black text-gray-800">#${data.estimateNumber}</td>
-                        <td class="py-3 text-[11px] text-gray-500 truncate max-w-[150px]">${itemsString}</td>
-                        <td class="py-3 text-right font-black text-[#064e3b]">₹${formatCurrency(invTotal)}</td>
+                        <td class="py-3 text-[10px] text-gray-500">${data.memoDate}</td>
+                        <td class="py-3 font-black text-gray-800">${refStr}</td>
+                        <td class="py-3 text-[10px] text-gray-600 truncate max-w-[120px]">${detailsStr}</td>
+                        <td class="py-3 text-right font-black ${isPaymentReceipt ? 'text-gray-300' : 'text-[#064e3b]'}">₹${formatCurrency(invTotal)}</td>
+                        <td class="py-3 text-right font-black ${isPaymentReceipt ? 'text-emerald-600' : 'text-gray-800'}">₹${formatCurrency(amtPaid)}</td>
                     `;
                     tableBody.appendChild(tr);
                 });
 
                 document.getElementById('statLtv').innerText = formatCurrency(lifetimeValue);
-
-            }).catch(e => console.error("Error fetching history:", e));
+            });
         }
 
         function saveCustomerProfile() {
             const mobile = document.getElementById('crmMobile').value.trim();
             const name = document.getElementById('crmName').value.trim();
-            const dob = document.getElementById('crmDob').value;
-            const anniversary = document.getElementById('crmAnniversary').value;
-            const credit = parseFloat(document.getElementById('crmCredit').value) || 0;
+            if (!mobile || !name) { alert("Mobile Number and Name are mandatory."); return; }
 
-            if (!mobile || !name) {
-                alert("Mobile Number and Name are mandatory to save a profile!");
-                return;
-            }
-
-            const profilePayload = {
-                mobile: mobile,
-                name: name,
-                dob: dob,
-                anniversary: anniversary,
-                storeCredit: credit,
-                lastUpdated: new Date().toISOString()
-            };
-
-            db.collection("client_profiles").doc(mobile).set(profilePayload, { merge: true }).then(() => {
-                alert(`✅ Client Profile for ${name} saved successfully!`);
-                document.getElementById('profileStatus').innerText = "Saved Successfully";
-                document.getElementById('profileStatus').className = "bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider";
-            }).catch(e => alert("Error saving profile: " + e.message));
+            db.collection("client_profiles").doc(mobile).set({
+                mobile: mobile, name: name, dob: document.getElementById('crmDob').value,
+                anniversary: document.getElementById('crmAnniversary').value, lastUpdated: new Date().toISOString()
+            }, { merge: true }).then(() => {
+                alert(`✅ Profile for ${name} updated!`);
+            });
         }
 
         // ----------------------------------------------------
-        // WHATSAPP SMART GREETING ENGINE
+        // ACCOUNTING SYNC: PROCESS PENDING DEBT PAYMENT
         // ----------------------------------------------------
+        function processDebtSettlement() {
+            const mobile = document.getElementById('crmMobile').value.trim();
+            const name = document.getElementById('crmName').value.trim();
+            const amount = parseFloat(document.getElementById('settleAmount').value) || 0;
+            const mode = document.getElementById('settleMode').value;
+
+            if (amount <= 0 || amount > currentPendingDue) {
+                alert(`Invalid Amount. Please enter a value up to ₹${currentPendingDue}`);
+                return;
+            }
+
+            if (!confirm(`Confirm receiving ₹${amount} via ${mode} from ${name}?`)) return;
+
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            // 1. Create a Payment Receipt in showroom_memos (This automatically routes the cash to accounting.html!)
+            const receiptPayload = {
+                isPaymentReceipt: true,
+                customerName: name,
+                customerMobile: mobile,
+                memoDate: dateStr,
+                grandTotalPayable: 0, 
+                amountPaid: amount,
+                balanceDue: 0, 
+                paymentMode: mode,
+                localTimestamp: new Date().toISOString()
+            };
+
+            const memoRef = db.collection("showroom_memos").doc();
+            let promises = [memoRef.set(receiptPayload)];
+
+            // 2. Deduct debt from CRM profile
+            const crmRef = db.collection("client_profiles").doc(mobile);
+            promises.push(crmRef.set({
+                pendingDue: firebase.firestore.FieldValue.increment(-amount)
+            }, { merge: true }));
+
+            Promise.all(promises).then(() => {
+                alert(`✅ Payment of ₹${amount} received! Accounting Day-Book has been updated.`);
+                lookupCustomer(); // Refresh screen
+            }).catch(e => alert("Error processing payment: " + e.message));
+        }
+
         function sendGreeting(eventType) {
             const mobile = document.getElementById('crmMobile').value.trim();
             const name = document.getElementById('crmName').value.trim() || "Valued Client";
-            
-            if (!mobile || mobile.length < 5) {
-                alert("Please ensure a valid mobile number is loaded first.");
-                return;
-            }
-
-            let message = "";
-            if (eventType === "Birthday") {
-                message = `Happy Birthday ${name}! 🎂\n\nWishing you a wonderful day filled with joy. As a special gift from Jignesh & the Jini Jewels team, show this message to receive 50% off making charges on your next silver jewelry purchase!\n\n✨ Jini Jewels, Surat`;
-            } else if (eventType === "Anniversary") {
-                message = `Happy Anniversary ${name}! 💍\n\nWishing you years of continuous love and happiness. As a special gift from Jignesh & the Jini Jewels team, show this message to receive an exclusive VIP discount on your next jewelry purchase!\n\n✨ Jini Jewels, Surat`;
-            }
-
-            const encodedText = encodeURIComponent(message);
-            window.open(`https://wa.me/91${mobile}?text=${encodedText}`, '_blank');
+            if (!mobile) return;
+            let msg = eventType === "Birthday" 
+                ? `Happy Birthday ${name}! 🎂\n\nShow this message to receive 50% off making charges on your next purchase!\n\n✨ Jini Jewels, Surat`
+                : `Happy Anniversary ${name}! 💍\n\nShow this message to receive an exclusive VIP discount!\n\n✨ Jini Jewels, Surat`;
+            window.open(`https://wa.me/91${mobile}?text=${encodeURIComponent(msg)}`, '_blank');
         }
-
     </script>
 </body>
 </html>
