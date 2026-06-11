@@ -14,6 +14,7 @@ const firebaseConfig = {
   measurementId: "G-JGZS4GB8VL"
 };
 
+
 // Initialize infrastructure engines safely
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
@@ -31,8 +32,10 @@ function enforceTerminalSecurity() {
 
     auth.onAuthStateChanged((user) => {
         if (!user) {
+            // Kick unauthorized devices to login gate
             if (!isLoginPage) { window.location.replace('index.html'); }
         } else {
+            // Handle successful login UI routing
             if (isLoginPage) {
                 const loginCard = document.getElementById('loginGatewayPanel');
                 const dashboard = document.getElementById('showroomHubDashboard');
@@ -42,6 +45,62 @@ function enforceTerminalSecurity() {
                 }
             }
             localStorage.setItem('has_logged_in_once', 'true');
+
+            // =========================================================
+            // ROLE-BASED ACCESS CONTROL (RBAC) FETCH & ENFORCE
+            // =========================================================
+            const userEmail = user.email.toLowerCase();
+            
+            db.collection("team_members").doc(userEmail).get().then((doc) => {
+                let assignedRole = "Sales"; // Default to lowest privilege if not found
+
+                if (doc.exists) {
+                    assignedRole = doc.data().role;
+                } else if (userEmail === "jinijewelsco@gmail.com") {
+                    // Auto-assign master fallback permissions for the primary owner
+                    assignedRole = "Owner";
+                    db.collection("team_members").doc(userEmail).set({ 
+                        email: userEmail, 
+                        role: "Owner", 
+                        addedTimestamp: new Date().toISOString() 
+                    });
+                }
+
+                localStorage.setItem('active_user_role', assignedRole);
+                applyRoleBasedUI(assignedRole, currentPath);
+
+            }).catch(err => console.error("RBAC Security Fetch Error:", err.message));
         }
     });
+}
+
+function applyRoleBasedUI(role, currentPath) {
+    // 1. RESTRICTIONS FOR "SALES" TIER
+    if (role === "Sales") {
+        // Redirect if they try to directly type a restricted URL
+        if (currentPath.includes("accounting.html") || currentPath.includes("admin.html") || currentPath.includes("backoffice.html")) {
+            alert("Security Alert: Your 'Sales' role does not have permission to view this module.");
+            window.location.replace("billing.html");
+        }
+        
+        // Remove restricted navigation buttons from the DOM globally
+        document.querySelectorAll('a[href="accounting.html"], a[href="admin.html"], a[href="backoffice.html"]').forEach(el => el.remove());
+        
+        // Globally remove all delete/trash buttons so staff cannot wipe records
+        setTimeout(() => {
+            document.querySelectorAll('button[onclick*="delete"], .btn-delete, button:contains("🗑️")').forEach(el => el.remove());
+        }, 1500); // Slight delay allows dynamic tables to render first
+    }
+
+    // 2. RESTRICTIONS FOR "MANAGER" TIER
+    if (role === "Manager") {
+        // Managers can see accounting and backoffice, but cannot access Admin settings
+        if (currentPath.includes("admin.html")) {
+            alert("Security Alert: Only the 'Owner' can access the Admin panel.");
+            window.location.replace("billing.html");
+        }
+        document.querySelectorAll('a[href="admin.html"]').forEach(el => el.remove());
+    }
+
+    // 3. OWNER TIER (No restrictions, full access to everything)
 }
