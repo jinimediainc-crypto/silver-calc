@@ -7,24 +7,30 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#064e3b">
+    <link rel="apple-touch-icon" href="icon.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     
-    <script src="firebase-config.js"></script>
-    <script>enforceTerminalSecurity();</script>
-
-    <style>
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        html, body { overflow-y: auto !important; height: auto !important; min-height: 100dvh !important; -webkit-overflow-scrolling: touch !important; }
-    </style>
+    <link rel="stylesheet" href="css/global.css">
+    <script src="js/core/firebase-config.js"></script>
+    <script src="js/core/security.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/modules/crm.js" defer></script>
 </head>
-<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900">
+<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900 scroll-unlocked">
+
+    <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden no-print">
+        <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
+        <p class="text-xs font-bold text-gray-400 tracking-widest uppercase mb-6">Jini Jewels Showroom Security Lock</p>
+        <div class="w-full max-w-xs space-y-3">
+            <button type="button" onclick="unlockTerminalWithBiometrics()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
+                <span>Verify Biometrics to Unlock</span>
+            </button>
+        </div>
+    </div>
 
     <div class="flex-shrink-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 z-10 sticky top-0">
         <div class="flex items-center px-4 py-3 max-w-7xl mx-auto w-full">
@@ -35,7 +41,7 @@
         </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto w-full max-w-7xl mx-auto px-4 py-6 space-y-6 pb-48">
+    <div class="flex-1 w-full max-w-7xl mx-auto px-4 py-6 space-y-6 pb-48">
         
         <div class="bg-white/95 backdrop-blur-lg rounded-2xl p-4 shadow-xl border border-[#D4AF37] relative flex items-center gap-3">
             <div class="flex-1 relative">
@@ -161,170 +167,5 @@
             <a href="admin.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">🛡️</span><span>Admin</span></a>
         </div>
     </div>
-
-    <script>
-        function formatCurrency(num) { return num.toLocaleString('en-IN'); }
-
-        let currentPendingDue = 0;
-
-        function handleSearch(e) {
-            if (e.key === 'Enter') { e.preventDefault(); lookupCustomer(); }
-        }
-
-        function lookupCustomer() {
-            const mobile = document.getElementById('searchMobile').value.trim();
-            if (!mobile || mobile.length < 5) { alert("Enter a valid mobile number."); return; }
-
-            document.getElementById('crmMobile').value = mobile;
-            document.getElementById('profileStatus').innerText = "Searching...";
-            
-            // 1. Fetch Profile Data & Dues
-            db.collection("client_profiles").doc(mobile).get().then((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    document.getElementById('crmName').value = data.name || '';
-                    document.getElementById('crmDob').value = data.dob || '';
-                    document.getElementById('crmAnniversary').value = data.anniversary || '';
-                    
-                    currentPendingDue = parseFloat(data.pendingDue) || 0;
-                    
-                    if (currentPendingDue > 0) {
-                        document.getElementById('debtSettlementCard').classList.remove('hidden');
-                        document.getElementById('activeDueDisplay').innerText = formatCurrency(currentPendingDue);
-                        document.getElementById('settleAmount').value = currentPendingDue; // Auto-fill
-                    } else {
-                        document.getElementById('debtSettlementCard').classList.add('hidden');
-                    }
-                    
-                    document.getElementById('profileStatus').innerText = "Existing Client";
-                    document.getElementById('profileStatus').className = "bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-md";
-                } else {
-                    document.getElementById('crmName').value = ''; document.getElementById('crmDob').value = ''; document.getElementById('crmAnniversary').value = '';
-                    currentPendingDue = 0; document.getElementById('debtSettlementCard').classList.add('hidden');
-                    document.getElementById('profileStatus').innerText = "New Client";
-                    document.getElementById('profileStatus').className = "bg-blue-100 text-blue-700 text-[10px] font-black uppercase px-2 py-0.5 rounded-md";
-                }
-            });
-
-            // 2. Fetch Detailed Invoice & Payment Ledger
-            db.collection("showroom_memos").where("customerMobile", "==", mobile).orderBy("localTimestamp", "desc").get().then((querySnapshot) => {
-                const tableBody = document.getElementById('historyTableBody');
-                tableBody.innerHTML = "";
-                let lifetimeValue = 0;
-
-                if (querySnapshot.empty) {
-                    tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-300 font-bold">No ledger history found.</td></tr>`;
-                    document.getElementById('statLtv').innerText = "0";
-                    return;
-                }
-
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    
-                    // Is this a normal invoice or a payment receipt?
-                    const isPaymentReceipt = data.isPaymentReceipt === true;
-                    
-                    let invTotal = parseFloat(data.grandTotalPayable) || 0;
-                    let amtPaid = parseFloat(data.amountPaid) || 0;
-                    
-                    if (!isPaymentReceipt) lifetimeValue += invTotal;
-
-                    let detailsStr = "";
-                    if (isPaymentReceipt) {
-                        detailsStr = `<span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Payment Received (${data.paymentMode})</span>`;
-                    } else if (data.itemsListArray && data.itemsListArray.length > 0) {
-                        detailsStr = data.itemsListArray.map(i => i.desc).join(", ");
-                        if (detailsStr.length > 25) detailsStr = detailsStr.substring(0, 25) + "...";
-                    }
-
-                    const refStr = isPaymentReceipt ? "RECEIPT" : `#${data.estimateNumber}`;
-                    const rowColor = isPaymentReceipt ? "bg-emerald-50/30" : "hover:bg-gray-50";
-
-                    const tr = document.createElement('tr');
-                    tr.className = `border-b border-gray-100 transition-colors ${rowColor}`;
-                    tr.innerHTML = `
-                        <td class="py-3 text-[10px] text-gray-500">${data.memoDate}</td>
-                        <td class="py-3 font-black text-gray-800">${refStr}</td>
-                        <td class="py-3 text-[10px] text-gray-600 truncate max-w-[120px]">${detailsStr}</td>
-                        <td class="py-3 text-right font-black ${isPaymentReceipt ? 'text-gray-300' : 'text-[#064e3b]'}">₹${formatCurrency(invTotal)}</td>
-                        <td class="py-3 text-right font-black ${isPaymentReceipt ? 'text-emerald-600' : 'text-gray-800'}">₹${formatCurrency(amtPaid)}</td>
-                    `;
-                    tableBody.appendChild(tr);
-                });
-
-                document.getElementById('statLtv').innerText = formatCurrency(lifetimeValue);
-            });
-        }
-
-        function saveCustomerProfile() {
-            const mobile = document.getElementById('crmMobile').value.trim();
-            const name = document.getElementById('crmName').value.trim();
-            if (!mobile || !name) { alert("Mobile Number and Name are mandatory."); return; }
-
-            db.collection("client_profiles").doc(mobile).set({
-                mobile: mobile, name: name, dob: document.getElementById('crmDob').value,
-                anniversary: document.getElementById('crmAnniversary').value, lastUpdated: new Date().toISOString()
-            }, { merge: true }).then(() => {
-                alert(`✅ Profile for ${name} updated!`);
-            });
-        }
-
-        // ----------------------------------------------------
-        // ACCOUNTING SYNC: PROCESS PENDING DEBT PAYMENT
-        // ----------------------------------------------------
-        function processDebtSettlement() {
-            const mobile = document.getElementById('crmMobile').value.trim();
-            const name = document.getElementById('crmName').value.trim();
-            const amount = parseFloat(document.getElementById('settleAmount').value) || 0;
-            const mode = document.getElementById('settleMode').value;
-
-            if (amount <= 0 || amount > currentPendingDue) {
-                alert(`Invalid Amount. Please enter a value up to ₹${currentPendingDue}`);
-                return;
-            }
-
-            if (!confirm(`Confirm receiving ₹${amount} via ${mode} from ${name}?`)) return;
-
-            const today = new Date();
-            const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
-            // 1. Create a Payment Receipt in showroom_memos (This automatically routes the cash to accounting.html!)
-            const receiptPayload = {
-                isPaymentReceipt: true,
-                customerName: name,
-                customerMobile: mobile,
-                memoDate: dateStr,
-                grandTotalPayable: 0, 
-                amountPaid: amount,
-                balanceDue: 0, 
-                paymentMode: mode,
-                localTimestamp: new Date().toISOString()
-            };
-
-            const memoRef = db.collection("showroom_memos").doc();
-            let promises = [memoRef.set(receiptPayload)];
-
-            // 2. Deduct debt from CRM profile
-            const crmRef = db.collection("client_profiles").doc(mobile);
-            promises.push(crmRef.set({
-                pendingDue: firebase.firestore.FieldValue.increment(-amount)
-            }, { merge: true }));
-
-            Promise.all(promises).then(() => {
-                alert(`✅ Payment of ₹${amount} received! Accounting Day-Book has been updated.`);
-                lookupCustomer(); // Refresh screen
-            }).catch(e => alert("Error processing payment: " + e.message));
-        }
-
-        function sendGreeting(eventType) {
-            const mobile = document.getElementById('crmMobile').value.trim();
-            const name = document.getElementById('crmName').value.trim() || "Valued Client";
-            if (!mobile) return;
-            let msg = eventType === "Birthday" 
-                ? `Happy Birthday ${name}! 🎂\n\nShow this message to receive 50% off making charges on your next purchase!\n\n✨ Jini Jewels, Surat`
-                : `Happy Anniversary ${name}! 💍\n\nShow this message to receive an exclusive VIP discount!\n\n✨ Jini Jewels, Surat`;
-            window.open(`https://wa.me/91${mobile}?text=${encodeURIComponent(msg)}`, '_blank');
-        }
-    </script>
 </body>
 </html>
