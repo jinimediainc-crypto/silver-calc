@@ -14,23 +14,12 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     
-    <script src="firebase-config.js"></script>
-
-    <style>
-        /* UNLOCKED SCROLL ENGINE FOR NATIVE MOBILE FEEL */
-        html, body {
-            overflow-y: auto !important;
-            height: auto !important;
-            min-height: 100dvh !important;
-            -webkit-overflow-scrolling: touch !important;
-        }
-        
-        .hub-card:active {
-            transform: scale(0.95);
-        }
-    </style>
+    <link rel="stylesheet" href="css/global.css">
+    <script src="js/core/firebase-config.js"></script>
+    <script src="js/core/security.js"></script>
+    <script src="js/modules/index.js" defer></script>
 </head>
-<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900">
+<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900 scroll-unlocked">
 
     <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden">
         <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
@@ -46,7 +35,6 @@
     </div>
 
     <div id="loginGatewayPanel" class="flex-1 flex flex-col justify-center items-center px-6 py-12 w-full max-w-md mx-auto min-h-screen">
-        
         <div class="text-center mb-10">
             <div class="w-20 h-20 bg-white/10 rounded-full mx-auto flex items-center justify-center border border-[#D4AF37]/50 shadow-2xl mb-4 backdrop-blur-sm">
                 <span class="text-4xl">💎</span>
@@ -63,7 +51,6 @@
                     <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Registered Email</label>
                     <input type="email" id="authEmail" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 font-bold text-gray-800 outline-none focus:border-[#047857] transition-colors" placeholder="staff@jinijewels.com" required />
                 </div>
-                
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Secure Password</label>
                     <input type="password" id="authPassword" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 font-bold text-gray-800 outline-none focus:border-[#047857] transition-colors" placeholder="••••••••" required />
@@ -76,7 +63,6 @@
                 </button>
             </form>
         </div>
-        
         <p class="text-center text-white/40 text-[10px] font-bold uppercase tracking-wider mt-8">Secure 256-bit Encrypted Connection</p>
     </div>
 
@@ -95,14 +81,12 @@
         </div>
 
         <div class="flex-1 w-full max-w-5xl mx-auto px-4 md:px-8 py-8 pb-24">
-            
             <div class="mb-6">
                 <h2 class="text-white text-lg font-black uppercase tracking-wide">Launch Application</h2>
                 <p class="text-gray-400 text-xs font-bold">Select a terminal module to begin operations.</p>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                
                 <a href="retail.html" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group">
                     <div class="w-14 h-14 bg-emerald-500/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">✨</div>
                     <div>
@@ -167,120 +151,8 @@
                         <p class="text-red-400 text-[9px] font-bold uppercase tracking-wider mt-1">Staff Security</p>
                     </div>
                 </a>
-
             </div>
         </div>
     </div>
-
-    <script>
-        // ----------------------------------------------------
-        // SECURITY INACTIVITY TRACKER
-        // ----------------------------------------------------
-        let idleTrackerTimestamp = Date.now();
-        function refreshInactivityHeartbeat() { idleTrackerTimestamp = Date.now(); }
-        document.addEventListener('click', refreshInactivityHeartbeat);
-        document.addEventListener('touchstart', refreshInactivityHeartbeat);
-        document.addEventListener('mousemove', refreshInactivityHeartbeat);
-        document.addEventListener('keypress', refreshInactivityHeartbeat);
-        
-        setInterval(() => { 
-            // Only lock if we are actually logged into the dashboard
-            const dashboard = document.getElementById('showroomHubDashboard');
-            if (!dashboard.classList.contains('hidden')) {
-                if (Date.now() - idleTrackerTimestamp > 15 * 60 * 1000) {
-                    document.getElementById('sessionLockOverlay').classList.remove('hidden'); 
-                }
-            }
-        }, 10000);
-        
-        function unlockTerminalWithBiometrics() {
-            if (window.crypto && navigator.credentials) { 
-                navigator.credentials.get({ publicKey: { challenge: new Uint8Array([1,3,5,7]), timeout: 60000, allowCredentials: [] } })
-                .then(() => {
-                    document.getElementById('sessionLockOverlay').classList.add('hidden'); 
-                    idleTrackerTimestamp = Date.now();
-                }).catch(() => { 
-                    document.getElementById('sessionLockOverlay').classList.add('hidden'); 
-                    idleTrackerTimestamp = Date.now(); 
-                }); 
-            } else { 
-                document.getElementById('sessionLockOverlay').classList.add('hidden'); 
-                idleTrackerTimestamp = Date.now(); 
-            }
-        }
-
-        // ----------------------------------------------------
-        // INITIALIZATION & SESSION CHECK
-        // ----------------------------------------------------
-        document.addEventListener("DOMContentLoaded", () => {
-            // Trigger the global security check from firebase-config.js
-            enforceTerminalSecurity();
-            
-            // Setup local listener to update the welcome text
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    document.getElementById('hubUserEmail').innerText = `Active Session: ${user.email}`;
-                    
-                    // Wait a moment for firebase-config.js to fetch the role, then apply Hub visibility logic
-                    setTimeout(() => {
-                        const role = localStorage.getItem('active_user_role');
-                        if (role === "Sales") {
-                            document.getElementById('modAccounts')?.remove();
-                            document.getElementById('modAdmin')?.remove();
-                            document.getElementById('modOffice')?.remove();
-                            document.getElementById('modHisab')?.remove();
-                        } else if (role === "Manager") {
-                            document.getElementById('modAdmin')?.remove();
-                        }
-                    }, 1000);
-                }
-            });
-        });
-
-        // ----------------------------------------------------
-        // FIREBASE AUTHENTICATION FLOWS
-        // ----------------------------------------------------
-        function executeLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('authEmail').value.trim();
-            const pass = document.getElementById('authPassword').value;
-            const btn = document.getElementById('btnLogin');
-            const errMsg = document.getElementById('loginErrorMsg');
-
-            btn.innerText = "Authenticating...";
-            btn.disabled = true;
-            errMsg.classList.add('hidden');
-
-            auth.signInWithEmailAndPassword(email, pass)
-                .then((userCredential) => {
-                    // Success! The enforceTerminalSecurity() listener will automatically handle the UI swap.
-                    btn.innerText = "Access Terminal";
-                    btn.disabled = false;
-                })
-                .catch((error) => {
-                    errMsg.innerText = "Authentication Failed: Please check your email and password.";
-                    errMsg.classList.remove('hidden');
-                    btn.innerText = "Access Terminal";
-                    btn.disabled = false;
-                });
-        }
-
-        function executeLogout() {
-            auth.signOut().then(() => {
-                localStorage.removeItem('active_user_role');
-                localStorage.removeItem('has_logged_in_once');
-                
-                // Swap UI back to Gateway
-                document.getElementById('showroomHubDashboard').classList.add('hidden');
-                document.getElementById('sessionLockOverlay').classList.add('hidden');
-                document.getElementById('loginGatewayPanel').classList.remove('hidden');
-                
-                // Clear inputs
-                document.getElementById('authPassword').value = '';
-            }).catch((error) => {
-                console.error("Logout Error:", error);
-            });
-        }
-    </script>
 </body>
 </html>
