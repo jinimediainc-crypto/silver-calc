@@ -26,20 +26,12 @@
         
         html { scroll-behavior: smooth; }
         
-        .toggle-checkbox:checked { 
-            right: 0; 
-            border-color: #D4AF37; 
-        }
+        .toggle-checkbox:checked { right: 0; border-color: #D4AF37; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #047857; }
         
-        .toggle-checkbox:checked + .toggle-label { 
-            background-color: #047857; 
-        }
-        
-        /* Hides scrollbar for the horizontal bottom menu */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* NATIVE VIEWPORT SCROLL ENGINE */
         html, body {
             height: 100dvh !important;
             width: 100vw !important;
@@ -48,10 +40,11 @@
             padding: 0 !important;
         }
 
+        /* DYNAMIC PRINT FORMATTING ENGINE */
         @media print {
             .no-print, .internal-only, button, input, select, 
             #historyModal, #qrScannerBox, .toggle-container-discount, 
-            #searchSuggestions, #sessionLockOverlay, #bottomNavbarMenu { 
+            #searchSuggestions, #sessionLockOverlay, #bottomNavbarMenu, #printFormatContainer { 
                 display: none !important; 
             }
             body, html { 
@@ -64,38 +57,26 @@
                 -webkit-print-color-adjust: exact; 
                 print-color-adjust: exact; 
             }
+            div, main, .grid { 
+                display: block !important; overflow: visible !important; box-shadow: none !important; background: transparent !important; padding: 0 !important; margin: 0 !important; 
+            }
             #printableMemoCard { 
-                display: block !important; 
-                width: 100% !important; 
-                max-width: 100% !important; 
-                border: none !important; 
-                padding: 40px !important; 
-                margin: 0 auto !important; 
-                background: #ffffff !important; 
-                box-shadow: none !important; 
+                display: block !important; border: none !important; margin: 0 auto !important; background: #ffffff !important; box-shadow: none !important; 
             }
-            .print-table { 
-                width: 100% !important; 
-                border-collapse: collapse !important; 
-                margin-top: 25px !important; 
-                margin-bottom: 25px !important; 
-            }
-            .print-table th { 
-                background-color: #f9fafb !important; 
-                color: #000000 !important; 
-                border-top: 2px solid #000000 !important; 
-                border-bottom: 2px solid #000000 !important; 
-                padding: 12px 10px !important; 
-                font-weight: 900 !important; 
-                text-transform: uppercase !important; 
-                font-size: 12px !important; 
-            }
-            .print-table td { 
-                border-bottom: 1px solid #e5e7eb !important; 
-                padding: 14px 10px !important; 
-                font-size: 13px !important; 
-                color: #000000 !important; 
-            }
+            .print-table { width: 100% !important; border-collapse: collapse !important; margin-top: 15px !important; margin-bottom: 15px !important; }
+            .print-table th { background-color: #f9fafb !important; color: #000000 !important; border-top: 2px solid #000000 !important; border-bottom: 2px solid #000000 !important; padding: 8px 4px !important; font-weight: 900 !important; text-transform: uppercase !important; }
+            .print-table td { border-bottom: 1px solid #e5e7eb !important; padding: 8px 4px !important; color: #000000 !important; }
+            
+            /* DYNAMIC SIZES */
+            body.print-a4 #printableMemoCard { width: 210mm !important; padding: 40px !important; }
+            body.print-a5 #printableMemoCard { width: 148mm !important; padding: 20px !important; }
+            
+            /* THERMAL 80MM PRINTER SPECIFICS */
+            body.print-thermal #printableMemoCard { width: 78mm !important; padding: 5px !important; font-size: 11px !important; }
+            body.print-thermal .text-2xl { font-size: 16px !important; }
+            body.print-thermal .print-table th { font-size: 9px !important; padding: 4px 2px !important; }
+            body.print-thermal .print-table td { font-size: 10px !important; padding: 4px 2px !important; }
+            body.print-thermal .print-total-highlight { font-size: 14px !important; padding: 5px 2px !important; }
         }
     </style>
 </head>
@@ -104,11 +85,9 @@
     <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden no-print">
         <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
         <p class="text-xs font-bold text-gray-400 tracking-widest uppercase mb-6">Jini Jewels Showroom Security Lock</p>
-        <div class="w-full max-w-xs space-y-3">
-            <button type="button" onclick="unlockTerminalWithBiometrics()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest shadow-md active:scale-95 flex items-center justify-center gap-2">
-                <span>Verify Biometrics to Unlock</span>
-            </button>
-        </div>
+        <button type="button" onclick="unlockTerminalWithBiometrics()" class="w-full max-w-xs bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest shadow-md active:scale-95 flex items-center justify-center gap-2">
+            <span>Verify Biometrics</span>
+        </button>
     </div>
 
     <div id="historyModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-end opacity-0 pointer-events-none transition-all duration-300 no-print">
@@ -141,7 +120,7 @@
                 <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-2">
                     <div class="flex items-center gap-2">
                         <h3 class="text-lg font-black text-[#064e3b] uppercase tracking-wide">Customer Details</h3>
-                        <span id="editModeIndicator" class="hidden bg-amber-100 text-amber-800 text-[9px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider">📝 Editing Old Record</span>
+                        <span id="editModeIndicator" class="hidden bg-amber-100 text-amber-800 text-[9px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider">📝 Editing Record</span>
                     </div>
                     <button type="button" onclick="fetchHistoryFromCloud()" class="bg-gray-900 hover:bg-black text-[#D4AF37] font-black text-[11px] px-3 py-1.5 rounded-xl uppercase tracking-wider">📋 View History</button>
                 </div>
@@ -160,7 +139,7 @@
                         <input type="date" id="memoDate" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2 px-3 font-bold text-gray-800 outline-none" />
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Estimate No. (Auto +1)</label>
+                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Estimate No.</label>
                         <input type="text" id="memoId" class="w-full bg-gray-50 border-2 border-[#D4AF37] rounded-xl py-2 px-3 font-black text-gray-900 text-center outline-none" />
                     </div>
                 </div>
@@ -168,7 +147,7 @@
 
             <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20 space-y-4">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-gray-100 pb-2">
-                    <h3 class="text-lg font-black text-[#064e3b] uppercase tracking-wide">Add / Modify Item Row</h3>
+                    <h3 class="text-lg font-black text-[#064e3b] uppercase tracking-wide">Add / Modify Item</h3>
                     <div class="flex bg-gray-100 p-1 rounded-xl border border-gray-200">
                         <button type="button" onclick="setSaleMode(event, 'weight')" id="btnModeWeight" class="text-xs font-black uppercase px-4 py-2 rounded-lg bg-[#047857] text-white">By Weight</button>
                         <button type="button" onclick="setSaleMode(event, 'mrp')" id="btnModeMrp" class="text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500">Fixed MRP</button>
@@ -176,9 +155,9 @@
                 </div>
 
                 <div class="bg-amber-50/50 border border-[#D4AF37]/40 rounded-2xl p-3 space-y-1 relative">
-                    <label class="block text-[10px] font-black text-amber-800 uppercase tracking-wider">Item Search Lookup (Type Piece Name or Scan QR Tag)</label>
+                    <label class="block text-[10px] font-black text-amber-800 uppercase tracking-wider">Item Lookup (Type Piece Name or Scan QR Tag)</label>
                     <div class="flex items-center gap-2">
-                        <input type="text" id="liveSearchQuery" oninput="showSearchSuggestions()" onkeypress="handleBarcodeGunScan(event)" autocomplete="off" class="w-full bg-white border border-gray-200 rounded-xl py-3 px-3 text-sm font-black text-gray-900 outline-none focus:border-[#047857]" placeholder="🔍 Search name description (e.g. payal, kada, ring)..." />
+                        <input type="text" id="liveSearchQuery" oninput="showSearchSuggestions()" onkeypress="handleBarcodeGunScan(event)" autocomplete="off" class="w-full bg-white border border-gray-200 rounded-xl py-3 px-3 text-sm font-black text-gray-900 outline-none focus:border-[#047857]" placeholder="🔍 Search name description (e.g. payal, ring)..." />
                         <button type="button" onclick="startCameraScanner()" class="bg-[#064e3b] text-white w-12 h-12 rounded-xl flex items-center justify-center text-lg shadow active:scale-90 transition-all">📷</button>
                     </div>
                     <div id="searchSuggestions" class="absolute left-3 right-3 bg-white border border-gray-200 rounded-xl mt-1 shadow-2xl max-h-52 overflow-y-auto hidden z-30 font-bold text-xs text-left divide-y divide-gray-100"></div>
@@ -194,9 +173,8 @@
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Item Name / Description *</label>
                         <input type="text" id="itemDesc" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="Enter item details" />
                     </div>
-                    <div class="col-span-2">
-                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Linked Stock SKU Reference ID</label>
-                        <input type="text" id="itemAttachedStockTag" class="w-full bg-stone-100 border border-stone-200 rounded-xl py-2.5 px-3 font-mono font-black text-gray-500 text-center outline-none" placeholder="AUTOMATIC STOCK SKU LINK" readonly />
+                    <div class="col-span-2 hidden">
+                        <input type="text" id="itemAttachedStockTag" readonly />
                     </div>
                     
                     <div id="rowWeightRate" class="col-span-2 grid grid-cols-2 gap-4">
@@ -296,6 +274,30 @@
                         <span>Net Payable</span>
                         <span class="text-[#047857]">₹ <span id="printGrandTotal">0</span></span>
                     </div>
+
+                    <div class="mt-4 pt-4 border-t border-gray-200 internal-only no-print">
+                        <h4 class="text-xs font-black text-gray-800 uppercase mb-2">Customer Payment Status</h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-600 uppercase mb-1">Mode</label>
+                                <select id="paymentMode" class="w-full bg-gray-50 border border-gray-300 rounded-lg py-1.5 px-2 text-sm font-bold outline-none focus:border-[#047857]">
+                                    <option value="Cash">Cash</option>
+                                    <option value="UPI">UPI / Card</option>
+                                    <option value="Bank">Bank Transfer</option>
+                                    <option value="Pending">Pending / Udhar</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-600 uppercase mb-1">Amount Received (₹)</label>
+                                <input type="number" id="amtPaid" oninput="renderInvoice()" class="w-full bg-emerald-50 border border-emerald-300 rounded-lg py-1.5 px-2 text-sm font-black text-emerald-800 outline-none focus:border-emerald-600" placeholder="0" />
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center mt-3 bg-red-50 p-2 rounded-lg border border-red-100">
+                            <span class="text-xs font-black text-red-800 uppercase">Balance Due</span>
+                            <span class="text-sm font-black text-red-800">₹ <span id="printBalanceDue">0</span></span>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="print-footer-container mt-10 w-full text-left">
@@ -305,10 +307,20 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 internal-only mt-4">
-                <button type="button" onclick="executePrint(event)" class="bg-gray-900 text-[#D4AF37] font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-transform">🖨️ Print / PDF</button>
-                <button type="button" onclick="sendWhatsAppInvoice()" class="bg-[#25D366] text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-transform">💬 WhatsApp Bill</button>
-                <button type="button" onclick="executeCloudSave(event)" id="btnCloudSave" class="bg-blue-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-transform">☁️ Cloud Save</button>
+            <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-4 shadow-xl border border-white/20 internal-only no-print">
+                <div id="printFormatContainer" class="mb-3">
+                    <label class="block text-[10px] font-black text-gray-600 uppercase tracking-widest mb-1">Select Print Layout</label>
+                    <select id="printFormatSelect" class="w-full bg-gray-100 border border-gray-300 rounded-lg py-2 px-3 text-sm font-bold text-gray-800 outline-none">
+                        <option value="a4">A4 Full Page</option>
+                        <option value="a5">A5 Half Page</option>
+                        <option value="thermal">Thermal POS (80mm / 3 inch)</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <button type="button" onclick="executePrint(event)" class="bg-gray-900 text-[#D4AF37] font-bold py-3 px-2 rounded-xl uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-transform">🖨️ Print PDF</button>
+                    <button type="button" onclick="sendWhatsAppInvoice()" class="bg-[#25D366] text-white font-bold py-3 px-2 rounded-xl uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-transform">💬 WhatsApp</button>
+                    <button type="button" onclick="executeCloudSave(event)" id="btnCloudSave" class="bg-blue-700 text-white font-bold py-3 px-2 rounded-xl uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-transform">☁️ Cloud Save</button>
+                </div>
             </div>
         </div>
     </div>
@@ -350,11 +362,7 @@
         // SECURITY: 15-MINUTE INACTIVITY LOCK TRACKER
         // ----------------------------------------------------
         let idleTrackerTimestamp = Date.now();
-        
-        function refreshInactivityHeartbeat() { 
-            idleTrackerTimestamp = Date.now(); 
-        }
-        
+        function refreshInactivityHeartbeat() { idleTrackerTimestamp = Date.now(); }
         document.addEventListener('click', refreshInactivityHeartbeat);
         document.addEventListener('mousemove', refreshInactivityHeartbeat);
         document.addEventListener('keypress', refreshInactivityHeartbeat);
@@ -369,11 +377,7 @@
         function unlockTerminalWithBiometrics() {
             if (window.crypto && navigator.credentials) {
                 navigator.credentials.get({ 
-                    publicKey: { 
-                        challenge: new Uint8Array([5,10,15,20]), 
-                        timeout: 60000, 
-                        allowCredentials: [] 
-                    } 
+                    publicKey: { challenge: new Uint8Array([5,10,15,20]), timeout: 60000, allowCredentials: [] } 
                 }).then(() => {
                     document.getElementById('sessionLockOverlay').classList.add('hidden'); 
                     idleTrackerTimestamp = Date.now();
@@ -388,11 +392,10 @@
         }
 
         // ----------------------------------------------------
-        // DATABASE SUBSCRIPTIONS & SEQUENCE LOADERS
+        // DATABASE SUBSCRIPTIONS
         // ----------------------------------------------------
         if (typeof db !== 'undefined') {
             runAutoSequenceIncrement();
-            
             db.collection("jini_inventory").onSnapshot((snapshot) => {
                 window.localShowroomInventoryMemoryList = [];
                 snapshot.forEach(doc => { 
@@ -407,9 +410,7 @@
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     const idNum = parseInt(data.estimateNumber);
-                    if (!isNaN(idNum) && idNum > maxNum) {
-                        maxNum = idNum;
-                    }
+                    if (!isNaN(idNum) && idNum > maxNum) maxNum = idNum;
                 });
                 const nextSequenceId = maxNum + 1;
                 document.getElementById('memoId').value = nextSequenceId;
@@ -457,32 +458,21 @@
         function showSearchSuggestions() {
             const query = document.getElementById('liveSearchQuery').value.trim().toLowerCase();
             const suggestionBox = document.getElementById('searchSuggestions');
-            
-            if(!query) { 
-                suggestionBox.classList.add('hidden'); 
-                return; 
-            }
+            if(!query) { suggestionBox.classList.add('hidden'); return; }
 
             const matches = window.localShowroomInventoryMemoryList.filter(i => 
                 i.tagNumberId.toLowerCase().includes(query) || 
                 i.itemNameDescription.toLowerCase().includes(query)
             );
 
-            if(matches.length === 0) { 
-                suggestionBox.classList.add('hidden'); 
-                return; 
-            }
+            if(matches.length === 0) { suggestionBox.classList.add('hidden'); return; }
 
             suggestionBox.innerHTML = "";
-            
             matches.slice(0, 6).forEach(item => {
                 if (item.status === "Sold") return;
-                
                 const cardRow = document.createElement('div'); 
                 cardRow.className = "p-3 bg-white hover:bg-emerald-50 cursor-pointer flex justify-between items-center border-b border-gray-100 text-gray-900 font-bold";
-                
                 const rateInfo = item.pricingSaleMode === 'mrp' ? 'Fixed Price' : `₹${item.metalRateValue + item.labourChargeValue}/g`;
-                
                 cardRow.innerHTML = `
                     <div>
                         <p class="text-xs">#${item.tagNumberId} - ${item.itemNameDescription}</p>
@@ -490,28 +480,22 @@
                     </div>
                     <span class="text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded text-[10px] font-black">${item.netWeightValue ? item.netWeightValue.toFixed(2)+'g' : '-'}</span>
                 `;
-                
                 cardRow.addEventListener('click', () => { 
                     populateFormFieldsWithStockData(item); 
                     suggestionBox.classList.add('hidden'); 
                 });
-                
                 suggestionBox.appendChild(cardRow);
             });
-            
             suggestionBox.classList.remove('hidden');
         }
 
         function executeDatabaseLookup() {
             const query = document.getElementById('liveSearchQuery').value.trim().toLowerCase(); 
             if(!query) return;
-            
             let foundRecord = window.localShowroomInventoryMemoryList.find(i => i.tagNumberId.toLowerCase() === query);
-            
             if(!foundRecord) { 
                 foundRecord = window.localShowroomInventoryMemoryList.find(i => i.itemNameDescription.toLowerCase().includes(query)); 
             }
-            
             if(foundRecord) { 
                 populateFormFieldsWithStockData(foundRecord); 
                 document.getElementById('searchSuggestions').classList.add('hidden'); 
@@ -520,18 +504,10 @@
             }
         }
 
-        function handleBarcodeGunScan(e) { 
-            if (e.key === 'Enter') { 
-                e.preventDefault(); 
-                executeDatabaseLookup(); 
-            } 
-        }
+        function handleBarcodeGunScan(e) { if (e.key === 'Enter') { e.preventDefault(); executeDatabaseLookup(); } }
         
         function populateFormFieldsWithStockData(data) {
-            if(data.status === "Sold") { 
-                alert(`⚠️ STOCK WARNING: Tag #${data.tagNumberId} is already marked as SOLD.`); 
-            }
-            
+            if(data.status === "Sold") { alert(`⚠️ STOCK WARNING: Tag #${data.tagNumberId} is already marked as SOLD.`); }
             inputs.desc.value = data.itemNameDescription || ''; 
             inputs.stockTag.value = data.tagNumberId || ''; 
             inputs.itemWeight.value = data.netWeightValue || ''; 
@@ -545,7 +521,6 @@
                 inputs.rate.value = data.metalRateValue || ''; 
                 inputs.labour.value = data.labourChargeValue || ''; 
             }
-            
             document.getElementById('liveSearchQuery').value = ""; 
             inputs.itemWeight.focus();
         }
@@ -565,47 +540,37 @@
             cameraScannerEngineInstance.start(
                 { facingMode: "environment" }, 
                 { fps: 10, qrbox: 250 }, 
-                (txt) => { 
-                    document.getElementById('liveSearchQuery').value = txt; 
-                    stopCameraScanner(); 
-                    executeDatabaseLookup(); 
-                }, 
+                (txt) => { document.getElementById('liveSearchQuery').value = txt; stopCameraScanner(); executeDatabaseLookup(); }, 
                 () => {}
             ); 
         }
-        
         function stopCameraScanner() { 
             if(cameraScannerEngineInstance) {
-                cameraScannerEngineInstance.stop().then(() => {
-                    document.getElementById('qrScannerBox').classList.add('hidden')
-                });
+                cameraScannerEngineInstance.stop().then(() => { document.getElementById('qrScannerBox').classList.add('hidden'); });
             }
         }
         
         function executePrint(e) { 
             if (e) e.preventDefault(); 
             if (!checkMandatoryDetails()) return; 
+            
+            const format = document.getElementById('printFormatSelect').value;
+            // Clear any old format classes and apply new one before printing
+            document.body.className = document.body.className.replace(/print-(thermal|a4|a5)/g, '');
+            document.body.classList.add('print-' + format);
+            
             window.print(); 
         }
 
         function checkMandatoryDetails() { 
-            const n = inputs.name.value.trim();
-            const m = inputs.mobile.value.trim(); 
-            if (!n || !m) { 
-                alert("Customer Name and Mobile Number are strictly compulsory!"); 
-                return false; 
-            } 
+            const n = inputs.name.value.trim(); const m = inputs.mobile.value.trim(); 
+            if (!n || !m) { alert("Customer Name and Mobile Number are strictly compulsory!"); return false; } 
             return true; 
         }
 
         function setSaleMode(browserEvent, mode) {
-            if (browserEvent) { 
-                browserEvent.preventDefault(); 
-                browserEvent.stopPropagation(); 
-            } 
-            
+            if (browserEvent) { browserEvent.preventDefault(); browserEvent.stopPropagation(); } 
             saleMode = mode;
-            
             if (mode === 'weight') {
                 document.getElementById('btnModeWeight').className = "text-xs font-black uppercase px-4 py-2 rounded-lg bg-[#047857] text-white";
                 document.getElementById('btnModeMrp').className = "text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500";
@@ -631,68 +596,36 @@
             const weight = parseFloat(inputs.itemWeight.value) || 0;
             const huidAmt = inputs.huidToggle.checked ? (parseFloat(inputs.huidPrice.value) || 0) : 0;
             
-            if (!desc) { 
-                alert("Please input Item Description!"); 
-                return; 
-            } 
+            if (!desc) { alert("Please input Item Description!"); return; } 
             
             let total = 0;
-
             if (saleMode === "weight") {
-                let r = parseFloat(inputs.rate.value) || 0;
-                let l = parseFloat(inputs.labour.value) || 0;
-                
-                if (weight <= 0) { 
-                    alert("Net Weight is mandatory!"); 
-                    return; 
-                }
-                
+                let r = parseFloat(inputs.rate.value) || 0; let l = parseFloat(inputs.labour.value) || 0;
+                if (weight <= 0) { alert("Net Weight is mandatory!"); return; }
                 total = Math.round(((r + l) * weight) + other + huidAmt);
             } else { 
                 let mrp = parseFloat(inputs.mrp.value) || 0; 
-                if (mrp <= 0) { 
-                    alert("Please input Fixed Item MRP!"); 
-                    return; 
-                } 
+                if (mrp <= 0) { alert("Please input Fixed Item MRP!"); return; } 
                 total = Math.round(mrp + other + huidAmt); 
             }
 
             items.push({ desc, tagNumberId: tagRef, total, weight });
+            inputs.desc.value = ''; inputs.stockTag.value = ''; inputs.itemWeight.value = ''; inputs.other.value = '';
             
-            inputs.desc.value = ''; 
-            inputs.stockTag.value = ''; 
-            inputs.itemWeight.value = ''; 
-            inputs.other.value = '';
-            
+            // Assume full payment implicitly when new item added, update UI later
             renderInvoice();
         }
 
         function editItem(index) {
             const item = items[index]; 
-            
-            inputs.desc.value = item.desc; 
-            inputs.stockTag.value = item.tagNumberId || '';
-            inputs.itemWeight.value = item.weight || ''; 
-            inputs.other.value = item.other || ''; 
-            inputs.huidPrice.value = item.huidPriceVal || '50';
-            
-            if (item.mrp > 0) { 
-                setSaleMode(null, 'mrp'); 
-                inputs.mrp.value = item.mrp; 
-            } else { 
-                setSaleMode(null, 'weight'); 
-                inputs.rate.value = item.rate; 
-                inputs.labour.value = item.labour; 
-            }
-            
-            items.splice(index, 1); 
-            renderInvoice();
+            inputs.desc.value = item.desc; inputs.stockTag.value = item.tagNumberId || '';
+            inputs.itemWeight.value = item.weight || ''; inputs.other.value = item.other || ''; inputs.huidPrice.value = item.huidPriceVal || '50';
+            if (item.mrp > 0) { setSaleMode(null, 'mrp'); inputs.mrp.value = item.mrp; } 
+            else { setSaleMode(null, 'weight'); inputs.rate.value = item.rate; inputs.labour.value = item.labour; }
+            items.splice(index, 1); renderInvoice();
         }
         
-        function deleteItem(index) { 
-            items.splice(index, 1); 
-            renderInvoice(); 
-        }
+        function deleteItem(index) { items.splice(index, 1); renderInvoice(); }
 
         function renderInvoice() {
             const wrapper = document.getElementById('invoiceTableWrapper');
@@ -705,6 +638,7 @@
                 document.getElementById('invoiceGrandTotal').innerText = '0';
                 document.getElementById('invoiceGrandTotalDisplay').innerText = '0'; 
                 document.getElementById('printGrandTotal').innerText = '0';
+                document.getElementById('printBalanceDue').innerText = '0';
                 return;
             }
             
@@ -721,11 +655,9 @@
                 <tbody>`;
             
             let gross = 0;
-            
             items.forEach((item, idx) => {
                 gross += item.total; 
                 const wDisp = item.weight > 0 ? `${item.weight.toFixed(2)} g` : `-`;
-                
                 tableHtml += `
                     <tr class="align-top border-b border-gray-100">
                         <td class="py-3 text-center text-gray-400">${idx+1}</td>
@@ -738,19 +670,22 @@
                         </td>
                     </tr>`;
             });
-            
-            tableHtml += `</tbody></table>`; 
-            wrapper.innerHTML = tableHtml;
+            tableHtml += `</tbody></table>`; wrapper.innerHTML = tableHtml;
 
+            // BUG FIX: Corrected discIn to dIn
             const taxApplied = inputs.taxToggle.checked; 
             const gst = taxApplied ? Math.round(gross * 0.03) : 0;
             const dIn = parseFloat(inputs.discVal.value) || 0;
             const dAmt = inputs.discType.value === 'percent' ? Math.round((gross + gst) * (dIn / 100)) : Math.round(dIn);
             const finalTotal = (gross + gst) - dAmt;
 
+            // Payment Calculations
+            const amtPaid = parseFloat(document.getElementById('amtPaid').value) || 0;
+            const balDue = Math.max(0, finalTotal - amtPaid);
+            document.getElementById('printBalanceDue').innerText = balDue.toLocaleString('en-IN');
+
             document.getElementById('invoiceGrossRow').style.display = taxApplied ? "flex" : "none";
             document.getElementById('invoiceGstRow').style.display = taxApplied ? "flex" : "none";
-            
             if (dAmt > 0) { 
                 document.getElementById('invoiceDiscountRow').classList.remove('hidden'); 
                 document.getElementById('prevDiscountAmt').innerText = dAmt.toLocaleString('en-IN'); 
@@ -767,7 +702,7 @@
         }
 
         // ----------------------------------------------------
-        // HISTORY LEDGER & STOCK REVERSAL LOGIC
+        // CLOUD SAVE & HISTORY LOGIC
         // ----------------------------------------------------
         function executeCloudSave(e) {
             if (e) e.preventDefault(); 
@@ -778,6 +713,11 @@
             saveBtn.disabled = true;
             
             const targetId = inputs.memoId.value.trim();
+            const finalTotalStr = document.getElementById('invoiceGrandTotal').innerText;
+            const finalTotalNum = parseFloat(finalTotalStr.replace(/,/g, '')) || 0;
+            
+            const amtPaid = parseFloat(document.getElementById('amtPaid').value) || 0;
+            const balDue = Math.max(0, finalTotalNum - amtPaid);
 
             const payload = {
                 estimateNumber: targetId, 
@@ -788,24 +728,36 @@
                 subtotalAmount: document.getElementById('prevGross').innerText,
                 taxAppliedBool: inputs.taxToggle.checked, 
                 discountGivenValue: document.getElementById('prevDiscountAmt').innerText || '0',
-                grandTotalPayable: document.getElementById('invoiceGrandTotal').innerText, 
+                grandTotalPayable: finalTotalNum, // Saved as Number for easier Accounting
+                amountPaid: amtPaid,
+                balanceDue: balDue,
+                paymentMode: document.getElementById('paymentMode').value,
                 localTimestamp: new Date().toISOString()
             };
 
             const ref = activeDocId ? db.collection("showroom_memos").doc(activeDocId) : db.collection("showroom_memos").doc();
+            let updatePromises = [ref.set(payload)];
             
-            ref.set(payload).then(() => {
-                let updatePromises = [];
-                items.forEach(item => { 
-                    if (item.tagNumberId) { 
-                        updatePromises.push(db.collection("jini_inventory").doc(item.tagNumberId).update({ status: "Sold" })); 
-                    } 
-                });
-                
-                Promise.all(updatePromises).then(() => { 
-                    alert(`☁️ Cloud Record Saved Successfully!`); 
-                    resetTerminalBillingState(); 
-                });
+            // 1. Mark Inventory as Sold
+            items.forEach(item => { 
+                if (item.tagNumberId) { 
+                    updatePromises.push(db.collection("jini_inventory").doc(item.tagNumberId).update({ status: "Sold" })); 
+                } 
+            });
+
+            // 2. Sync to CRM Lifetime Value and Dues
+            const crmRef = db.collection("client_profiles").doc(inputs.mobile.value.trim());
+            updatePromises.push(crmRef.set({
+                name: inputs.name.value.trim(),
+                mobile: inputs.mobile.value.trim(),
+                lastPurchaseDate: document.getElementById('memoDate').value,
+                totalLifetimeValue: firebase.firestore.FieldValue.increment(finalTotalNum),
+                pendingDue: firebase.firestore.FieldValue.increment(balDue)
+            }, { merge: true }));
+            
+            Promise.all(updatePromises).then(() => { 
+                alert(`☁️ Cloud Record Saved Successfully!`); 
+                resetTerminalBillingState(); 
             }).catch(err => { 
                 alert(err.message); 
                 saveBtn.innerText = "☁️ Cloud Save"; 
@@ -815,11 +767,8 @@
 
         function toggleHistoryModal(s) { 
             const m = document.getElementById('historyModal'); 
-            if(s) {
-                m.classList.remove('opacity-0', 'pointer-events-none'); 
-            } else {
-                m.classList.add('opacity-0', 'pointer-events-none'); 
-            }
+            if(s) { m.classList.remove('opacity-0', 'pointer-events-none'); } 
+            else { m.classList.add('opacity-0', 'pointer-events-none'); }
         }
         
         function fetchHistoryFromCloud() {
@@ -829,17 +778,12 @@
             
             db.collection("showroom_memos").get().then((snap) => {
                 globalHistoryCache = []; 
-                if (snap.empty) { 
-                    list.innerHTML = `<p class="text-center py-8">No memos found.</p>`; 
-                    return; 
-                }
-                
+                if (snap.empty) { list.innerHTML = `<p class="text-center py-8">No memos found.</p>`; return; }
                 snap.forEach(d => { 
                     let recordData = d.data(); 
                     recordData.fbDocIdReferenceToken = d.id; 
                     globalHistoryCache.push(recordData); 
                 }); 
-                
                 renderHistoryList(globalHistoryCache);
             });
         }
@@ -852,14 +796,17 @@
                 const card = document.createElement('div'); 
                 card.className = "bg-gray-50 border p-4 rounded-2xl mb-2 text-left cursor-pointer relative group transition-all hover:bg-emerald-50/60 shadow-sm";
                 
+                const grandTotal = d.grandTotalPayable.toLocaleString ? d.grandTotalPayable.toLocaleString('en-IN') : d.grandTotalPayable;
+                const balDue = d.balanceDue > 0 ? `<span class="text-[9px] text-red-600 bg-red-100 px-1 rounded ml-2 uppercase">Due: ₹${d.balanceDue}</span>` : '';
+
                 card.innerHTML = `
                     <div class="flex justify-between font-black text-sm pr-6">
                         <span>#${d.estimateNumber}</span>
                         <span class="text-xs font-bold text-gray-400">${d.memoDate}</span>
                     </div>
                     <div class="flex justify-between mt-1 pr-6">
-                        <p class="text-xs uppercase text-gray-700">${d.customerName}</p>
-                        <span class="font-black text-emerald-700">₹${d.grandTotalPayable}</span>
+                        <p class="text-xs uppercase text-gray-700">${d.customerName} ${balDue}</p>
+                        <span class="font-black text-emerald-700">₹${grandTotal}</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2 pt-2.5 mt-3 border-t border-gray-100">
                         <button type="button" class="btn-load bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black uppercase py-1.5 rounded-lg text-center shadow-sm">✏️ Edit / Load</button>
@@ -868,26 +815,15 @@
                     <button type="button" class="btn-delete absolute right-3 top-4 text-gray-300 hover:text-red-600 text-sm transition-colors p-1">🗑️</button>
                 `;
                 
-                card.querySelector('.btn-load').addEventListener('click', (e) => { 
-                    e.stopPropagation(); 
-                    toggleHistoryModal(false); 
-                    loadOldRecordIntoTerminal(d); 
-                });
-                
-                card.querySelector('.btn-preview').addEventListener('click', (e) => { 
-                    e.stopPropagation(); 
-                    loadOldRecordIntoTerminal(d); 
-                });
-
-                card.querySelector('.btn-delete').addEventListener('click', (e) => { 
-                    e.stopPropagation(); 
-                    deleteHistoryRecord(d.fbDocIdReferenceToken); 
-                });
+                card.querySelector('.btn-load').addEventListener('click', (e) => { e.stopPropagation(); toggleHistoryModal(false); loadOldRecordIntoTerminal(d); });
+                card.querySelector('.btn-preview').addEventListener('click', (e) => { e.stopPropagation(); loadOldRecordIntoTerminal(d); });
+                card.querySelector('.btn-delete').addEventListener('click', (e) => { e.stopPropagation(); deleteHistoryRecord(d.fbDocIdReferenceToken); });
                 
                 list.appendChild(card);
             });
         }
 
+        // FULL STOCK REVERSAL DELETE LOGIC
         function deleteHistoryRecord(docId) { 
             if (!confirm("Are you sure you want to permanently delete this estimate?")) return; 
             if (!confirm("CRITICAL WARNING: This will automatically reverse matching jewelry items back to 'In Stock'! Proceed?")) return; 
@@ -897,14 +833,21 @@
             db.collection("showroom_memos").doc(docId).delete().then(() => { 
                 if (record && record.itemsListArray) { 
                     let reversePromises = []; 
-                    
                     record.itemsListArray.forEach(item => { 
                         if (item.tagNumberId) { 
                             const promise = db.collection("jini_inventory").doc(item.tagNumberId).update({ status: "In Stock" });
                             reversePromises.push(promise); 
                         } 
                     }); 
-                    
+                    // Deduct LTV from CRM Profile
+                    if (record.customerMobile) {
+                        const crmRef = db.collection("client_profiles").doc(record.customerMobile);
+                        reversePromises.push(crmRef.set({
+                            totalLifetimeValue: firebase.firestore.FieldValue.increment(-record.grandTotalPayable),
+                            pendingDue: firebase.firestore.FieldValue.increment(-(record.balanceDue || 0))
+                        }, { merge: true }));
+                    }
+
                     Promise.all(reversePromises).then(() => { 
                         alert("🗑️ Invoice deleted and matching inventory stock levels successfully restored!"); 
                         if (activeDocId === docId) resetTerminalBillingState(); 
@@ -924,7 +867,6 @@
         function filterHistoryLedger() {
             const q = document.getElementById('historySearchInput').value.toLowerCase().trim(); 
             if(!q) { renderHistoryList(globalHistoryCache); return; }
-            
             const matches = globalHistoryCache.filter(i => 
                 i.customerName.toLowerCase().includes(q) || 
                 i.customerMobile.includes(q) || 
@@ -936,24 +878,20 @@
         function resetTerminalBillingState() { 
             activeDocId = null; 
             document.getElementById('editModeIndicator').classList.add('hidden'); 
-            
             const b = document.getElementById('btnCloudSave'); 
             b.innerText = "☁️ Cloud Save"; 
             b.disabled = false; 
             b.className = "bg-blue-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-transform"; 
             
             runAutoSequenceIncrement(); 
-            items = []; 
-            inputs.discVal.value = 0; 
+            items = []; inputs.discVal.value = 0; document.getElementById('amtPaid').value = '';
             renderInvoice(); 
-            inputs.name.value = ''; 
-            inputs.mobile.value = ''; 
+            inputs.name.value = ''; inputs.mobile.value = ''; 
         }
         
         function loadOldRecordIntoTerminal(d) { 
             activeDocId = d.fbDocIdReferenceToken; 
             document.getElementById('editModeIndicator').classList.remove('hidden'); 
-            
             const b = document.getElementById('btnCloudSave'); 
             b.innerText = "💾 Update Existing Record"; 
             b.className = "bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-transform"; 
@@ -962,6 +900,8 @@
             inputs.mobile.value = d.customerMobile || ''; 
             inputs.memoId.value = d.estimateNumber || ''; 
             document.getElementById('memoDate').value = d.memoDate || ''; 
+            document.getElementById('amtPaid').value = d.amountPaid || '';
+            document.getElementById('paymentMode').value = d.paymentMode || 'Cash';
             
             items = d.itemsListArray || []; 
             renderInvoice(); 
@@ -988,7 +928,16 @@
                 text += `▪️ ${item.desc}\n   Weight: ${item.weight > 0 ? item.weight+'g' : '-'} | Amt: ₹${item.total.toLocaleString('en-IN')}\n`;
             });
             
-            text += `\n*Net Payable: ₹${total}*\n\nThank you for shopping with Jini Jewels! ✨\n📍 Surat, Gujarat`;
+            text += `\n*Net Payable: ₹${total}*`;
+
+            const balDueStr = document.getElementById('printBalanceDue').innerText;
+            if (balDueStr !== "0") {
+                const amtPaid = document.getElementById('amtPaid').value || "0";
+                text += `\n*Amount Paid:* ₹${parseFloat(amtPaid).toLocaleString('en-IN')}`;
+                text += `\n*Balance Due:* ₹${balDueStr}`;
+            }
+
+            text += `\n\nThank you for shopping with Jini Jewels! ✨\n📍 Surat, Gujarat`;
             
             const encodedText = encodeURIComponent(text);
             window.open(`https://wa.me/91${mobile}?text=${encodedText}`, '_blank');
