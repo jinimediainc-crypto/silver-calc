@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jini Inventory & Tracking Ledger</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#064e3b">
+    <link rel="apple-touch-icon" href="icon.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -25,12 +30,13 @@
             background: transparent; 
         }
         
-        /* UNLOCKED HEIGHT: Restores vertical document flow for smooth mobile finger touch scrolling */
+        /* NATIVE VIEWPORT LOCK ENGINE: Prevents pinch zooming and layout breaks */
         html, body {
-            overflow-y: auto !important;
-            height: auto !important;
-            min-height: 100dvh !important;
-            -webkit-overflow-scrolling: touch !important;
+            height: 100dvh !important;
+            width: 100vw !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
         @media print {
@@ -43,6 +49,7 @@
                 margin: 0 !important; 
                 padding: 0 !important; 
                 overflow: visible !important; 
+                height: auto !important;
             }
             #tagPrintArea { 
                 display: block !important; 
@@ -55,7 +62,7 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900">
+<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 h-[100dvh] w-screen flex flex-col overflow-hidden selection:bg-[#D4AF37] selection:text-gray-900">
 
     <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden no-print">
         <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
@@ -64,11 +71,11 @@
             <button type="button" onclick="unlockTerminalWithBiometrics()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
                 <span>Verify Biometrics to Unlock</span>
             </button>
-            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Device locked automatically after 15 minutes of inactivity</p>
+            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Device automatically locked due to 15 minutes of inactivity</p>
         </div>
     </div>
 
-    <div class="flex-shrink-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 no-print">
+    <div class="flex-shrink-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 no-print z-10 sticky top-0">
         <div class="flex items-center px-4 py-3 max-w-7xl mx-auto w-full">
             <a href="index.html" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20 active:scale-90 transition-transform">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
@@ -77,18 +84,18 @@
         </div>
     </div>
 
-    <div class="flex-1 w-full max-w-7xl mx-auto px-4 py-6 space-y-6 no-print pb-44">
+    <div class="flex-1 overflow-y-auto w-full max-w-7xl mx-auto px-4 py-6 space-y-6 no-print pb-48">
         
         <div class="grid grid-cols-3 gap-3">
-            <div class="bg-white/10 border border-white/10 rounded-2xl p-4 text-left">
+            <div class="bg-white/10 border border-white/10 rounded-2xl p-4 text-left shadow-sm">
                 <span class="text-gray-400 text-[10px] font-black uppercase tracking-wider block">Total Inward</span>
                 <span id="statInward" class="text-xl font-black text-white">0</span>
             </div>
-            <div class="bg-white/10 border border-white/10 rounded-2xl p-4 text-left">
+            <div class="bg-white/10 border border-white/10 rounded-2xl p-4 text-left shadow-sm">
                 <span class="text-amber-400 text-[10px] font-black uppercase tracking-wider block">Sold Outward</span>
                 <span id="statOutward" class="text-xl font-black text-amber-400">0</span>
             </div>
-            <div class="bg-white/10 border border-[#D4AF37]/30 rounded-2xl p-4 text-left bg-[#064e3b]/30">
+            <div class="bg-white/10 border border-[#D4AF37]/30 rounded-2xl p-4 text-left bg-[#064e3b]/30 shadow-sm">
                 <span class="text-emerald-400 text-[10px] font-black uppercase tracking-wider block">In Stock Left</span>
                 <span id="statAvailable" class="text-xl font-black text-emerald-400">0</span>
             </div>
@@ -97,23 +104,24 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             <div class="lg:col-span-5 bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10 space-y-4 h-fit">
-                <div class="flex justify-between items-center border-b pb-2">
-                    <h3 class="text-base font-black text-[#064e3b] uppercase">Stock Registration</h3>
-                    <select id="invModeSelect" onchange="toggleFormSaleMode()" class="bg-gray-100 text-[10px] font-black uppercase rounded-lg p-1 outline-none">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                    <h3 class="text-base font-black text-[#064e3b] uppercase tracking-wide">Stock Registration</h3>
+                    <select id="invModeSelect" onchange="toggleFormSaleMode()" class="bg-gray-100 border border-gray-200 text-[10px] font-black uppercase rounded-lg p-1 outline-none">
                         <option value="weight">By Weight</option>
                         <option value="mrp">Fixed MRP</option>
                     </select>
                 </div>
 
-                <div class="space-y-3">
+                <div class="space-y-4">
+                    
                     <div>
-                        <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Item Photo (Camera / Gallery)</label>
+                        <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Item Photo (Camera / Gallery)</label>
                         <div class="flex items-center gap-3">
-                            <label class="flex-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold py-2 px-3 rounded-xl cursor-pointer text-center text-sm transition-colors shadow-sm">
+                            <label class="flex-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold py-2.5 px-3 rounded-xl cursor-pointer text-center text-sm transition-colors shadow-sm">
                                 <span>📸 Capture / Upload</span>
                                 <input type="file" id="invPhotoInput" accept="image/*" capture="environment" class="hidden" onchange="handlePhotoUpload(event)" />
                             </label>
-                            <div id="photoPreviewContainer" class="hidden w-12 h-12 rounded-lg border border-gray-300 overflow-hidden shadow-sm bg-gray-100">
+                            <div id="photoPreviewContainer" class="hidden w-14 h-14 rounded-lg border border-gray-300 overflow-hidden shadow-sm bg-gray-100 shrink-0">
                                 <img id="photoPreview" class="w-full h-full object-cover" />
                             </div>
                         </div>
@@ -121,13 +129,13 @@
 
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Tag Number SKU *</label>
-                        <input type="text" id="invTagId" class="w-full bg-emerald-50/40 border-2 border-[#D4AF37] rounded-xl py-2 px-3 font-black text-center outline-none" />
+                        <input type="text" id="invTagId" class="w-full bg-emerald-50/40 border-2 border-[#D4AF37] rounded-xl py-2.5 px-3 font-black text-gray-900 tracking-wider text-center outline-none" />
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Item Category *</label>
                         <div class="flex gap-2">
-                            <select id="invCategorySelect" onchange="handleCategorySelection()" class="flex-1 bg-gray-50 border rounded-xl py-2 px-3 font-bold text-gray-800 outline-none">
+                            <select id="invCategorySelect" onchange="handleCategorySelection()" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none">
                                 <option value="Silver Item">Silver Item</option>
                                 <option value="Gold Item">Gold Item</option>
                                 <option value="Ring">Ring</option>
@@ -144,66 +152,68 @@
 
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Item Name / Description *</label>
-                        <input type="text" id="invDesc" class="w-full bg-gray-50 border rounded-xl py-2 px-3 font-bold text-gray-800 outline-none" placeholder="e.g. Silver payal" />
+                        <input type="text" id="invDesc" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none" placeholder="e.g. Silver payal" />
                     </div>
                     
                     <div>
                         <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Internal Cypher Tag</label>
-                        <input type="text" id="invCypher" class="w-full bg-white border rounded-xl py-2 px-3 font-mono text-sm uppercase tracking-widest font-black outline-none" placeholder="e.g. frar" />
+                        <input type="text" id="invCypher" class="w-full bg-white border border-gray-200 rounded-xl py-2.5 px-3 font-mono text-sm uppercase tracking-widest font-black outline-none" placeholder="e.g. frar" />
                     </div>
 
                     <div id="weightInputsRow" class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Rate (₹/g)</label>
-                            <input type="number" id="invRate" class="w-full bg-gray-50 border rounded-xl py-2 px-3 font-bold text-gray-800 outline-none" placeholder="0" />
+                            <input type="number" id="invRate" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none" placeholder="0" />
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Labour (₹/g)</label>
-                            <input type="number" id="invLabour" class="w-full bg-gray-50 border rounded-xl py-2 px-3 font-bold text-gray-800 outline-none" placeholder="0" />
+                            <input type="number" id="invLabour" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none" placeholder="0" />
                         </div>
                     </div>
                     
                     <div id="mrpInputBox" class="hidden">
-                        <label class="block text-xs font-bold text-blue-900 mb-1 uppercase">Item Fixed Price MRP (₹)</label>
-                        <input type="number" id="invMrp" class="w-full bg-blue-50/40 border-blue-200 rounded-xl py-2 px-3 font-black text-blue-900 outline-none" placeholder="0" />
+                        <label class="block text-xs font-black text-blue-800 mb-1 uppercase">Item Fixed Price MRP (₹)</label>
+                        <input type="number" id="invMrp" class="w-full bg-blue-50/30 border border-blue-200 rounded-xl py-2.5 px-3 font-black text-blue-900 outline-none" placeholder="0" />
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Net Weight (g)</label>
-                            <input type="number" id="invWeight" class="w-full bg-gray-50 border rounded-xl py-2 px-3 font-bold text-center outline-none" placeholder="0.00" />
+                            <input type="number" id="invWeight" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-black text-gray-900 text-center outline-none" placeholder="0.00" />
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-600 mb-1 uppercase">Other (₹)</label>
-                            <input type="number" id="invOther" class="w-full bg-gray-50 border rounded-xl py-2 px-3 font-bold text-center outline-none" placeholder="0" />
+                            <input type="number" id="invOther" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-900 text-center outline-none" placeholder="0" />
                         </div>
                     </div>
                 </div>
 
-                <button type="button" onclick="saveItemToInventory()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3.5 px-4 rounded-xl uppercase tracking-widest transition-all shadow-md mt-2">💾 Save Item Data</button>
+                <button type="button" onclick="saveItemToInventory()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3.5 px-4 rounded-xl uppercase tracking-widest transition-all shadow-md mt-4">💾 Save Item Data</button>
                 
-                <div class="border border-dashed border-gray-400 p-2.5 rounded-xl bg-gray-50 flex items-center justify-between w-full h-[90px] mt-4 overflow-hidden">
-                    <div class="font-sans text-[10px] leading-tight text-black font-bold">
-                        <p class="text-[11px] font-black text-[#064e3b]">JINI JEWELS</p>
-                        <p id="tagTxtId" class="font-mono text-gray-400">#----</p>
-                        <p id="tagTxtDesc" class="truncate max-w-[150px] text-gray-900 font-black">Item Details</p>
-                        <p id="tagTxtMetrics" class="text-[9px] text-gray-500 font-medium">--</p>
+                <div class="border border-dashed border-gray-400 p-3 rounded-xl bg-gray-50 flex items-center justify-between w-full h-[95px] mt-5 overflow-hidden">
+                    <div class="font-sans leading-tight text-black">
+                        <p class="text-[12px] font-black text-[#064e3b]">JINI JEWELS</p>
+                        <p id="tagTxtId" class="font-mono text-[10px] text-gray-500 mt-0.5">#----</p>
+                        <p id="tagTxtDesc" class="truncate max-w-[150px] text-[11px] text-gray-900 font-black">Item Details</p>
+                        <p id="tagTxtMetrics" class="text-[9px] text-gray-500 font-bold mt-0.5">--</p>
                     </div>
                     <div id="tagQrOutput" class="w-[65px] h-[65px] bg-white flex items-center justify-center border p-0.5 shadow-sm"></div>
                 </div>
-                <button type="button" onclick="window.print()" class="w-full bg-gray-900 text-[#D4AF37] font-bold py-2 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md">🖨️ Print String Tag</button>
+                
+                <button type="button" onclick="window.print()" class="w-full bg-gray-900 text-[#D4AF37] font-bold py-2.5 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md mt-2">🖨️ Print String Tag</button>
             </div>
 
             <div class="lg:col-span-7 bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10 flex flex-col h-auto">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b pb-3 mb-4">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-100 pb-3 mb-4">
                     <h3 class="text-base font-black text-gray-800 uppercase tracking-wide">Live Stock Ledger</h3>
-                    <input type="text" id="ledgerSearch" oninput="filterLedgerTable()" class="bg-gray-100 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-gray-800 outline-none w-full sm:w-48 focus:bg-white focus:border-[#047857]" placeholder="🔍 Filter stock list..." />
+                    <input type="text" id="ledgerSearch" oninput="filterLedgerTable()" class="bg-gray-100 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-gray-800 outline-none w-full sm:w-48 focus:border-[#047857] focus:bg-white transition-colors" placeholder="🔍 Filter stock list..." />
                 </div>
+                
                 <div class="w-full overflow-x-auto">
                     <table class="w-full text-left text-xs border-collapse">
                         <thead>
-                            <tr class="border-b-2 text-gray-400 font-black uppercase text-[10px]">
-                                <th class="pb-2 w-10">Pic</th>
+                            <tr class="border-b-2 border-gray-200 text-gray-400 font-black uppercase text-[10px]">
+                                <th class="pb-2 w-12 text-center">Pic</th>
                                 <th class="pb-2">Tag SKU</th>
                                 <th class="pb-2">Category</th>
                                 <th class="pb-2">Description</th>
@@ -211,11 +221,12 @@
                                 <th class="pb-2 text-center">Status</th>
                             </tr>
                         </thead>
-                        <tbody id="ledgerTableBody" class="divide-y font-bold text-gray-700 text-xs text-left">
+                        <tbody id="ledgerTableBody" class="divide-y divide-gray-100 font-bold text-gray-700 text-xs text-left">
                             </tbody>
                     </table>
                 </div>
             </div>
+            
         </div>
     </div>
 
@@ -226,7 +237,9 @@
                     <span>JINI JEWELS</span>
                     <span id="pTagCypher" style="font-family: monospace; font-size: 9px; font-weight: 900; color: #444444; text-transform: lowercase;"></span>
                 </div>
-                <div style="font-size: 9px; font-weight: 800; color: #333333; margin-top: -1px; margin-bottom: 2px;">stock id: <span id="pTagId" style="font-family: monospace; font-size: 10px; font-weight: 900;">----</span></div>
+                <div style="font-size: 9px; font-weight: 800; color: #333333; margin-top: -1px; margin-bottom: 2px;">
+                    stock id: <span id="pTagId" style="font-family: monospace; font-size: 10px; font-weight: 900;">----</span>
+                </div>
                 <div id="pTagDesc" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; font-size: 10px;">Description</div>
                 <div id="pTagMetrics" style="font-size: 9px; font-weight: 700; color: #111111; margin-top: 1px;">Metrics Data</div>
             </div>
@@ -236,18 +249,14 @@
 
     <div class="fixed bottom-0 left-0 w-full bg-gray-950 border-t border-white/10 z-40 no-print" id="bottomNavbarMenu">
         <div class="grid grid-cols-4 text-center text-[10px] font-black uppercase tracking-wider text-gray-400 max-w-2xl mx-auto">
-            <a href="retail.html" class="py-4 hover:text-white border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>✨</span><span class="scale-90">Retail</span></a>
-            <a href="backoffice.html" class="py-4 hover:text-white border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>💼</span><span class="scale-90">Office</span></a>
-            <a href="inventory.html" class="py-4 text-[#D4AF37] bg-white/10 border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>📦</span><span class="scale-90">Stock</span></a>
-            <a href="billing.html" class="py-4 hover:text-white flex flex-col items-center justify-center gap-0.5"><span>🧾</span><span class="scale-90">Billing</span></a>
+            <a href="retail.html" class="py-3.5 hover:text-white border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>✨</span><span class="scale-90">Retail</span></a>
+            <a href="backoffice.html" class="py-3.5 hover:text-white border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>💼</span><span class="scale-90">Office</span></a>
+            <a href="inventory.html" class="py-3.5 text-[#D4AF37] bg-white/10 border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>📦</span><span class="scale-90">Stock</span></a>
+            <a href="billing.html" class="py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5"><span>🧾</span><span class="scale-90">Billing</span></a>
         </div>
     </div>
 
     <script>
-        let currentFormMode = "weight"; 
-        let localLedgerCacheArray = []; 
-        let currentItemPhotoBase64 = "";
-        
         // ----------------------------------------------------
         // SECURITY: 15-MINUTE INACTIVITY LOCK TRACKER
         // ----------------------------------------------------
@@ -259,6 +268,8 @@
         
         document.addEventListener('click', heartbeat); 
         document.addEventListener('touchstart', heartbeat);
+        document.addEventListener('mousemove', heartbeat);
+        document.addEventListener('keypress', heartbeat);
         
         setInterval(() => { 
             if (Date.now() - idleTrackerTimestamp > 15 * 60 * 1000) {
@@ -288,6 +299,18 @@
         }
 
         // ----------------------------------------------------
+        // SYSTEM VARIABLES & INITIALIZATION
+        // ----------------------------------------------------
+        let currentFormMode = "weight"; 
+        let localLedgerCacheArray = []; 
+        let currentItemPhotoBase64 = "";
+
+        document.addEventListener("DOMContentLoaded", () => { 
+            generateRandomSku(); 
+            streamLiveEcosystemLedgers(); 
+        });
+
+        // ----------------------------------------------------
         // PHOTO COMPRESSION & BASE64 ENGINE
         // ----------------------------------------------------
         function handlePhotoUpload(event) {
@@ -299,9 +322,8 @@
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    // Compress image using canvas so it doesn't break Firestore limits
                     const canvas = document.createElement("canvas");
-                    const MAX_WIDTH = 300; 
+                    const MAX_WIDTH = 400; 
                     const scaleSize = MAX_WIDTH / img.width;
                     
                     canvas.width = MAX_WIDTH;
@@ -310,7 +332,6 @@
                     const ctx = canvas.getContext("2d");
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     
-                    // Convert back to base64, compressed to 70% quality JPG
                     const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7); 
                     currentItemPhotoBase64 = compressedBase64;
                     
@@ -326,13 +347,8 @@
         }
 
         // ----------------------------------------------------
-        // CORE INVENTORY WORKFLOWS
+        // FORM FIELD HANDLERS
         // ----------------------------------------------------
-        document.addEventListener("DOMContentLoaded", () => { 
-            generateRandomSku(); 
-            streamLiveEcosystemLedgers(); 
-        });
-        
         function generateRandomSku() { 
             document.getElementById('invTagId').value = "JJ-" + Math.floor(200000 + Math.random() * 700000); 
             refreshPreviewCanvas(); 
@@ -340,6 +356,7 @@
         
         function toggleFormSaleMode() { 
             currentFormMode = document.getElementById('invModeSelect').value; 
+            
             if(currentFormMode === 'weight') { 
                 document.getElementById('weightInputsRow').classList.remove('hidden'); 
                 document.getElementById('mrpInputBox').classList.add('hidden'); 
@@ -347,12 +364,14 @@
                 document.getElementById('mrpInputBox').classList.remove('hidden'); 
                 document.getElementById('weightInputsRow').classList.add('hidden'); 
             } 
+            
             refreshPreviewCanvas(); 
         }
         
         function handleCategorySelection() { 
             const selectValue = document.getElementById('invCategorySelect').value; 
             const customInput = document.getElementById('invCustomCategoryInput'); 
+            
             if(selectValue === 'Custom') {
                 customInput.classList.remove('hidden'); 
             } else {
@@ -364,6 +383,9 @@
             document.getElementById(id).addEventListener('input', refreshPreviewCanvas); 
         });
         
+        // ----------------------------------------------------
+        // DYNAMIC PREVIEW & QR RENDERING
+        // ----------------------------------------------------
         function refreshPreviewCanvas() {
             const tagId = document.getElementById('invTagId').value.trim().toUpperCase() || "----"; 
             const desc = document.getElementById('invDesc').value.trim() || "Item Details"; 
@@ -389,11 +411,14 @@
             document.getElementById('pTagQr').innerHTML = "";
             
             if (tagId !== "----") { 
-                new QRCode(document.getElementById('tagQrOutput'), { text: tagId, width: 65, height: 65 }); 
-                new QRCode(document.getElementById('pTagQr'), { text: tagId, width: 72, height: 72 }); 
+                new QRCode(document.getElementById('tagQrOutput'), { text: tagId, width: 65, height: 65, correctLevel: QRCode.CorrectLevel.M }); 
+                new QRCode(document.getElementById('pTagQr'), { text: tagId, width: 72, height: 72, correctLevel: QRCode.CorrectLevel.M }); 
             }
         }
 
+        // ----------------------------------------------------
+        // CLOUD SYNCHRONIZATION & LEDGER BUILDER
+        // ----------------------------------------------------
         function streamLiveEcosystemLedgers() {
             if (typeof db === 'undefined') return;
             
@@ -432,24 +457,25 @@
             
             records.forEach(item => {
                 const tr = document.createElement('tr'); 
-                tr.className = "border-b hover:bg-gray-50/80"; 
+                tr.className = "border-b border-gray-100 hover:bg-emerald-50/50 transition-colors"; 
                 const badgeColor = item.status === 'Sold' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
                 
-                // Construct the photo column cell
                 const photoCell = item.itemPhotoData 
-                    ? `<img src="${item.itemPhotoData}" class="w-8 h-8 rounded-md object-cover border border-gray-200 shadow-sm" />` 
-                    : `<div class="w-8 h-8 rounded-md bg-gray-100 border border-gray-200 flex items-center justify-center text-[10px] text-gray-400">📷</div>`;
+                    ? `<img src="${item.itemPhotoData}" class="w-9 h-9 rounded-md object-cover border border-gray-200 shadow-sm" />` 
+                    : `<div class="w-9 h-9 rounded-md bg-gray-100 border border-gray-200 flex items-center justify-center text-[10px] text-gray-400">📷</div>`;
                 
                 tr.innerHTML = `
-                    <td class="py-2 pl-1">${photoCell}</td>
-                    <td class="py-3 font-mono font-black">#${item.tagNumberId}</td>
-                    <td class="py-3 text-[11px] text-gray-400 uppercase">${item.itemCategory || 'Silver'}</td>
-                    <td class="py-3 font-black">
+                    <td class="py-2.5 text-center">${photoCell}</td>
+                    <td class="py-2.5 font-mono font-black text-gray-900">#${item.tagNumberId}</td>
+                    <td class="py-2.5 text-[11px] text-gray-400 uppercase">${item.itemCategory || 'Silver'}</td>
+                    <td class="py-2.5 font-black text-gray-800">
                         ${item.itemNameDescription} 
-                        ${item.itemCypherCode ? `<div class="text-[9px] font-mono font-normal text-gray-400">cypher: ${item.itemCypherCode}</div>` : ''}
+                        ${item.itemCypherCode ? `<div class="text-[9px] font-mono font-normal text-gray-400 mt-0.5 tracking-widest uppercase">${item.itemCypherCode}</div>` : ''}
                     </td>
-                    <td class="py-3 text-right font-black">${item.netWeightValue ? item.netWeightValue.toFixed(2)+' g' : '-'}</td>
-                    <td class="py-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${badgeColor}">${item.status || 'In Stock'}</span></td>
+                    <td class="py-2.5 text-right font-black text-gray-900">${item.netWeightValue ? item.netWeightValue.toFixed(2)+' g' : '-'}</td>
+                    <td class="py-2.5 text-center">
+                        <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wide ${badgeColor}">${item.status || 'In Stock'}</span>
+                    </td>
                 `;
                 tableBody.appendChild(tr);
             });
@@ -457,6 +483,7 @@
 
         function filterLedgerTable() { 
             const query = document.getElementById('ledgerSearch').value.toLowerCase().trim(); 
+            
             if(!query) { 
                 renderTableRecords(localLedgerCacheArray); 
                 return; 
@@ -484,7 +511,7 @@
             }
             
             if(!tagId || !desc) { 
-                alert("Tag SKU and Description Name compulsory!"); 
+                alert("Tag SKU and Description Name are compulsory fields!"); 
                 return; 
             }
 
@@ -498,7 +525,7 @@
                 otherChargesAmount: other, 
                 pricingSaleMode: currentFormMode, 
                 status: "In Stock", 
-                itemPhotoData: currentItemPhotoBase64, // Injecting compressed image
+                itemPhotoData: currentItemPhotoBase64,
                 metalRateValue: currentFormMode === 'weight' ? (parseFloat(document.getElementById('invRate').value) || 0) : 0, 
                 labourChargeValue: currentFormMode === 'weight' ? (parseFloat(document.getElementById('invLabour').value) || 0) : 0, 
                 fixedMrpAmount: currentFormMode === 'mrp' ? (parseFloat(document.getElementById('invMrp').value) || 0) : 0, 
@@ -506,15 +533,16 @@
             };
             
             db.collection("jini_inventory").doc(tagId).set(itemPayload).then(() => { 
-                alert(`Stock Recorded!`); 
+                alert(`Stock Recorded Successfully!`); 
                 
-                // Clear the form fields
                 document.getElementById('invDesc').value = ''; 
                 document.getElementById('invCypher').value = ''; 
                 document.getElementById('invWeight').value = ''; 
                 document.getElementById('invOther').value = ''; 
+                document.getElementById('invRate').value = ''; 
+                document.getElementById('invLabour').value = ''; 
+                document.getElementById('invMrp').value = ''; 
                 
-                // Clear the photo
                 currentItemPhotoBase64 = "";
                 document.getElementById("invPhotoInput").value = "";
                 document.getElementById("photoPreviewContainer").classList.add("hidden");
