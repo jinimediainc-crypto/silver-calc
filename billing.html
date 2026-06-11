@@ -25,7 +25,6 @@
         }
         
         html { scroll-behavior: smooth; }
-        
         .toggle-checkbox:checked { right: 0; border-color: #D4AF37; }
         .toggle-checkbox:checked + .toggle-label { background-color: #047857; }
         
@@ -67,11 +66,9 @@
             .print-table th { background-color: #f9fafb !important; color: #000000 !important; border-top: 2px solid #000000 !important; border-bottom: 2px solid #000000 !important; padding: 8px 4px !important; font-weight: 900 !important; text-transform: uppercase !important; }
             .print-table td { border-bottom: 1px solid #e5e7eb !important; padding: 8px 4px !important; color: #000000 !important; }
             
-            /* DYNAMIC SIZES */
+            /* DYNAMIC SIZES BASED ON DROPDOWN SELECTION */
             body.print-a4 #printableMemoCard { width: 210mm !important; padding: 40px !important; }
             body.print-a5 #printableMemoCard { width: 148mm !important; padding: 20px !important; }
-            
-            /* THERMAL 80MM PRINTER SPECIFICS */
             body.print-thermal #printableMemoCard { width: 78mm !important; padding: 5px !important; font-size: 11px !important; }
             body.print-thermal .text-2xl { font-size: 16px !important; }
             body.print-thermal .print-table th { font-size: 9px !important; padding: 4px 2px !important; }
@@ -122,7 +119,7 @@
                         <h3 class="text-lg font-black text-[#064e3b] uppercase tracking-wide">Customer Details</h3>
                         <span id="editModeIndicator" class="hidden bg-amber-100 text-amber-800 text-[9px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider">📝 Editing Record</span>
                     </div>
-                    <button type="button" onclick="fetchHistoryFromCloud()" class="bg-gray-900 hover:bg-black text-[#D4AF37] font-black text-[11px] px-3 py-1.5 rounded-xl uppercase tracking-wider">📋 View History</button>
+                    <button type="button" onclick="fetchHistoryFromCloud()" class="bg-gray-900 hover:bg-black text-[#D4AF37] font-black text-[11px] px-3 py-1.5 rounded-xl uppercase tracking-wider shadow-sm">📋 View History</button>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
@@ -149,16 +146,16 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-gray-100 pb-2">
                     <h3 class="text-lg font-black text-[#064e3b] uppercase tracking-wide">Add / Modify Item</h3>
                     <div class="flex bg-gray-100 p-1 rounded-xl border border-gray-200">
-                        <button type="button" onclick="setSaleMode(event, 'weight')" id="btnModeWeight" class="text-xs font-black uppercase px-4 py-2 rounded-lg bg-[#047857] text-white">By Weight</button>
-                        <button type="button" onclick="setSaleMode(event, 'mrp')" id="btnModeMrp" class="text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500">Fixed MRP</button>
+                        <button type="button" onclick="setSaleMode(event, 'weight')" id="btnModeWeight" class="text-xs font-black uppercase px-4 py-2 rounded-lg bg-[#047857] text-white transition-colors">By Weight</button>
+                        <button type="button" onclick="setSaleMode(event, 'mrp')" id="btnModeMrp" class="text-xs font-black uppercase px-4 py-2 rounded-lg text-gray-500 transition-colors">Fixed MRP</button>
                     </div>
                 </div>
 
                 <div class="bg-amber-50/50 border border-[#D4AF37]/40 rounded-2xl p-3 space-y-1 relative">
                     <label class="block text-[10px] font-black text-amber-800 uppercase tracking-wider">Item Lookup (Type Piece Name or Scan QR Tag)</label>
                     <div class="flex items-center gap-2">
-                        <input type="text" id="liveSearchQuery" oninput="showSearchSuggestions()" onkeypress="handleBarcodeGunScan(event)" autocomplete="off" class="w-full bg-white border border-gray-200 rounded-xl py-3 px-3 text-sm font-black text-gray-900 outline-none focus:border-[#047857]" placeholder="🔍 Search name description (e.g. payal, ring)..." />
-                        <button type="button" onclick="startCameraScanner()" class="bg-[#064e3b] text-white w-12 h-12 rounded-xl flex items-center justify-center text-lg shadow active:scale-90 transition-all">📷</button>
+                        <input type="text" id="liveSearchQuery" oninput="showSearchSuggestions()" onkeypress="handleBarcodeGunScan(event)" autocomplete="off" class="w-full bg-white border border-gray-200 rounded-xl py-3 px-3 text-sm font-black text-gray-900 outline-none focus:border-[#047857]" placeholder="🔍 Search description, or type manual item..." />
+                        <button type="button" onclick="startCameraScanner()" class="bg-[#064e3b] text-white w-12 h-12 rounded-xl flex items-center justify-center text-lg shadow active:scale-90 transition-transform">📷</button>
                     </div>
                     <div id="searchSuggestions" class="absolute left-3 right-3 bg-white border border-gray-200 rounded-xl mt-1 shadow-2xl max-h-52 overflow-y-auto hidden z-30 font-bold text-xs text-left divide-y divide-gray-100"></div>
                 </div>
@@ -214,7 +211,7 @@
                     </div>
                 </div>
 
-                <button type="button" onclick="addItem(event)" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3.5 px-4 rounded-xl uppercase tracking-widest transition-all active:scale-95">➕ Add Item to Receipt</button>
+                <button type="button" onclick="addItem(event)" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3.5 px-4 rounded-xl uppercase tracking-widest transition-all shadow-md active:scale-95">➕ Add Item to Receipt</button>
             </div>
         </div>
 
@@ -276,7 +273,7 @@
                     </div>
 
                     <div class="mt-4 pt-4 border-t border-gray-200 internal-only no-print">
-                        <h4 class="text-xs font-black text-gray-800 uppercase mb-2">Customer Payment Status</h4>
+                        <h4 class="text-[10px] font-black text-gray-800 uppercase tracking-widest mb-2">Customer Payment Status</h4>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-[10px] font-bold text-gray-600 uppercase mb-1">Mode</label>
@@ -289,7 +286,7 @@
                             </div>
                             <div>
                                 <label class="block text-[10px] font-bold text-gray-600 uppercase mb-1">Amount Received (₹)</label>
-                                <input type="number" id="amtPaid" oninput="renderInvoice()" class="w-full bg-emerald-50 border border-emerald-300 rounded-lg py-1.5 px-2 text-sm font-black text-emerald-800 outline-none focus:border-emerald-600" placeholder="0" />
+                                <input type="number" id="amtPaid" oninput="renderInvoice()" class="w-full bg-emerald-50 border border-emerald-300 rounded-lg py-1.5 px-2 text-sm font-black text-emerald-800 outline-none focus:border-emerald-600" placeholder="Full Amount" />
                             </div>
                         </div>
                         <div class="flex justify-between items-center mt-3 bg-red-50 p-2 rounded-lg border border-red-100">
@@ -310,7 +307,7 @@
             <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-4 shadow-xl border border-white/20 internal-only no-print">
                 <div id="printFormatContainer" class="mb-3">
                     <label class="block text-[10px] font-black text-gray-600 uppercase tracking-widest mb-1">Select Print Layout</label>
-                    <select id="printFormatSelect" class="w-full bg-gray-100 border border-gray-300 rounded-lg py-2 px-3 text-sm font-bold text-gray-800 outline-none">
+                    <select id="printFormatSelect" class="w-full bg-gray-100 border border-gray-300 rounded-lg py-2 px-3 text-sm font-bold text-gray-800 outline-none focus:border-[#047857]">
                         <option value="a4">A4 Full Page</option>
                         <option value="a5">A5 Half Page</option>
                         <option value="thermal">Thermal POS (80mm / 3 inch)</option>
@@ -532,7 +529,7 @@
         });
 
         // ----------------------------------------------------
-        // SCANNER & ADD ITEM LOGIC
+        // SCANNER & ADD ITEM LOGIC (INCLUDING LOOSE ITEMS)
         // ----------------------------------------------------
         function startCameraScanner() { 
             document.getElementById('qrScannerBox').classList.remove('hidden'); 
@@ -591,7 +588,7 @@
             if (!checkMandatoryDetails()) return;
             
             const desc = inputs.desc.value.trim();
-            const tagRef = inputs.stockTag.value;
+            const tagRef = inputs.stockTag.value; // Can be empty for loose items!
             const other = parseFloat(inputs.other.value) || 0;
             const weight = parseFloat(inputs.itemWeight.value) || 0;
             const huidAmt = inputs.huidToggle.checked ? (parseFloat(inputs.huidPrice.value) || 0) : 0;
@@ -601,7 +598,7 @@
             let total = 0;
             if (saleMode === "weight") {
                 let r = parseFloat(inputs.rate.value) || 0; let l = parseFloat(inputs.labour.value) || 0;
-                if (weight <= 0) { alert("Net Weight is mandatory!"); return; }
+                if (weight <= 0) { alert("Net Weight is mandatory for weight-based items!"); return; }
                 total = Math.round(((r + l) * weight) + other + huidAmt);
             } else { 
                 let mrp = parseFloat(inputs.mrp.value) || 0; 
@@ -612,7 +609,6 @@
             items.push({ desc, tagNumberId: tagRef, total, weight });
             inputs.desc.value = ''; inputs.stockTag.value = ''; inputs.itemWeight.value = ''; inputs.other.value = '';
             
-            // Assume full payment implicitly when new item added, update UI later
             renderInvoice();
         }
 
@@ -635,9 +631,8 @@
                 document.getElementById('itemCountLabel').innerText = '0 Items Added'; 
                 document.getElementById('prevGross').innerText = '0';
                 document.getElementById('prevTax').innerText = '0'; 
-                document.getElementById('invoiceGrandTotal').innerText = '0';
-                document.getElementById('invoiceGrandTotalDisplay').innerText = '0'; 
                 document.getElementById('printGrandTotal').innerText = '0';
+                document.getElementById('invoiceGrandTotalDisplay').innerText = '0'; 
                 document.getElementById('printBalanceDue').innerText = '0';
                 return;
             }
@@ -672,7 +667,7 @@
             });
             tableHtml += `</tbody></table>`; wrapper.innerHTML = tableHtml;
 
-            // BUG FIX: Corrected discIn to dIn
+            // BUG FIX: Corrected discIn to dIn inside logic
             const taxApplied = inputs.taxToggle.checked; 
             const gst = taxApplied ? Math.round(gross * 0.03) : 0;
             const dIn = parseFloat(inputs.discVal.value) || 0;
@@ -680,7 +675,9 @@
             const finalTotal = (gross + gst) - dAmt;
 
             // Payment Calculations
-            const amtPaid = parseFloat(document.getElementById('amtPaid').value) || 0;
+            let amtPaidInput = document.getElementById('amtPaid').value;
+            let amtPaid = amtPaidInput === '' ? finalTotal : (parseFloat(amtPaidInput) || 0);
+            
             const balDue = Math.max(0, finalTotal - amtPaid);
             document.getElementById('printBalanceDue').innerText = balDue.toLocaleString('en-IN');
 
@@ -696,13 +693,14 @@
             document.getElementById('itemCountLabel').innerText = `${items.length} Items`;
             document.getElementById('prevGross').innerText = gross.toLocaleString('en-IN'); 
             document.getElementById('prevTax').innerText = gst.toLocaleString('en-IN');
-            document.getElementById('invoiceGrandTotal').innerText = finalTotal.toLocaleString('en-IN'); 
+            
+            // Critical updates to correct elements
+            document.getElementById('printGrandTotal').innerText = finalTotal.toLocaleString('en-IN'); 
             document.getElementById('invoiceGrandTotalDisplay').innerText = finalTotal.toLocaleString('en-IN'); 
-            document.getElementById('printGrandTotal').innerText = finalTotal.toLocaleString('en-IN');
         }
 
         // ----------------------------------------------------
-        // CLOUD SAVE & HISTORY LOGIC
+        // CLOUD SAVE & AUTOMATIC CRM GENERATION
         // ----------------------------------------------------
         function executeCloudSave(e) {
             if (e) e.preventDefault(); 
@@ -713,10 +711,11 @@
             saveBtn.disabled = true;
             
             const targetId = inputs.memoId.value.trim();
-            const finalTotalStr = document.getElementById('invoiceGrandTotal').innerText;
+            const finalTotalStr = document.getElementById('printGrandTotal').innerText;
             const finalTotalNum = parseFloat(finalTotalStr.replace(/,/g, '')) || 0;
             
-            const amtPaid = parseFloat(document.getElementById('amtPaid').value) || 0;
+            const amtPaidInput = document.getElementById('amtPaid').value;
+            const amtPaid = amtPaidInput === '' ? finalTotalNum : (parseFloat(amtPaidInput) || 0);
             const balDue = Math.max(0, finalTotalNum - amtPaid);
 
             const payload = {
@@ -728,7 +727,7 @@
                 subtotalAmount: document.getElementById('prevGross').innerText,
                 taxAppliedBool: inputs.taxToggle.checked, 
                 discountGivenValue: document.getElementById('prevDiscountAmt').innerText || '0',
-                grandTotalPayable: finalTotalNum, // Saved as Number for easier Accounting
+                grandTotalPayable: finalTotalNum, // Saved as Number!
                 amountPaid: amtPaid,
                 balanceDue: balDue,
                 paymentMode: document.getElementById('paymentMode').value,
@@ -738,14 +737,14 @@
             const ref = activeDocId ? db.collection("showroom_memos").doc(activeDocId) : db.collection("showroom_memos").doc();
             let updatePromises = [ref.set(payload)];
             
-            // 1. Mark Inventory as Sold
+            // 1. Mark strictly linked Inventory as Sold (Safely skips loose items)
             items.forEach(item => { 
-                if (item.tagNumberId) { 
+                if (item.tagNumberId && item.tagNumberId !== "") { 
                     updatePromises.push(db.collection("jini_inventory").doc(item.tagNumberId).update({ status: "Sold" })); 
                 } 
             });
 
-            // 2. Sync to CRM Lifetime Value and Dues
+            // 2. Automatically Sync to CRM Profile (Lifetime Value and Dues)
             const crmRef = db.collection("client_profiles").doc(inputs.mobile.value.trim());
             updatePromises.push(crmRef.set({
                 name: inputs.name.value.trim(),
@@ -756,7 +755,7 @@
             }, { merge: true }));
             
             Promise.all(updatePromises).then(() => { 
-                alert(`☁️ Cloud Record Saved Successfully!`); 
+                alert(`✅ Cloud Record Saved! CRM Profiles and Accounting Ledgers Updated.`); 
                 resetTerminalBillingState(); 
             }).catch(err => { 
                 alert(err.message); 
@@ -797,7 +796,7 @@
                 card.className = "bg-gray-50 border p-4 rounded-2xl mb-2 text-left cursor-pointer relative group transition-all hover:bg-emerald-50/60 shadow-sm";
                 
                 const grandTotal = d.grandTotalPayable.toLocaleString ? d.grandTotalPayable.toLocaleString('en-IN') : d.grandTotalPayable;
-                const balDue = d.balanceDue > 0 ? `<span class="text-[9px] text-red-600 bg-red-100 px-1 rounded ml-2 uppercase">Due: ₹${d.balanceDue}</span>` : '';
+                const balDue = d.balanceDue > 0 ? `<span class="text-[9px] text-red-600 bg-red-100 px-1 rounded ml-2 uppercase tracking-wide border border-red-200">Due: ₹${d.balanceDue}</span>` : '';
 
                 card.innerHTML = `
                     <div class="flex justify-between font-black text-sm pr-6">
@@ -805,12 +804,12 @@
                         <span class="text-xs font-bold text-gray-400">${d.memoDate}</span>
                     </div>
                     <div class="flex justify-between mt-1 pr-6">
-                        <p class="text-xs uppercase text-gray-700">${d.customerName} ${balDue}</p>
+                        <p class="text-xs uppercase text-gray-700 flex items-center">${d.customerName} ${balDue}</p>
                         <span class="font-black text-emerald-700">₹${grandTotal}</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2 pt-2.5 mt-3 border-t border-gray-100">
-                        <button type="button" class="btn-load bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black uppercase py-1.5 rounded-lg text-center shadow-sm">✏️ Edit / Load</button>
-                        <button type="button" class="btn-preview bg-gray-100 hover:bg-gray-200 text-gray-800 text-[11px] font-black uppercase py-1.5 rounded-lg text-center border">👁️ View PDF</button>
+                        <button type="button" class="btn-load bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black uppercase py-1.5 rounded-lg text-center shadow-sm transition-colors">✏️ Edit / Load</button>
+                        <button type="button" class="btn-preview bg-gray-100 hover:bg-gray-200 text-gray-800 text-[11px] font-black uppercase py-1.5 rounded-lg text-center border transition-colors">👁️ View PDF</button>
                     </div>
                     <button type="button" class="btn-delete absolute right-3 top-4 text-gray-300 hover:text-red-600 text-sm transition-colors p-1">🗑️</button>
                 `;
@@ -826,30 +825,33 @@
         // FULL STOCK REVERSAL DELETE LOGIC
         function deleteHistoryRecord(docId) { 
             if (!confirm("Are you sure you want to permanently delete this estimate?")) return; 
-            if (!confirm("CRITICAL WARNING: This will automatically reverse matching jewelry items back to 'In Stock'! Proceed?")) return; 
+            if (!confirm("CRITICAL WARNING: This will automatically reverse matching jewelry items back to 'In Stock' and deduct the amount from the Customer's CRM LTV Profile! Proceed?")) return; 
             
             const record = globalHistoryCache.find(i => i.fbDocIdReferenceToken === docId); 
             
             db.collection("showroom_memos").doc(docId).delete().then(() => { 
                 if (record && record.itemsListArray) { 
                     let reversePromises = []; 
+                    
+                    // Restore physical inventory
                     record.itemsListArray.forEach(item => { 
-                        if (item.tagNumberId) { 
+                        if (item.tagNumberId && item.tagNumberId !== "") { 
                             const promise = db.collection("jini_inventory").doc(item.tagNumberId).update({ status: "In Stock" });
                             reversePromises.push(promise); 
                         } 
                     }); 
-                    // Deduct LTV from CRM Profile
+                    
+                    // Deduct financial records from CRM Profile
                     if (record.customerMobile) {
                         const crmRef = db.collection("client_profiles").doc(record.customerMobile);
                         reversePromises.push(crmRef.set({
-                            totalLifetimeValue: firebase.firestore.FieldValue.increment(-record.grandTotalPayable),
-                            pendingDue: firebase.firestore.FieldValue.increment(-(record.balanceDue || 0))
+                            totalLifetimeValue: firebase.firestore.FieldValue.increment(-(parseFloat(record.grandTotalPayable) || 0)),
+                            pendingDue: firebase.firestore.FieldValue.increment(-(parseFloat(record.balanceDue) || 0))
                         }, { merge: true }));
                     }
 
                     Promise.all(reversePromises).then(() => { 
-                        alert("🗑️ Invoice deleted and matching inventory stock levels successfully restored!"); 
+                        alert("🗑️ Invoice deleted! CRM balances and inventory stock levels successfully restored."); 
                         if (activeDocId === docId) resetTerminalBillingState(); 
                         fetchHistoryFromCloud(); 
                     }).catch(err => {
@@ -918,7 +920,7 @@
             
             const mobile = inputs.mobile.value.trim();
             const name = inputs.name.value.trim();
-            const total = document.getElementById('invoiceGrandTotal').innerText;
+            const total = document.getElementById('printGrandTotal').innerText;
             const estimateNo = inputs.memoId.value;
             const date = document.getElementById('memoDate').value;
             
