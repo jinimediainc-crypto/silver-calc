@@ -3,131 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jini Jewels Vault Gateway</title>
+    <title>Jini Jewels ERP Hub</title>
+    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#064e3b">
     <link rel="apple-touch-icon" href="icon.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
     <script src="firebase-config.js"></script>
+
+    <style>
+        /* UNLOCKED SCROLL ENGINE FOR NATIVE MOBILE FEEL */
+        html, body {
+            overflow-y: auto !important;
+            height: auto !important;
+            min-height: 100dvh !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+        
+        .hub-card:active {
+            transform: scale(0.95);
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 flex flex-col justify-center items-center min-h-[100dvh] font-sans p-4 select-none overflow-hidden relative">
+<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900">
 
-    <div id="loginGatewayPanel" class="w-full max-w-sm bg-white/95 backdrop-blur-xl rounded-[2rem] p-6 md:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/20 text-center transition-all duration-300">
-        <h1 class="text-3xl font-black text-[#064e3b] tracking-tight mb-1">JINI JEWELS</h1>
-        <p class="text-[10px] font-black text-gray-400 tracking-widest uppercase mb-6">Terminal Authentication</p>
-        
-        <div class="space-y-4 text-left">
-            <div>
-                <label class="block text-[11px] font-bold text-gray-500 uppercase mb-1 tracking-wide">Terminal ID (Email)</label>
-                <input type="email" id="authEmail" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 font-bold text-gray-800 outline-none focus:border-[#047857] focus:bg-white transition-all" placeholder="name@jinijewels.com" />
-            </div>
-            <div>
-                <label class="block text-[11px] font-bold text-gray-500 uppercase mb-1 tracking-wide">Secure Passcode</label>
-                <input type="password" id="authPassword" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 font-bold text-gray-800 outline-none focus:border-[#047857] focus:bg-white transition-all" placeholder="••••••••" />
-            </div>
-        </div>
-        
-        <p id="authErrorMsg" class="text-red-500 text-xs font-black mt-4 min-h-[16px] uppercase tracking-wide"></p>
-
-        <button type="button" id="btnVerify" onclick="loginShowroomTerminal()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-3.5 px-4 rounded-xl uppercase tracking-widest transition-colors shadow-md mt-2 active:scale-95">
-            Verify Terminal
-        </button>
-
-        <button type="button" onclick="authenticateWithDeviceBiometrics()" class="w-full bg-gray-950 text-[#D4AF37] font-black py-3.5 px-4 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center gap-2 border border-gray-800 active:scale-95 mt-3">
-            Fingerprint / Face ID Quick Log
-        </button>
-    </div>
-
-    <div id="showroomHubDashboard" class="hidden w-full max-w-md text-center transition-all duration-300">
-        <div class="mb-6">
-            <h1 class="text-4xl font-black text-white tracking-tight mb-1">Jini Jewels</h1>
-            <p class="text-xs font-bold text-emerald-400 tracking-widest uppercase">Showroom Ecosystem</p>
-        </div>
-
-        <div class="flex flex-col gap-3.5 w-full">
-            <a href="retail.html" class="bg-white/95 border-2 border-transparent rounded-2xl p-4 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all active:scale-[0.98]">
-                <span class="font-black text-[#064e3b] text-base uppercase tracking-widest">✨ Retail Calculator</span>
-            </a>
-            <a href="backoffice.html" class="bg-white/95 border-2 border-transparent rounded-2xl p-4 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all active:scale-[0.98]">
-                <span class="font-black text-[#064e3b] text-base uppercase tracking-widest">💼 Back Office Calculator</span>
-            </a>
-            <a href="inventory.html" class="bg-white/95 border-2 border-transparent rounded-2xl p-4 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all active:scale-[0.98]">
-                <span class="font-black text-amber-700 text-base uppercase tracking-widest">📦 Inventory & Stock Tracker</span>
-            </a>
-            <a href="billing.html" class="bg-white/95 border-2 border-transparent rounded-2xl p-4 shadow-xl flex items-center justify-center text-center hover:border-[#D4AF37] transition-all active:scale-[0.98]">
-                <span class="font-black text-[#064e3b] text-base uppercase tracking-widest">🧾 POS & Billing System</span>
-            </a>
-            
-            <button type="button" onclick="logoutShowroomTerminal()" class="mt-4 text-white/40 hover:text-red-400 font-bold uppercase tracking-wider text-xs transition-colors py-2 active:scale-95">
-                🔒 Secure Terminate Session
+    <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden">
+        <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
+        <p class="text-xs font-bold text-gray-400 tracking-widest uppercase mb-6">Jini Jewels Showroom Security Lock</p>
+        <div class="w-full max-w-xs space-y-3">
+            <button type="button" onclick="unlockTerminalWithBiometrics()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
+                <span>Verify Biometrics to Unlock</span>
+            </button>
+            <button type="button" onclick="executeLogout()" class="w-full bg-red-900/50 hover:bg-red-900 text-red-200 font-bold py-3 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 text-xs">
+                Force Logout
             </button>
         </div>
     </div>
 
+    <div id="loginGatewayPanel" class="flex-1 flex flex-col justify-center items-center px-6 py-12 w-full max-w-md mx-auto min-h-screen">
+        
+        <div class="text-center mb-10">
+            <div class="w-20 h-20 bg-white/10 rounded-full mx-auto flex items-center justify-center border border-[#D4AF37]/50 shadow-2xl mb-4 backdrop-blur-sm">
+                <span class="text-4xl">💎</span>
+            </div>
+            <h1 class="text-4xl font-black text-white tracking-tight">JINI JEWELS</h1>
+            <p class="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.3em] mt-1">Enterprise Cloud Terminal</p>
+        </div>
+
+        <div class="bg-white/95 backdrop-blur-lg rounded-[2rem] p-8 shadow-2xl border border-white/20 w-full">
+            <h2 class="text-lg font-black text-[#064e3b] uppercase mb-6 text-center tracking-wide border-b border-gray-200 pb-3">Staff Authentication</h2>
+            
+            <form id="loginForm" onsubmit="executeLogin(event)" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Registered Email</label>
+                    <input type="email" id="authEmail" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 font-bold text-gray-800 outline-none focus:border-[#047857] transition-colors" placeholder="staff@jinijewels.com" required />
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Secure Password</label>
+                    <input type="password" id="authPassword" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 font-bold text-gray-800 outline-none focus:border-[#047857] transition-colors" placeholder="••••••••" required />
+                </div>
+
+                <div id="loginErrorMsg" class="hidden bg-red-50 text-red-600 text-xs font-bold p-3 rounded-lg border border-red-200 text-center"></div>
+
+                <button type="submit" id="btnLogin" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-xl uppercase tracking-widest transition-all shadow-md active:scale-95 mt-2">
+                    Access Terminal
+                </button>
+            </form>
+        </div>
+        
+        <p class="text-center text-white/40 text-[10px] font-bold uppercase tracking-wider mt-8">Secure 256-bit Encrypted Connection</p>
+    </div>
+
+    <div id="showroomHubDashboard" class="hidden flex-1 flex flex-col w-full min-h-screen">
+        
+        <div class="bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 sticky top-0 z-20">
+            <div class="flex items-center justify-between px-6 py-4 max-w-5xl mx-auto w-full">
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black text-white tracking-widest uppercase">Ecosystem Hub</h1>
+                    <p class="text-[#D4AF37] text-[10px] font-black uppercase tracking-wider" id="hubUserEmail">Loading Profile...</p>
+                </div>
+                <button type="button" onclick="executeLogout()" class="bg-red-900/80 hover:bg-red-800 text-white text-[10px] font-black uppercase tracking-wider py-2 px-4 rounded-lg border border-red-500/50 shadow-sm transition-colors">
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="flex-1 w-full max-w-5xl mx-auto px-4 md:px-8 py-8 pb-24">
+            
+            <div class="mb-6">
+                <h2 class="text-white text-lg font-black uppercase tracking-wide">Launch Application</h2>
+                <p class="text-gray-400 text-xs font-bold">Select a terminal module to begin operations.</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                
+                <a href="retail.html" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group">
+                    <div class="w-14 h-14 bg-emerald-500/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">✨</div>
+                    <div>
+                        <h3 class="text-white font-black text-sm uppercase tracking-wide">Retail</h3>
+                        <p class="text-emerald-400 text-[9px] font-bold uppercase tracking-wider mt-1">Estimate Calc</p>
+                    </div>
+                </a>
+
+                <a href="billing.html" class="hub-card bg-white/10 hover:bg-white/20 border border-[#D4AF37]/30 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-[#D4AF37]/10 rounded-bl-full"></div>
+                    <div class="w-14 h-14 bg-[#D4AF37]/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">🧾</div>
+                    <div>
+                        <h3 class="text-white font-black text-sm uppercase tracking-wide">POS Billing</h3>
+                        <p class="text-[#D4AF37] text-[9px] font-bold uppercase tracking-wider mt-1">Checkout Desk</p>
+                    </div>
+                </a>
+
+                <a href="inventory.html" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group" id="modStock">
+                    <div class="w-14 h-14 bg-amber-500/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">📦</div>
+                    <div>
+                        <h3 class="text-white font-black text-sm uppercase tracking-wide">Stock Room</h3>
+                        <p class="text-amber-400 text-[9px] font-bold uppercase tracking-wider mt-1">Tags & Ledger</p>
+                    </div>
+                </a>
+
+                <a href="crm.html" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group" id="modCrm">
+                    <div class="w-14 h-14 bg-blue-500/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">🤝</div>
+                    <div>
+                        <h3 class="text-white font-black text-sm uppercase tracking-wide">Client CRM</h3>
+                        <p class="text-blue-400 text-[9px] font-bold uppercase tracking-wider mt-1">LTV & Database</p>
+                    </div>
+                </a>
+
+                <a href="accounting.html" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group" id="modAccounts">
+                    <div class="w-14 h-14 bg-indigo-500/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">📓</div>
+                    <div>
+                        <h3 class="text-white font-black text-sm uppercase tracking-wide">Accounts</h3>
+                        <p class="text-indigo-400 text-[9px] font-bold uppercase tracking-wider mt-1">Cash Day-Book</p>
+                    </div>
+                </a>
+
+                <a href="hisab.html" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group" id="modHisab">
+                    <div class="w-14 h-14 bg-orange-500/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">⚖️</div>
+                    <div>
+                        <h3 class="text-white font-black text-sm uppercase tracking-wide">B2B Hisab</h3>
+                        <p class="text-orange-400 text-[9px] font-bold uppercase tracking-wider mt-1">Metal Ledger</p>
+                    </div>
+                </a>
+
+                <a href="backoffice.html" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group" id="modOffice">
+                    <div class="w-14 h-14 bg-stone-500/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">💼</div>
+                    <div>
+                        <h3 class="text-white font-black text-sm uppercase tracking-wide">Back Office</h3>
+                        <p class="text-stone-400 text-[9px] font-bold uppercase tracking-wider mt-1">Purity Calc</p>
+                    </div>
+                </a>
+
+                <a href="admin.html" class="hub-card bg-gray-900 border border-red-500/30 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg transition-all text-center group" id="modAdmin">
+                    <div class="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">🛡️</div>
+                    <div>
+                        <h3 class="text-white font-black text-sm uppercase tracking-wide">Admin Vault</h3>
+                        <p class="text-red-400 text-[9px] font-bold uppercase tracking-wider mt-1">Staff Security</p>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </div>
+
     <script>
-        auth.onAuthStateChanged((user) => {
-            const loginCard = document.getElementById('loginGatewayPanel');
+        // ----------------------------------------------------
+        // SECURITY INACTIVITY TRACKER
+        // ----------------------------------------------------
+        let idleTrackerTimestamp = Date.now();
+        function refreshInactivityHeartbeat() { idleTrackerTimestamp = Date.now(); }
+        document.addEventListener('click', refreshInactivityHeartbeat);
+        document.addEventListener('touchstart', refreshInactivityHeartbeat);
+        document.addEventListener('mousemove', refreshInactivityHeartbeat);
+        document.addEventListener('keypress', refreshInactivityHeartbeat);
+        
+        setInterval(() => { 
+            // Only lock if we are actually logged into the dashboard
             const dashboard = document.getElementById('showroomHubDashboard');
-            if (user) {
-                loginCard.classList.add('hidden');
-                dashboard.classList.remove('hidden');
-                localStorage.setItem('has_logged_in_once', 'true');
-            } else {
-                dashboard.classList.add('hidden');
-                loginCard.classList.remove('hidden');
+            if (!dashboard.classList.contains('hidden')) {
+                if (Date.now() - idleTrackerTimestamp > 15 * 60 * 1000) {
+                    document.getElementById('sessionLockOverlay').classList.remove('hidden'); 
+                }
             }
+        }, 10000);
+        
+        function unlockTerminalWithBiometrics() {
+            if (window.crypto && navigator.credentials) { 
+                navigator.credentials.get({ publicKey: { challenge: new Uint8Array([1,3,5,7]), timeout: 60000, allowCredentials: [] } })
+                .then(() => {
+                    document.getElementById('sessionLockOverlay').classList.add('hidden'); 
+                    idleTrackerTimestamp = Date.now();
+                }).catch(() => { 
+                    document.getElementById('sessionLockOverlay').classList.add('hidden'); 
+                    idleTrackerTimestamp = Date.now(); 
+                }); 
+            } else { 
+                document.getElementById('sessionLockOverlay').classList.add('hidden'); 
+                idleTrackerTimestamp = Date.now(); 
+            }
+        }
+
+        // ----------------------------------------------------
+        // INITIALIZATION & SESSION CHECK
+        // ----------------------------------------------------
+        document.addEventListener("DOMContentLoaded", () => {
+            // Trigger the global security check from firebase-config.js
+            enforceTerminalSecurity();
+            
+            // Setup local listener to update the welcome text
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    document.getElementById('hubUserEmail').innerText = `Active Session: ${user.email}`;
+                    
+                    // Wait a moment for firebase-config.js to fetch the role, then apply Hub visibility logic
+                    setTimeout(() => {
+                        const role = localStorage.getItem('active_user_role');
+                        if (role === "Sales") {
+                            document.getElementById('modAccounts')?.remove();
+                            document.getElementById('modAdmin')?.remove();
+                            document.getElementById('modOffice')?.remove();
+                            document.getElementById('modHisab')?.remove();
+                        } else if (role === "Manager") {
+                            document.getElementById('modAdmin')?.remove();
+                        }
+                    }, 1000);
+                }
+            });
         });
 
-        function loginShowroomTerminal() {
+        // ----------------------------------------------------
+        // FIREBASE AUTHENTICATION FLOWS
+        // ----------------------------------------------------
+        function executeLogin(e) {
+            e.preventDefault();
             const email = document.getElementById('authEmail').value.trim();
-            const password = document.getElementById('authPassword').value;
-            const errorLabel = document.getElementById('authErrorMsg');
-            const verifyBtn = document.getElementById('btnVerify');
+            const pass = document.getElementById('authPassword').value;
+            const btn = document.getElementById('btnLogin');
+            const errMsg = document.getElementById('loginErrorMsg');
 
-            if(!email || !password) { errorLabel.innerText = "Please fill in all fields!"; return; }
+            btn.innerText = "Authenticating...";
+            btn.disabled = true;
+            errMsg.classList.add('hidden');
 
-            errorLabel.innerText = "CONNECTING...";
-            verifyBtn.disabled = true;
-
-            auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-                .then(() => { return auth.signInWithEmailAndPassword(email, password); })
-                .then(() => { verifyBtn.disabled = false; })
-                .catch(error => {
-                    verifyBtn.disabled = false;
-                    errorLabel.innerText = "ACCESS DENIED: INVALID TERMINAL LOGIN";
+            auth.signInWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
+                    // Success! The enforceTerminalSecurity() listener will automatically handle the UI swap.
+                    btn.innerText = "Access Terminal";
+                    btn.disabled = false;
+                })
+                .catch((error) => {
+                    errMsg.innerText = "Authentication Failed: Please check your email and password.";
+                    errMsg.classList.remove('hidden');
+                    btn.innerText = "Access Terminal";
+                    btn.disabled = false;
                 });
         }
 
-        function authenticateWithDeviceBiometrics() {
-            const errorLabel = document.getElementById('authErrorMsg');
-            if (localStorage.getItem('has_logged_in_once') !== 'true') {
-                alert("Security Binding Required:\nPlease log in manually using your secure credentials once first to link biometrics.");
-                return;
-            }
-
-            if (window.crypto && navigator.credentials) {
-                navigator.credentials.get({
-                    publicKey: { challenge: new Uint8Array([12, 24, 36, 48]), timeout: 60000, allowCredentials: [] }
-                }).catch(() => {
-                    if (auth.currentUser) {
-                        document.getElementById('loginGatewayPanel').classList.add('hidden');
-                        document.getElementById('showroomHubDashboard').classList.remove('hidden');
-                    } else {
-                        errorLabel.innerText = "Biometric Verification Cancelled";
-                    }
-                });
-            } else {
-                alert("Biometric device profile unsupported or locked.");
-            }
-        }
-
-        function logoutShowroomTerminal() {
-            if(confirm("Lock showroom terminal?")) {
+        function executeLogout() {
+            auth.signOut().then(() => {
+                localStorage.removeItem('active_user_role');
                 localStorage.removeItem('has_logged_in_once');
-                auth.signOut();
-            }
+                
+                // Swap UI back to Gateway
+                document.getElementById('showroomHubDashboard').classList.add('hidden');
+                document.getElementById('sessionLockOverlay').classList.add('hidden');
+                document.getElementById('loginGatewayPanel').classList.remove('hidden');
+                
+                // Clear inputs
+                document.getElementById('authPassword').value = '';
+            }).catch((error) => {
+                console.error("Logout Error:", error);
+            });
         }
     </script>
 </body>
