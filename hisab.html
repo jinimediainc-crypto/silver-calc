@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jini B2B Hisab & Karigar</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#064e3b">
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <script src="firebase-config.js"></script>
+    <script>enforceTerminalSecurity();</script>
+
+    <style>
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        
+        /* Hides scrollbar for the new horizontal bottom menu but keeps it functional */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  
+            scrollbar-width: none;  
+        }
+        
+        /* UNLOCKED SCROLL ENGINE */
+        html, body {
+            height: 100dvh !important;
+            width: 100vw !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 h-[100dvh] w-screen flex flex-col overflow-hidden selection:bg-[#D4AF37] selection:text-gray-900">
+
+    <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden no-print">
+        <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
+        <p class="text-xs font-bold text-gray-400 tracking-widest uppercase mb-6">Jini Jewels Showroom Security Lock</p>
+        <div class="w-full max-w-xs space-y-3">
+            <button type="button" onclick="unlockTerminalWithBiometrics()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
+                <span>Verify Biometrics to Unlock</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="flex-shrink-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 z-10 sticky top-0">
+        <div class="flex items-center px-4 py-3 max-w-7xl mx-auto w-full">
+            <a href="index.html" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20 active:scale-90 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </a>
+            <h1 class="flex-1 text-center text-lg md:text-xl font-black text-white tracking-widest uppercase mr-10">B2B Metal Hisab</h1>
+        </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto w-full max-w-4xl mx-auto px-4 py-6 space-y-6 pb-48">
+
+        <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10">
+            <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-4">
+                <h3 class="text-base font-black text-[#064e3b] uppercase tracking-wide">Party & Entry Type</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Karigar / Wholesaler Name *</label>
+                    <input type="text" id="partyName" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]" placeholder="Enter party name..." />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Metal Type</label>
+                    <select id="metalType" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3 font-bold text-gray-800 outline-none focus:border-[#047857]">
+                        <option value="Silver">Silver 999</option>
+                        <option value="Gold">Gold 24k</option>
+                    </select>
+                </div>
+                <div class="md:col-span-3 bg-gray-100 p-1.5 rounded-xl border border-gray-200 flex text-center">
+                    <div class="w-1/2 relative">
+                        <input type="radio" id="typeJama" name="entryType" value="Jama" class="peer hidden" checked>
+                        <label for="typeJama" class="block w-full py-2 text-xs font-black uppercase rounded-lg cursor-pointer transition-colors peer-checked:bg-emerald-600 peer-checked:text-white text-gray-500">📥 Jama (Receive In)</label>
+                    </div>
+                    <div class="w-1/2 relative">
+                        <input type="radio" id="typeUdhar" name="entryType" value="Udhar" class="peer hidden">
+                        <label for="typeUdhar" class="block w-full py-2 text-xs font-black uppercase rounded-lg cursor-pointer transition-colors peer-checked:bg-red-600 peer-checked:text-white text-gray-500">📤 Udhar (Issue Out)</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div class="space-y-6">
+                
+                <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10">
+                    <h3 class="text-sm font-black text-gray-800 uppercase border-b border-gray-100 pb-2 mb-3">⚖️ Metal Weight & Purity</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-gray-600 uppercase">Gross Weight (g)</label>
+                            <input type="number" id="grossWt" oninput="calculateHisab()" class="w-24 bg-gray-50 border border-gray-200 rounded-lg py-1.5 px-2 text-right font-black text-gray-900 outline-none focus:border-[#047857]" placeholder="0.000" />
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-red-500 uppercase">Less: Stone Wt (g)</label>
+                            <input type="number" id="lessWt" oninput="calculateHisab()" class="w-24 bg-red-50/50 border border-red-200 rounded-lg py-1.5 px-2 text-right font-black text-red-700 outline-none focus:border-red-500" placeholder="0.000" />
+                        </div>
+                        <div class="flex items-center justify-between border-t border-gray-100 pt-2">
+                            <label class="text-xs font-black text-emerald-700 uppercase">Net Metal Wt (g)</label>
+                            <span id="netWtDisplay" class="font-black text-lg text-emerald-700">0.000</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 pt-2">
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-500 mb-1 uppercase">Touch (%)</label>
+                                <input type="number" id="touch" oninput="calculateHisab()" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-2 text-center font-black text-gray-900 outline-none focus:border-[#047857]" placeholder="92.50" />
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-500 mb-1 uppercase">Wastage / Ghaat</label>
+                                <input type="number" id="wastage" oninput="calculateHisab()" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-2 text-center font-black text-gray-900 outline-none focus:border-[#047857]" placeholder="+2.00" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10">
+                    <h3 class="text-sm font-black text-blue-800 uppercase border-b border-gray-100 pb-2 mb-3">💎 Stones & Diamonds</h3>
+                    
+                    <div class="space-y-3">
+                        <select id="stoneType" class="w-full bg-blue-50/30 border border-blue-200 rounded-xl py-2 px-3 font-bold text-blue-900 outline-none focus:border-blue-500 text-xs uppercase">
+                            <option value="None">No Stones</option>
+                            <option value="Lab Grown CVD">Lab Grown Diamond (CVD)</option>
+                            <option value="Real Diamond">Real Diamond</option>
+                            <option value="Moissanite">Moissanite</option>
+                            <option value="Kundan">Kundan / Polki</option>
+                            <option value="Precious Stone">Color / Precious Stones</option>
+                        </select>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-500 mb-1 uppercase">Total Carats / Ct</label>
+                                <input type="number" id="stoneCt" oninput="calculateHisab()" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-2 text-center font-black text-gray-900 outline-none" placeholder="0.00" />
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-500 mb-1 uppercase">Rate Per Ct (₹)</label>
+                                <input type="number" id="stoneRate" oninput="calculateHisab()" class="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-2 text-center font-black text-gray-900 outline-none" placeholder="0" />
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center pt-2">
+                            <span class="text-[10px] font-black text-gray-400 uppercase">Stone Value:</span>
+                            <span class="text-sm font-black text-blue-800">₹ <span id="stoneValueDisplay">0</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                
+                <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-2xl border border-white/10">
+                    <h3 class="text-sm font-black text-amber-700 uppercase border-b border-gray-100 pb-2 mb-3">💸 Extra Cash Charges</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-gray-600 uppercase">Labour / Making (₹)</label>
+                            <input type="number" id="labour" oninput="calculateHisab()" class="w-24 bg-gray-50 border border-gray-200 rounded-lg py-1.5 px-2 text-right font-black text-gray-900 outline-none focus:border-[#D4AF37]" placeholder="0" />
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-gray-600 uppercase">Rhodium / Polish (₹)</label>
+                            <input type="number" id="rhodium" oninput="calculateHisab()" class="w-24 bg-gray-50 border border-gray-200 rounded-lg py-1.5 px-2 text-right font-black text-gray-900 outline-none focus:border-[#D4AF37]" placeholder="0" />
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-gray-600 uppercase">Hallmark / HUID (₹)</label>
+                            <input type="number" id="hallmark" oninput="calculateHisab()" class="w-24 bg-gray-50 border border-gray-200 rounded-lg py-1.5 px-2 text-right font-black text-gray-900 outline-none focus:border-[#D4AF37]" placeholder="0" />
+                        </div>
+                        <div class="flex items-center justify-between border-t border-gray-100 pt-3">
+                            <label class="text-xs font-bold text-gray-600 uppercase">Card / Gateway Fee (%)</label>
+                            <input type="number" id="cardPercent" oninput="calculateHisab()" class="w-20 bg-amber-50/50 border border-amber-200 rounded-lg py-1.5 px-2 text-right font-black text-amber-700 outline-none focus:border-amber-500" placeholder="2.0" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 rounded-[1.5rem] p-5 shadow-2xl border border-[#D4AF37]/50 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-[#D4AF37]/10 rounded-bl-full"></div>
+                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest border-b border-white/10 pb-2 mb-3">Dual Ledger Summary</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-end">
+                            <span class="text-[#D4AF37] text-xs font-black uppercase">Fine Metal Owed</span>
+                            <div class="text-right">
+                                <span id="fineMetalDisplay" class="text-3xl font-black text-white">0.000</span>
+                                <span class="text-[#D4AF37] text-sm font-bold ml-1">g</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-end">
+                            <span class="text-emerald-400 text-xs font-black uppercase">Cash Amount Owed</span>
+                            <div class="text-right">
+                                <span class="text-emerald-400 text-xl font-bold mr-1">₹</span>
+                                <span id="totalCashDisplay" class="text-3xl font-black text-white">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" onclick="saveHisabEntry()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-xl uppercase tracking-widest transition-all shadow-md active:scale-95">
+                    ☁️ Save to Hisab Ledger
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-0 left-0 w-full bg-gray-950 border-t border-white/10 z-40 no-print">
+        <div class="flex overflow-x-auto no-scrollbar max-w-4xl mx-auto w-full px-2">
+            
+            <a href="retail.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400">
+                <span class="text-base">✨</span><span>Retail</span>
+            </a>
+            
+            <a href="backoffice.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400">
+                <span class="text-base">💼</span><span>Office</span>
+            </a>
+            
+            <a href="inventory.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400">
+                <span class="text-base">📦</span><span>Stock</span>
+            </a>
+            
+            <a href="billing.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400">
+                <span class="text-base">🧾</span><span>Billing</span>
+            </a>
+            
+            <a href="accounting.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400">
+                <span class="text-base">📓</span><span>Account</span>
+            </a>
+            
+            <a href="crm.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400">
+                <span class="text-base">🤝</span><span>CRM</span>
+            </a>
+
+            <a href="hisab.html" class="flex-shrink-0 w-[65px] py-3.5 text-[#D4AF37] bg-white/10 flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider rounded-lg my-0.5">
+                <span class="text-base">⚖️</span><span>Hisab</span>
+            </a>
+
+            <a href="admin.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400">
+                <span class="text-base">🛡️</span><span>Admin</span>
+            </a>
+
+        </div>
+    </div>
+
+    <script>
+        // ----------------------------------------------------
+        // SECURITY INACTIVITY TRACKER
+        // ----------------------------------------------------
+        let idleTrackerTimestamp = Date.now();
+        function refreshInactivityHeartbeat() { idleTrackerTimestamp = Date.now(); }
+        document.addEventListener('click', refreshInactivityHeartbeat);
+        document.addEventListener('touchstart', refreshInactivityHeartbeat);
+        document.addEventListener('mousemove', refreshInactivityHeartbeat);
+        document.addEventListener('keypress', refreshInactivityHeartbeat);
+        
+        setInterval(() => { 
+            if (Date.now() - idleTrackerTimestamp > 15 * 60 * 1000) {
+                document.getElementById('sessionLockOverlay').classList.remove('hidden'); 
+            }
+        }, 10000);
+        
+        function unlockTerminalWithBiometrics() {
+            if (window.crypto && navigator.credentials) { 
+                navigator.credentials.get({ publicKey: { challenge: new Uint8Array([1,2,3,4]), timeout: 60000, allowCredentials: [] } })
+                .then(() => {
+                    document.getElementById('sessionLockOverlay').classList.add('hidden'); 
+                    idleTrackerTimestamp = Date.now();
+                }).catch(() => { 
+                    document.getElementById('sessionLockOverlay').classList.add('hidden'); 
+                    idleTrackerTimestamp = Date.now(); 
+                }); 
+            } else { 
+                document.getElementById('sessionLockOverlay').classList.add('hidden'); 
+                idleTrackerTimestamp = Date.now(); 
+            }
+        }
+
+        // ----------------------------------------------------
+        // DOM ELEMENTS & MATH ENGINE
+        // ----------------------------------------------------
+        const els = {
+            grossWt: document.getElementById('grossWt'),
+            lessWt: document.getElementById('lessWt'),
+            netWtDisplay: document.getElementById('netWtDisplay'),
+            touch: document.getElementById('touch'),
+            wastage: document.getElementById('wastage'),
+            fineMetalDisplay: document.getElementById('fineMetalDisplay'),
+            
+            stoneCt: document.getElementById('stoneCt'),
+            stoneRate: document.getElementById('stoneRate'),
+            stoneValueDisplay: document.getElementById('stoneValueDisplay'),
+            
+            labour: document.getElementById('labour'),
+            rhodium: document.getElementById('rhodium'),
+            hallmark: document.getElementById('hallmark'),
+            cardPercent: document.getElementById('cardPercent'),
+            totalCashDisplay: document.getElementById('totalCashDisplay')
+        };
+
+        // ----------------------------------------------------
+        // CALCULATION LOGIC FOR DUAL LEDGER
+        // ----------------------------------------------------
+        function calculateHisab() {
+            // 1. METAL WEIGHT CALCULATION
+            let gross = parseFloat(els.grossWt.value) || 0;
+            let less = parseFloat(els.lessWt.value) || 0;
+            let netWt = Math.max(0, gross - less);
+            
+            els.netWtDisplay.innerText = netWt.toFixed(3);
+
+            // 2. FINE METAL CONVERSION (Touch + Wastage)
+            let touch = parseFloat(els.touch.value) || 0;
+            let wastage = parseFloat(els.wastage.value) || 0;
+            
+            // Formula: Net Weight * ((Touch + Wastage) / 100)
+            let fineMetal = netWt * ((touch + wastage) / 100);
+            els.fineMetalDisplay.innerText = fineMetal.toFixed(3);
+
+            // 3. STONE VALUE CALCULATION
+            let sCt = parseFloat(els.stoneCt.value) || 0;
+            let sRate = parseFloat(els.stoneRate.value) || 0;
+            let stoneValue = sCt * sRate;
+            
+            els.stoneValueDisplay.innerText = stoneValue.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+
+            // 4. CASH AMOUNT CALCULATION
+            let labourAmt = parseFloat(els.labour.value) || 0;
+            let rhodAmt = parseFloat(els.rhodium.value) || 0;
+            let hallAmt = parseFloat(els.hallmark.value) || 0;
+            let cPercent = parseFloat(els.cardPercent.value) || 0;
+
+            let subCash = stoneValue + labourAmt + rhodAmt + hallAmt;
+            let cardFee = subCash * (cPercent / 100);
+            let finalCash = Math.round(subCash + cardFee);
+
+            els.totalCashDisplay.innerText = finalCash.toLocaleString('en-IN');
+        }
+
+        // ----------------------------------------------------
+        // CLOUD SAVE LOGIC
+        // ----------------------------------------------------
+        function saveHisabEntry() {
+            const party = document.getElementById('partyName').value.trim();
+            if (!party) {
+                alert("Karigar / Party Name is mandatory!");
+                return;
+            }
+
+            const entryType = document.querySelector('input[name="entryType"]:checked').value;
+            const metal = document.getElementById('metalType').value;
+            
+            const fineMetalOwed = parseFloat(els.fineMetalDisplay.innerText) || 0;
+            const cashOwed = parseFloat(els.totalCashDisplay.innerText.replace(/,/g, '')) || 0;
+
+            if (fineMetalOwed === 0 && cashOwed === 0) {
+                alert("Both Metal and Cash amounts are 0. Nothing to save.");
+                return;
+            }
+
+            if (!confirm(`Confirm ${entryType} for ${party}:\nMetal: ${fineMetalOwed.toFixed(3)}g ${metal}\nCash: ₹${cashOwed.toLocaleString('en-IN')}`)) return;
+
+            const payload = {
+                partyName: party,
+                entryType: entryType, // Jama or Udhar
+                metalType: metal,
+                grossWt: parseFloat(els.grossWt.value) || 0,
+                lessStoneWt: parseFloat(els.lessWt.value) || 0,
+                netMetalWt: parseFloat(els.netWtDisplay.innerText) || 0,
+                touchPercent: parseFloat(els.touch.value) || 0,
+                wastagePercent: parseFloat(els.wastage.value) || 0,
+                fineMetalAmount: fineMetalOwed,
+                
+                stoneCategory: document.getElementById('stoneType').value,
+                stoneCarats: parseFloat(els.stoneCt.value) || 0,
+                stoneRate: parseFloat(els.stoneRate.value) || 0,
+                stoneCashValue: parseFloat(els.stoneValueDisplay.innerText.replace(/,/g, '')) || 0,
+                
+                labourCash: parseFloat(els.labour.value) || 0,
+                rhodiumCash: parseFloat(els.rhodium.value) || 0,
+                hallmarkCash: parseFloat(els.hallmark.value) || 0,
+                cardFeePercent: parseFloat(els.cardPercent.value) || 0,
+                totalCashAmount: cashOwed,
+                
+                timestamp: new Date().toISOString()
+            };
+
+            db.collection("b2b_hisab_ledger").add(payload).then(() => {
+                alert(`✅ Ledger Updated: ${entryType} recorded successfully!`);
+                
+                // Clear inputs for next entry
+                document.getElementById('grossWt').value = '';
+                document.getElementById('lessWt').value = '';
+                document.getElementById('stoneCt').value = '';
+                document.getElementById('labour').value = '';
+                document.getElementById('rhodium').value = '';
+                document.getElementById('hallmark').value = '';
+                calculateHisab();
+                
+            }).catch(e => alert("Error saving to cloud: " + e.message));
+        }
+    </script>
+</body>
+</html>
