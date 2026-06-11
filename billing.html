@@ -35,10 +35,9 @@
             background-color: #047857; 
         }
         
-        ::-webkit-scrollbar { 
-            width: 0px; 
-            background: transparent; 
-        }
+        /* Hides scrollbar for the horizontal bottom menu */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         /* NATIVE VIEWPORT SCROLL ENGINE */
         html, body {
@@ -106,10 +105,9 @@
         <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
         <p class="text-xs font-bold text-gray-400 tracking-widest uppercase mb-6">Jini Jewels Showroom Security Lock</p>
         <div class="w-full max-w-xs space-y-3">
-            <button type="button" onclick="unlockTerminalWithBiometrics()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
+            <button type="button" onclick="unlockTerminalWithBiometrics()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest shadow-md active:scale-95 flex items-center justify-center gap-2">
                 <span>Verify Biometrics to Unlock</span>
             </button>
-            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Device automatically locked due to 15 minutes of inactivity</p>
         </div>
     </div>
 
@@ -307,15 +305,15 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 internal-only">
-                <button type="button" onclick="executePrint(event)" class="bg-gray-900 text-[#D4AF37] font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md active:scale-95 transition-transform">Print / Save PDF</button>
-                <button type="button" onclick="executeCloudSave(event)" id="btnCloudSave" class="bg-blue-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs shadow-md active:scale-95 transition-transform">☁️ Cloud Save Memo</button>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 internal-only mt-4">
+                <button type="button" onclick="executePrint(event)" class="bg-gray-900 text-[#D4AF37] font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-transform">🖨️ Print / PDF</button>
+                <button type="button" onclick="sendWhatsAppInvoice()" class="bg-[#25D366] text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-transform">💬 WhatsApp Bill</button>
+                <button type="button" onclick="executeCloudSave(event)" id="btnCloudSave" class="bg-blue-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-transform">☁️ Cloud Save</button>
             </div>
         </div>
     </div>
 
     <div class="fixed bottom-0 left-0 w-full bg-gray-950 border-t border-white/10 z-40 no-print" id="bottomNavbarMenu">
-        
         <div class="bg-gray-900/95 border-b border-white/5 px-4 py-2 flex justify-between items-center text-left">
             <div>
                 <span class="text-gray-400 text-[9px] font-black uppercase block tracking-widest">Running Subtotal</span>
@@ -326,11 +324,15 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-4 text-center text-[10px] font-black uppercase tracking-wider text-gray-400 max-w-2xl mx-auto">
-            <a href="retail.html" class="py-3.5 hover:text-white border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>✨</span><span class="scale-90">Retail</span></a>
-            <a href="backoffice.html" class="py-3.5 hover:text-white border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>💼</span><span class="scale-90">Office</span></a>
-            <a href="inventory.html" class="py-3.5 hover:text-white border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>📦</span><span class="scale-90">Stock</span></a>
-            <a href="billing.html" class="py-3.5 text-[#D4AF37] bg-white/10 flex flex-col items-center justify-center gap-0.5"><span>🧾</span><span class="scale-90">Billing</span></a>
+        <div class="flex overflow-x-auto no-scrollbar max-w-4xl mx-auto w-full px-2">
+            <a href="retail.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">✨</span><span>Retail</span></a>
+            <a href="backoffice.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">💼</span><span>Office</span></a>
+            <a href="inventory.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">📦</span><span>Stock</span></a>
+            <a href="billing.html" class="flex-shrink-0 w-[65px] py-3.5 text-[#D4AF37] bg-white/10 flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider rounded-lg my-0.5"><span class="text-base">🧾</span><span>Billing</span></a>
+            <a href="accounting.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">📓</span><span>Account</span></a>
+            <a href="crm.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">🤝</span><span>CRM</span></a>
+            <a href="hisab.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">⚖️</span><span>Hisab</span></a>
+            <a href="admin.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">🛡️</span><span>Admin</span></a>
         </div>
     </div>
 
@@ -806,7 +808,7 @@
                 });
             }).catch(err => { 
                 alert(err.message); 
-                saveBtn.innerText = "☁️ Cloud Save Memo"; 
+                saveBtn.innerText = "☁️ Cloud Save"; 
                 saveBtn.disabled = false; 
             });
         }
@@ -886,7 +888,6 @@
             });
         }
 
-        // UPDATED: THE FULL STOCK REVERSAL DELETE LOGIC
         function deleteHistoryRecord(docId) { 
             if (!confirm("Are you sure you want to permanently delete this estimate?")) return; 
             if (!confirm("CRITICAL WARNING: This will automatically reverse matching jewelry items back to 'In Stock'! Proceed?")) return; 
@@ -937,9 +938,9 @@
             document.getElementById('editModeIndicator').classList.add('hidden'); 
             
             const b = document.getElementById('btnCloudSave'); 
-            b.innerText = "☁️ Cloud Save Memo"; 
+            b.innerText = "☁️ Cloud Save"; 
             b.disabled = false; 
-            b.className = "bg-blue-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs w-full"; 
+            b.className = "bg-blue-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-transform"; 
             
             runAutoSequenceIncrement(); 
             items = []; 
@@ -955,7 +956,7 @@
             
             const b = document.getElementById('btnCloudSave'); 
             b.innerText = "💾 Update Existing Record"; 
-            b.className = "bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-xs w-full"; 
+            b.className = "bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-transform"; 
             
             inputs.name.value = d.customerName || ''; 
             inputs.mobile.value = d.customerMobile || ''; 
@@ -964,6 +965,33 @@
             
             items = d.itemsListArray || []; 
             renderInvoice(); 
+        }
+
+        // ----------------------------------------------------
+        // WHATSAPP INTEGRATION ENGINE
+        // ----------------------------------------------------
+        function sendWhatsAppInvoice() {
+            if (!checkMandatoryDetails() || items.length === 0) {
+                alert("Cannot send empty invoice. Add items and customer details first!");
+                return;
+            }
+            
+            const mobile = inputs.mobile.value.trim();
+            const name = inputs.name.value.trim();
+            const total = document.getElementById('invoiceGrandTotal').innerText;
+            const estimateNo = inputs.memoId.value;
+            const date = document.getElementById('memoDate').value;
+            
+            let text = `*JINI JEWELS*\nEstimate: #${estimateNo}\nDate: ${date}\n\nHi ${name},\nHere is the summary of your purchase today:\n\n`;
+            
+            items.forEach((item, idx) => {
+                text += `▪️ ${item.desc}\n   Weight: ${item.weight > 0 ? item.weight+'g' : '-'} | Amt: ₹${item.total.toLocaleString('en-IN')}\n`;
+            });
+            
+            text += `\n*Net Payable: ₹${total}*\n\nThank you for shopping with Jini Jewels! ✨\n📍 Surat, Gujarat`;
+            
+            const encodedText = encodeURIComponent(text);
+            window.open(`https://wa.me/91${mobile}?text=${encodedText}`, '_blank');
         }
     </script>
 </body>
