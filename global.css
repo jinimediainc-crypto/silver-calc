@@ -1,0 +1,143 @@
+/* =================================================================
+   JINI JEWELS - GLOBAL STYLESHEET
+   ================================================================= */
+
+/* Remove arrows from number inputs */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+
+/* Hide scrollbars but keep functionality */
+::-webkit-scrollbar { 
+    width: 0px; 
+    background: transparent; 
+}
+.no-scrollbar::-webkit-scrollbar { 
+    display: none; 
+}
+.no-scrollbar { 
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
+}
+
+/* Focus rings for specific inputs */
+.focus-ring:focus-within { 
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.4); 
+    border-color: #D4AF37; 
+}
+
+/* Custom Checkbox/Toggle Styles */
+.toggle-checkbox:checked { 
+    right: 0; 
+    border-color: #D4AF37; 
+}
+.toggle-checkbox:checked + .toggle-label { 
+    background-color: #047857; 
+}
+
+/* Native Viewport Lock Engine (Mobile App Feel) */
+html, body {
+    height: 100dvh !important;
+    width: 100vw !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    scroll-behavior: smooth;
+}
+
+/* Exceptions for pages that need full scroll (like Admin/Accounting) */
+body.scroll-unlocked {
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100dvh !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* =================================================================
+   DYNAMIC PRINT ENGINE
+   ================================================================= */
+@media print {
+    /* Hide all UI elements */
+    .no-print, .internal-only, button, input, select, 
+    #historyModal, #qrScannerBox, .toggle-container-discount, 
+    #searchSuggestions, #sessionLockOverlay, #bottomNavbarMenu, #printFormatContainer { 
+        display: none !important; 
+    }
+    
+    /* Reset Body for Printing */
+    body, html { 
+        background: #ffffff !important; 
+        color: #000000 !important; 
+        overflow: visible !important; 
+        height: auto !important; 
+        padding: 0 !important; 
+        margin: 0 !important; 
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact; 
+    }
+    
+    div, main, .grid { 
+        display: block !important; 
+        overflow: visible !important; 
+        box-shadow: none !important; 
+        background: transparent !important; 
+        padding: 0 !important; 
+        margin: 0 !important; 
+    }
+
+    /* Print Tables */
+    .print-table { 
+        width: 100% !important; 
+        border-collapse: collapse !important; 
+        margin-top: 15px !important; 
+        margin-bottom: 15px !important; 
+    }
+    .print-table th { 
+        background-color: #f9fafb !important; 
+        color: #000000 !important; 
+        border-top: 2px solid #000000 !important; 
+        border-bottom: 2px solid #000000 !important; 
+        padding: 8px 4px !important; 
+        font-weight: 900 !important; 
+        text-transform: uppercase !important; 
+    }
+    .print-table td { 
+        border-bottom: 1px solid #e5e7eb !important; 
+        padding: 8px 4px !important; 
+        color: #000000 !important; 
+    }
+
+    /* Print Layout Base */
+    #printableMemoCard { 
+        display: block !important; 
+        border: none !important; 
+        margin: 0 auto !important; 
+        background: #ffffff !important; 
+        box-shadow: none !important; 
+    }
+
+    /* Format: A4 */
+    body.print-a4 #printableMemoCard { width: 210mm !important; padding: 40px !important; }
+    
+    /* Format: A5 */
+    body.print-a5 #printableMemoCard { width: 148mm !important; padding: 20px !important; }
+    
+    /* Format: Thermal 80mm */
+    body.print-thermal #printableMemoCard { width: 78mm !important; padding: 5px !important; font-size: 11px !important; }
+    body.print-thermal .text-2xl { font-size: 16px !important; }
+    body.print-thermal .print-table th { font-size: 9px !important; padding: 4px 2px !important; }
+    body.print-thermal .print-table td { font-size: 10px !important; padding: 4px 2px !important; }
+    body.print-thermal .print-total-highlight { font-size: 14px !important; padding: 5px 2px !important; }
+
+    /* Inventory String Tag Specifically */
+    #tagPrintArea { 
+        display: block !important; 
+        width: 3.2in !important; 
+        height: 1.0in !important; 
+        padding: 4px !important; 
+        margin: 0 !important; 
+        page-break-inside: avoid; 
+    }
+}
