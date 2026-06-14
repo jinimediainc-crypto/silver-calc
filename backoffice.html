@@ -14,10 +14,10 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     
-    <link rel="stylesheet" href="css/global.css">
-    <script src="js/core/firebase-config.js"></script>
-    <script src="js/core/security.js"></script>
-    <script src="js/modules/backoffice.js" defer></script>
+    <link rel="stylesheet" href="./css/global.css">
+    <script src="./js/core/firebase-config.js"></script>
+    <script src="./js/core/security.js"></script>
+    <script src="./js/modules/backoffice.js" defer></script>
 </head>
 <body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900 scroll-unlocked">
 
@@ -114,19 +114,23 @@
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full bg-gray-950 border-t border-white/10 z-40">
-        <div class="bg-gray-900/90 border-b border-white/5 px-6 py-4 flex justify-between items-center text-left max-w-2xl mx-auto w-full">
+    <div class="fixed bottom-0 left-0 w-full bg-gray-950 border-t border-white/10 z-40 no-print" id="bottomNavbarMenu">
+        <div class="bg-gray-900/90 border-b border-white/5 px-6 py-4 flex justify-between items-center text-left">
             <span class="text-white text-xl md:text-2xl font-black uppercase tracking-widest">Total</span>
             <div class="flex items-center text-emerald-500 font-black text-3xl">
                 <span class="mr-1 text-2xl">₹</span>
                 <span id="boGrandTotal" class="text-white font-black text-4xl md:text-5xl">0</span>
             </div>
         </div>
-        <div class="grid grid-cols-4 text-center text-[10px] font-black uppercase tracking-wider text-gray-400 max-w-2xl mx-auto w-full">
-            <a href="retail.html" class="py-3.5 hover:text-white border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>✨</span><span class="scale-90">Retail</span></a>
-            <a href="backoffice.html" class="py-3.5 text-[#D4AF37] bg-white/10 border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>💼</span><span class="scale-90">Office</span></a>
-            <a href="inventory.html" class="py-3.5 hover:text-white border-r border-white/5 flex flex-col items-center justify-center gap-0.5"><span>📦</span><span class="scale-90">Stock</span></a>
-            <a href="billing.html" class="py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5"><span>🧾</span><span class="scale-90">Billing</span></a>
+        <div class="flex overflow-x-auto no-scrollbar max-w-4xl mx-auto w-full px-2">
+            <a href="retail.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">✨</span><span>Retail</span></a>
+            <a href="backoffice.html" class="flex-shrink-0 w-[65px] py-3.5 text-[#D4AF37] bg-white/10 flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider rounded-lg my-0.5"><span class="text-base">💼</span><span>Office</span></a>
+            <a href="inventory.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">📦</span><span>Stock</span></a>
+            <a href="billing.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">🧾</span><span>Billing</span></a>
+            <a href="accounting.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">📓</span><span>Account</span></a>
+            <a href="crm.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">🤝</span><span>CRM</span></a>
+            <a href="hisab.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">⚖️</span><span>Hisab</span></a>
+            <a href="admin.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">🛡️</span><span>Admin</span></a>
         </div>
     </div>
 </body>
