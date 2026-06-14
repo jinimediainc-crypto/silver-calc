@@ -2,7 +2,7 @@
 // JINI JEWELS - BACK OFFICE MATH ENGINE (js/modules/backoffice.js)
 // =================================================================
 
-document.addEventListener("DOMContentLoaded", () => {
+(() => { // Replaced DOMContentLoaded with an Immediate Invocation
     
     // Trigger global security if available
     try {
@@ -13,13 +13,13 @@ document.addEventListener("DOMContentLoaded", () => {
         console.warn("Security check delayed.");
     }
 
-    // MAP ELEMENTS (Corrected IDs)
+    // MAP ELEMENTS (IDs exactly match HTML)
     const els = {
         rate: document.getElementById('boSilverRate'),
         weight: document.getElementById('boWeight'),
         labour: document.getElementById('boLabour'),
-        gstToggle: document.getElementById('boGstToggle'),   // Mapped to GST
-        commToggle: document.getElementById('boCommToggle'), // Mapped to Commission
+        gstToggle: document.getElementById('boGstToggle'),   
+        commToggle: document.getElementById('boCommToggle'), 
         commPercent: document.getElementById('boCommPercent'),
         vSilv: document.getElementById('valSilver'),
         vLab: document.getElementById('valLabour'),
@@ -42,6 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Load Local Storage Memory
     els.rate.value = localStorage.getItem('bo_rate') || '';
+    els.labour.value = localStorage.getItem('bo_labour') || ''; // Added Labour Memory
     els.gstToggle.checked = localStorage.getItem('bo_gstToggle') !== 'false';
     els.commToggle.checked = localStorage.getItem('bo_commToggle') !== 'false';
     if (localStorage.getItem('bo_commPercent')) {
@@ -90,12 +91,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ATTACH REAL-TIME EVENT LISTENERS
     els.rate.addEventListener('input', (e) => { localStorage.setItem('bo_rate', e.target.value); calculate(); });
+    els.labour.addEventListener('input', (e) => { localStorage.setItem('bo_labour', e.target.value); calculate(); }); // Added listener
     els.weight.addEventListener('input', calculate);
-    els.labour.addEventListener('input', calculate);
     els.commPercent.addEventListener('input', (e) => { localStorage.setItem('bo_commPercent', e.target.value); calculate(); });
     els.gstToggle.addEventListener('change', (e) => { localStorage.setItem('bo_gstToggle', e.target.checked); calculate(); });
     els.commToggle.addEventListener('change', (e) => { localStorage.setItem('bo_commToggle', e.target.checked); calculate(); });
 
-    // Initial Trigger
-    setTimeout(calculate, 100);
-});
+    // Initial Trigger immediately runs calculation
+    calculate();
+})();
