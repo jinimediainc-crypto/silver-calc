@@ -18,10 +18,15 @@ if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// 🟢 CRITICAL FIX: Attach to window for cross-file global access
+// 🟢 CRITICAL ARCHITECTURE FIX: Attach to window for cross-file global access
 window.auth = firebase.auth();
 window.db = firebase.firestore();
 
-// 🟢 OFFLINE PERSISTENCE ENGINE
-window.db.enablePersistence().catch((err) => console.warn(err));
+// 🟢 TRUE OFFLINE PERSISTENCE ENGINE
+window.db.enablePersistence()
+  .catch((err) => {
+      console.warn("Offline sync failed:", err.message);
+  });
+
+// Lock in local device storage persistence permanently
 window.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
