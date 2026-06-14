@@ -14,10 +14,10 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     
-    <link rel="stylesheet" href="./css/global.css">
-    <script src="./js/core/firebase-config.js"></script>
-    <script src="./js/core/security.js"></script>
-    <script src="./js/modules/backoffice.js" defer></script>
+    <link rel="stylesheet" href="css/global.css?v=2">
+    <script src="js/core/firebase-config.js?v=2"></script>
+    <script src="js/core/security.js?v=2"></script>
+    <script src="js/modules/backoffice.js?v=2" defer></script>
 </head>
 <body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900 scroll-unlocked">
 
@@ -47,14 +47,14 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-[11px] font-black text-[#047857] mb-1.5 uppercase tracking-wide">Silver Rate (₹/g)</label>
-                    <div class="bg-emerald-50 rounded-xl flex items-center px-4 py-3 focus-ring border border-emerald-200 transition-all">
+                    <div class="bg-emerald-50 rounded-xl flex items-center px-4 py-3 border border-emerald-200 transition-all focus-within:border-[#047857]">
                         <span class="text-emerald-700 font-bold text-xl mr-2">₹</span>
                         <input type="number" id="boSilverRate" class="w-full bg-transparent outline-none text-gray-900 font-black text-2xl" placeholder="0" />
                     </div>
                 </div>
                 <div>
                     <label class="block text-[11px] font-black text-gray-700 mb-1.5 uppercase tracking-wide">Labour Charge (₹/g)</label>
-                    <div class="bg-gray-50 rounded-xl flex items-center px-4 py-3 focus-ring border border-gray-200 transition-all">
+                    <div class="bg-gray-50 rounded-xl flex items-center px-4 py-3 border border-gray-200 transition-all focus-within:border-gray-400">
                         <span class="text-gray-400 font-bold text-xl mr-2">₹</span>
                         <input type="number" id="boLabour" class="w-full bg-transparent outline-none text-gray-900 font-bold text-xl text-center" placeholder="0" />
                     </div>
@@ -68,7 +68,7 @@
                     <h3 class="text-lg font-bold text-[#064e3b]">Weight</h3>
                     <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Total grams</span>
                 </div>
-                <div class="bg-gray-50 rounded-xl flex items-center px-3 py-3 focus-ring border border-gray-200 transition-all w-32 md:w-40">
+                <div class="bg-gray-50 rounded-xl flex items-center px-3 py-3 border border-gray-200 transition-all w-32 md:w-40 focus-within:border-gray-400">
                     <input type="number" id="boWeight" class="w-full bg-transparent outline-none text-gray-900 font-black text-xl text-center" placeholder="0" />
                 </div>
             </div>
@@ -76,23 +76,18 @@
 
         <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20 mb-5">
             <h3 class="text-lg font-bold mb-4 text-[#064e3b]">Modifiers</h3>
-            <div class="flex justify-between items-center px-2 mb-4">
-                <div class="flex items-center gap-3">
-                    <div class="relative inline-block w-10 h-5 align-middle select-none">
-                        <input type="checkbox" id="boGstToggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
-                        <label for="boGstToggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
-                    </div>
-                    <span class="text-[11px] font-extrabold text-gray-700 uppercase tracking-wide">Apply GST (3%)</span>
-                </div>
+            
+            <div class="flex items-center gap-4 mb-5">
+                <input type="checkbox" id="boGstToggle" class="w-6 h-6 rounded border-gray-300 text-[#047857] focus:ring-[#047857] shadow-sm transition-all" checked />
+                <label for="boGstToggle" class="text-[13px] font-extrabold text-gray-800 uppercase tracking-wide cursor-pointer select-none">Apply GST (3%)</label>
             </div>
-            <hr class="border-gray-100 mb-4">
-            <div class="flex justify-between items-center px-2">
-                <div class="flex items-center gap-3">
-                    <div class="relative inline-block w-10 h-5 align-middle select-none">
-                        <input type="checkbox" id="boCommToggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 border-gray-300 appearance-none cursor-pointer z-10 transition-all" checked />
-                        <label for="boCommToggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer transition-colors"></label>
-                    </div>
-                    <span class="text-[11px] font-extrabold text-gray-700 uppercase tracking-wide">Commission</span>
+            
+            <hr class="border-gray-100 mb-5">
+            
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <input type="checkbox" id="boCommToggle" class="w-6 h-6 rounded border-gray-300 text-[#047857] focus:ring-[#047857] shadow-sm transition-all" checked />
+                    <label for="boCommToggle" class="text-[13px] font-extrabold text-gray-800 uppercase tracking-wide cursor-pointer select-none">Commission</label>
                 </div>
                 <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg overflow-hidden focus-within:border-[#D4AF37] transition-all">
                     <input type="number" id="boCommPercent" class="w-16 text-center text-sm font-bold py-1.5 outline-none bg-transparent" value="10" />
