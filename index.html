@@ -7,38 +7,22 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#064e3b">
-    <link rel="apple-touch-icon" href="icon.png">
     
-    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     
-    <!-- Modular System Files -->
-    <link rel="stylesheet" href="css/global.css">
-    <script src="js/core/firebase-config.js"></script>
-    <script src="js/core/security.js"></script>
-    <script src="js/core/utils.js"></script>
-    <script src="js/modules/index.js" defer></script>
+    <style>
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+        html, body { overflow-y: auto !important; height: auto !important; min-height: 100dvh !important; }
+        .hub-card:active { transform: scale(0.95); }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900 scroll-unlocked">
+<body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900">
 
-    <!-- 15-MINUTE INACTIVITY SECURITY LOCK OVERLAY SHIELD -->
-    <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden">
-        <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
-        <p class="text-xs font-bold text-gray-400 tracking-widest uppercase mb-6">Jini Jewels Showroom Security Lock</p>
-        <div class="w-full max-w-xs space-y-3">
-            <button type="button" onclick="window.unlockTerminalWithBiometrics()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
-                <span>Verify Biometrics to Unlock</span>
-            </button>
-            <button type="button" onclick="window.executeLogout()" class="w-full bg-red-900/50 hover:bg-red-900 text-red-200 font-bold py-3 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 text-xs">
-                Force Logout
-            </button>
-        </div>
-    </div>
-
-    <!-- 🔴 STATE 1: SECURE LOGIN GATEWAY PANEL -->
     <div id="loginGatewayPanel" class="flex-1 flex flex-col justify-center items-center px-6 py-12 w-full max-w-md mx-auto min-h-screen">
         
         <div class="text-center mb-10">
@@ -52,7 +36,7 @@
         <div class="bg-white/95 backdrop-blur-lg rounded-[2rem] p-8 shadow-2xl border border-white/20 w-full">
             <h2 class="text-lg font-black text-[#064e3b] uppercase mb-6 text-center tracking-wide border-b border-gray-200 pb-3">Staff Authentication</h2>
             
-            <form id="loginForm" onsubmit="window.executeLogin(event)" class="space-y-5">
+            <form id="loginForm" class="space-y-5">
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Registered Email</label>
                     <input type="email" id="authEmail" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 font-bold text-gray-800 outline-none focus:border-[#047857] transition-colors" placeholder="staff@jinijewels.com" required />
@@ -65,41 +49,33 @@
 
                 <div id="loginErrorMsg" class="hidden bg-red-50 text-red-600 text-xs font-bold p-3 rounded-lg border border-red-200 text-center"></div>
 
-                <button type="submit" id="btnLogin" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-xl uppercase tracking-widest transition-all shadow-md active:scale-95 mt-2">
+                <button type="button" onclick="executeSelfContainedLogin()" id="btnLogin" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-xl uppercase tracking-widest transition-all shadow-md active:scale-95 mt-2">
                     Access Terminal
                 </button>
             </form>
         </div>
-        
-        <p class="text-center text-white/40 text-[10px] font-bold uppercase tracking-wider mt-8">Secure 256-bit Encrypted Connection</p>
     </div>
 
-    <!-- 🟢 STATE 2: SHOWROOM HUB DASHBOARD (Hidden until authenticated) -->
     <div id="showroomHubDashboard" class="hidden flex-1 flex flex-col w-full min-h-screen">
-        
-        <!-- DASHBOARD HEADER -->
         <div class="bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 sticky top-0 z-20">
             <div class="flex items-center justify-between px-6 py-4 max-w-5xl mx-auto w-full">
                 <div>
                     <h1 class="text-xl md:text-2xl font-black text-white tracking-widest uppercase">Ecosystem Hub</h1>
                     <p class="text-[#D4AF37] text-[10px] font-black uppercase tracking-wider" id="hubUserEmail">Loading Profile...</p>
                 </div>
-                <button type="button" onclick="window.executeLogout()" class="bg-red-900/80 hover:bg-red-800 text-white text-[10px] font-black uppercase tracking-wider py-2 px-4 rounded-lg border border-red-500/50 shadow-sm transition-colors">
+                <button type="button" onclick="executeSelfContainedLogout()" class="bg-red-900/80 hover:bg-red-800 text-white text-[10px] font-black uppercase tracking-wider py-2 px-4 rounded-lg border border-red-500/50 shadow-sm transition-colors">
                     Logout
                 </button>
             </div>
         </div>
 
-        <!-- MODULE LAUNCHER GRID -->
         <div class="flex-1 w-full max-w-5xl mx-auto px-4 md:px-8 py-8 pb-24">
-            
             <div class="mb-6">
                 <h2 class="text-white text-lg font-black uppercase tracking-wide">Launch Application</h2>
                 <p class="text-gray-400 text-xs font-bold">Select a terminal module to begin operations.</p>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                
                 <a href="retail.html" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group">
                     <div class="w-14 h-14 bg-emerald-500/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">✨</div>
                     <div>
@@ -107,66 +83,148 @@
                         <p class="text-emerald-400 text-[9px] font-bold uppercase tracking-wider mt-1">Estimate Calc</p>
                     </div>
                 </a>
-
-                <a href="billing.html" class="hub-card bg-white/10 hover:bg-white/20 border border-[#D4AF37]/30 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-16 h-16 bg-[#D4AF37]/10 rounded-bl-full"></div>
+                <a href="billing.html" class="hub-card bg-white/10 hover:bg-white/20 border border-[#D4AF37]/30 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group">
                     <div class="w-14 h-14 bg-[#D4AF37]/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">🧾</div>
                     <div>
                         <h3 class="text-white font-black text-sm uppercase tracking-wide">POS Billing</h3>
                         <p class="text-[#D4AF37] text-[9px] font-bold uppercase tracking-wider mt-1">Checkout Desk</p>
                     </div>
                 </a>
-
-                <a href="inventory.html" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group" id="modStock">
+                <a href="inventory.html" id="modStock" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group">
                     <div class="w-14 h-14 bg-amber-500/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">📦</div>
                     <div>
                         <h3 class="text-white font-black text-sm uppercase tracking-wide">Stock Room</h3>
                         <p class="text-amber-400 text-[9px] font-bold uppercase tracking-wider mt-1">Tags & Ledger</p>
                     </div>
                 </a>
-
-                <a href="crm.html" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group" id="modCrm">
+                <a href="crm.html" id="modCrm" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group">
                     <div class="w-14 h-14 bg-blue-500/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">🤝</div>
                     <div>
                         <h3 class="text-white font-black text-sm uppercase tracking-wide">Client CRM</h3>
                         <p class="text-blue-400 text-[9px] font-bold uppercase tracking-wider mt-1">LTV & Database</p>
                     </div>
                 </a>
-
-                <a href="accounting.html" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group" id="modAccounts">
+                <a href="accounting.html" id="modAccounts" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group">
                     <div class="w-14 h-14 bg-indigo-500/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">📓</div>
                     <div>
                         <h3 class="text-white font-black text-sm uppercase tracking-wide">Accounts</h3>
                         <p class="text-indigo-400 text-[9px] font-bold uppercase tracking-wider mt-1">Cash Day-Book</p>
                     </div>
                 </a>
-
-                <a href="hisab.html" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group" id="modHisab">
+                <a href="hisab.html" id="modHisab" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group">
                     <div class="w-14 h-14 bg-orange-500/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">⚖️</div>
                     <div>
                         <h3 class="text-white font-black text-sm uppercase tracking-wide">B2B Hisab</h3>
                         <p class="text-orange-400 text-[9px] font-bold uppercase tracking-wider mt-1">Metal Ledger</p>
                     </div>
                 </a>
-
-                <a href="backoffice.html" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group" id="modOffice">
+                <a href="backoffice.html" id="modOffice" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group">
                     <div class="w-14 h-14 bg-stone-500/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">💼</div>
                     <div>
                         <h3 class="text-white font-black text-sm uppercase tracking-wide">Back Office</h3>
                         <p class="text-stone-400 text-[9px] font-bold uppercase tracking-wider mt-1">Purity Calc</p>
                     </div>
                 </a>
-
-                <a href="admin.html" class="hub-card bg-gray-900 border border-red-500/30 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg transition-all text-center group" id="modAdmin">
+                <a href="admin.html" id="modAdmin" class="hub-card bg-gray-900 border border-red-500/30 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg transition-all text-center group">
                     <div class="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">🛡️</div>
                     <div>
                         <h3 class="text-white font-black text-sm uppercase tracking-wide">Admin Vault</h3>
                         <p class="text-red-400 text-[9px] font-bold uppercase tracking-wider mt-1">Staff Security</p>
                     </div>
                 </a>
-
             </div>
         </div>
     </div>
+
+    <script>
+        // 1. Initialize Firebase directly in this file
+        const firebaseConfig = {
+            apiKey: "AIzaSyD6eG22cNgeUOus3w3S4uDOB8j84AnqKLk",
+            authDomain: "jinijewels-github.firebaseapp.com",
+            databaseURL: "https://jinijewels-github-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "jinijewels-github",
+            storageBucket: "jinijewels-github.firebasestorage.app",
+            messagingSenderId: "578815043824",
+            appId: "1:578815043824:web:27014b622834fc57d9ba35"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        const localAuth = firebase.auth();
+        const localDb = firebase.firestore();
+        
+        localAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+        // 2. Automatically check if already logged in
+        localAuth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('loginGatewayPanel').classList.add('hidden');
+                document.getElementById('showroomHubDashboard').classList.remove('hidden');
+                document.getElementById('hubUserEmail').innerText = `Active Session: ${user.email}`;
+                
+                // Fetch RBAC details
+                localDb.collection("team_members").doc(user.email.toLowerCase()).get().then((doc) => {
+                    let role = "Sales";
+                    if (doc.exists) { role = doc.data().role; } 
+                    else if (user.email.toLowerCase() === "jinijewelsco@gmail.com") { role = "Owner"; }
+                    
+                    localStorage.setItem('active_user_role', role);
+                    
+                    // Hide modules based on role
+                    if (role === "Sales") {
+                        document.getElementById('modAccounts')?.remove();
+                        document.getElementById('modAdmin')?.remove();
+                        document.getElementById('modOffice')?.remove();
+                        document.getElementById('modHisab')?.remove();
+                    } else if (role === "Manager") {
+                        document.getElementById('modAdmin')?.remove();
+                    }
+                }).catch(e => console.error("RBAC error:", e));
+            }
+        });
+
+        // 3. The Login Execution Function
+        function executeSelfContainedLogin() {
+            const email = document.getElementById('authEmail').value.trim();
+            const pass = document.getElementById('authPassword').value;
+            const btn = document.getElementById('btnLogin');
+            const errMsg = document.getElementById('loginErrorMsg');
+
+            if(!email || !pass) {
+                errMsg.innerText = "Please enter both email and password.";
+                errMsg.classList.remove('hidden');
+                return;
+            }
+
+            btn.innerText = "Authenticating...";
+            btn.disabled = true;
+            errMsg.classList.add('hidden');
+
+            localAuth.signInWithEmailAndPassword(email, pass)
+                .then(() => {
+                    btn.innerText = "Access Granted";
+                    // The onAuthStateChanged listener above will automatically flip the UI
+                })
+                .catch((error) => {
+                    console.error("Login Error:", error);
+                    errMsg.innerText = "Authentication Failed: " + error.message;
+                    errMsg.classList.remove('hidden');
+                    btn.innerText = "Access Terminal";
+                    btn.disabled = false;
+                });
+        }
+
+        // 4. The Logout Function
+        function executeSelfContainedLogout() {
+            localAuth.signOut().then(() => {
+                localStorage.removeItem('active_user_role');
+                document.getElementById('showroomHubDashboard').classList.add('hidden');
+                document.getElementById('loginGatewayPanel').classList.remove('hidden');
+                document.getElementById('authPassword').value = '';
+            });
+        }
+    </script>
 </body>
 </html>
