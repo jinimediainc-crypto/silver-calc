@@ -9,24 +9,26 @@
     <meta name="theme-color" content="#064e3b">
     <link rel="apple-touch-icon" href="icon.png">
     
+    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     
+    <!-- Modular System Files -->
     <link rel="stylesheet" href="css/global.css">
     <script src="js/core/firebase-config.js"></script>
     <script src="js/core/security.js"></script>
-    <script src="js/core/utils.js"></script>
-    <script src="js/modules/backoffice.js" defer></script>
 </head>
 <body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900 scroll-unlocked">
 
+    <!-- SECURITY LOCK -->
     <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden no-print">
         <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
-        <button type="button" onclick="unlockTerminalWithBiometrics()" class="w-full max-w-xs bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95">Verify Biometrics</button>
+        <button type="button" onclick="if(typeof window.unlockTerminalWithBiometrics === 'function') window.unlockTerminalWithBiometrics()" class="w-full max-w-xs bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95">Verify Biometrics</button>
     </div>
 
+    <!-- HEADER -->
     <div class="flex-shrink-0 bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 no-print z-10 sticky top-0">
         <div class="flex items-center px-4 py-4 max-w-2xl mx-auto w-full">
             <a href="index.html" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20 active:scale-90 transition-transform">
@@ -36,6 +38,7 @@
         </div>
     </div>
 
+    <!-- MAIN CANVAS -->
     <div class="flex-1 w-full max-w-2xl mx-auto px-4 md:px-8 pt-6 pb-48 space-y-5 no-print">
         
         <div class="mt-2 mb-6">
@@ -43,6 +46,7 @@
             <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-1 mb-2 tracking-tight">Internal Purity Calc</h2>
         </div>
         
+        <!-- BASE PRICING -->
         <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
             <h3 class="text-lg font-bold mb-4 text-[#064e3b]">Base Values</h3>
             <div class="grid grid-cols-2 gap-4">
@@ -63,6 +67,7 @@
             </div>
         </div>
 
+        <!-- WEIGHT CARD -->
         <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
             <div class="flex items-center justify-between">
                 <div>
@@ -75,6 +80,7 @@
             </div>
         </div>
 
+        <!-- MODIFIERS CARD -->
         <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
             <h3 class="text-lg font-bold mb-4 text-[#064e3b]">Modifiers</h3>
             <div class="flex items-center gap-3 mb-4">
@@ -90,6 +96,7 @@
             </div>
         </div>
 
+        <!-- BREAKDOWN -->
         <div class="bg-white/95 backdrop-blur-lg rounded-[1.5rem] p-5 shadow-xl border border-white/20">
             <div class="bg-emerald-50/50 rounded-xl p-4 border border-emerald-100/50 space-y-2 text-xs font-bold text-gray-600">
                 <div class="flex justify-between"><span>Silver Value</span><span>₹ <span id="valSilver">0</span></span></div>
@@ -100,10 +107,11 @@
         </div>
     </div>
 
+    <!-- BOTTOM NAV RIBBON -->
     <div class="fixed bottom-0 left-0 w-full bg-gray-950 border-t border-white/10 z-40">
         <div class="bg-gray-900/90 px-6 py-4 flex justify-between items-center max-w-2xl mx-auto w-full">
             <span class="text-white text-xl font-black uppercase">Total</span>
-            <span class="text-white font-black text-3xl">₹ <span id="boGrandTotal">0</span></span>
+            <span class="text-emerald-400 font-black text-3xl">₹ <span id="boGrandTotal" class="text-white">0</span></span>
         </div>
         <div class="flex overflow-x-auto no-scrollbar max-w-4xl mx-auto w-full px-2">
             <a href="retail.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase text-gray-400">✨<span>Retail</span></a>
@@ -116,5 +124,97 @@
             <a href="admin.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase text-gray-400">🛡️<span>Admin</span></a>
         </div>
     </div>
+
+    <!-- EMBEDDED MATH ENGINE TO PREVENT GITHUB PAGES 404 ERRORS -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Trigger global security if the external file loads successfully
+            if (typeof window.enforceTerminalSecurity === "function") {
+                window.enforceTerminalSecurity();
+            }
+
+            const els = {
+                rate: document.getElementById('boSilverRate'),
+                weight: document.getElementById('boWeight'),
+                labour: document.getElementById('boLabour'),
+                commToggle: document.getElementById('boCommToggle'),
+                commPercent: document.getElementById('boCommPercent'),
+                gstToggle: document.getElementById('boGstToggle'),
+                vSilv: document.getElementById('valSilver'),
+                vLab: document.getElementById('valLabour'),
+                vComm: document.getElementById('valComm'),
+                vGst: document.getElementById('valGst'),
+                rComm: document.getElementById('rowComm'),
+                rGst: document.getElementById('rowGst'),
+                lComm: document.getElementById('lblComm'),
+                total: document.getElementById('boGrandTotal')
+            };
+
+            // Local fallback formatter (guarantees no crashing if utils.js goes missing)
+            const formatMoney = (num) => {
+                return num.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+            };
+
+            // Load saved settings safely
+            els.rate.value = localStorage.getItem('bo_rate') || '';
+            els.commToggle.checked = localStorage.getItem('bo_commToggle') !== 'false';
+            els.gstToggle.checked = localStorage.getItem('bo_gstToggle') !== 'false';
+            if (localStorage.getItem('bo_commPercent')) {
+                els.commPercent.value = localStorage.getItem('bo_commPercent');
+            }
+
+            function calculate() {
+                try {
+                    const r = parseFloat(els.rate.value) || 0;
+                    const w = parseFloat(els.weight.value) || 0;
+                    const l = parseFloat(els.labour.value) || 0;
+                    const cp = parseFloat(els.commPercent.value) || 0;
+                    
+                    const silvVal = r * w;
+                    const labVal = l * w;
+                    const baseVal = silvVal + labVal;
+
+                    let gstAmt = 0;
+                    if (els.gstToggle.checked) {
+                        gstAmt = baseVal * 0.03;
+                        els.rGst.classList.remove('hidden');
+                    } else { 
+                        els.rGst.classList.add('hidden'); 
+                    }
+
+                    const subTotalWithGst = baseVal + gstAmt;
+                    
+                    let commAmt = 0;
+                    if (els.commToggle.checked) {
+                        commAmt = subTotalWithGst * (cp / 100);
+                        els.rComm.classList.remove('hidden');
+                        els.lComm.innerText = `Commission (${cp}%)`;
+                    } else { 
+                        els.rComm.classList.add('hidden'); 
+                    }
+
+                    const finalTotal = Math.round(subTotalWithGst + commAmt);
+
+                    els.vSilv.innerText = formatMoney(silvVal);
+                    els.vLab.innerText = formatMoney(labVal);
+                    els.vGst.innerText = formatMoney(gstAmt);
+                    els.vComm.innerText = formatMoney(commAmt);
+                    els.total.innerText = formatMoney(finalTotal);
+                } catch(e) {
+                    console.error("Critical Math Error:", e);
+                }
+            }
+
+            // Real-time Event Listeners
+            els.rate.addEventListener('input', (e) => { localStorage.setItem('bo_rate', e.target.value); calculate(); });
+            els.weight.addEventListener('input', calculate);
+            els.labour.addEventListener('input', calculate);
+            els.commPercent.addEventListener('input', (e) => { localStorage.setItem('bo_commPercent', e.target.value); calculate(); });
+            els.commToggle.addEventListener('change', (e) => { localStorage.setItem('bo_commToggle', e.target.checked); calculate(); });
+            els.gstToggle.addEventListener('change', (e) => { localStorage.setItem('bo_gstToggle', e.target.checked); calculate(); });
+
+            calculate();
+        });
+    </script>
 </body>
 </html>
