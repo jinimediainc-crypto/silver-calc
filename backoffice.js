@@ -1,7 +1,7 @@
 // =================================================================
 // JINI JEWELS - BACK OFFICE MATH ENGINE (js/modules/backoffice.js)
 // =================================================================
-
+console.log("ENGINE CONNECTED");
 (() => { // Replaced DOMContentLoaded with an Immediate Invocation
     
     // Trigger global security if available
