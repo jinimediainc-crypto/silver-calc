@@ -4,17 +4,11 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     // 1. Trigger global security check
-    if (typeof enforceTerminalSecurity === "function") {
-        enforceTerminalSecurity();
-    }
-    
-    // 2. Bind the form submission safely
-    const loginForm = document.getElementById('loginForm');
-    if(loginForm) {
-        loginForm.addEventListener('submit', executeLogin);
+    if (typeof window.enforceTerminalSecurity === "function") {
+        window.enforceTerminalSecurity();
     }
 
-    // 3. Listen for Auth State
+    // 2. Listen for Auth State to adjust the Hub UI
     window.auth.onAuthStateChanged((user) => {
         if (user) {
             document.getElementById('hubUserEmail').innerText = `Active Session: ${user.email}`;
@@ -33,8 +27,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-function executeLogin(e) {
-    e.preventDefault();
+// ----------------------------------------------------
+// FIREBASE AUTHENTICATION CONTROLS
+// ----------------------------------------------------
+window.executeLogin = function(e) {
+    e.preventDefault(); // STOPS THE PAGE FROM RELOADING
+    
     const email = document.getElementById('authEmail').value.trim();
     const pass = document.getElementById('authPassword').value;
     const btn = document.getElementById('btnLogin');
@@ -44,28 +42,33 @@ function executeLogin(e) {
     btn.disabled = true;
     errMsg.classList.add('hidden');
 
-    // Use window.auth to prevent scoping crashes
     window.auth.signInWithEmailAndPassword(email, pass)
         .then((userCredential) => {
             btn.innerText = "Access Granted";
-            // Security.js will auto-redirect the UI now
+            // security.js auto-swaps the UI from here
         })
         .catch((error) => {
             console.error("Login Error:", error);
-            errMsg.innerText = "Authentication Failed: " + error.message;
+            errMsg.innerText = "Authentication Failed: Please check your password.";
             errMsg.classList.remove('hidden');
             btn.innerText = "Access Terminal";
             btn.disabled = false;
         });
-}
+};
 
-function executeLogout() {
+window.executeLogout = function() {
     window.auth.signOut().then(() => {
         localStorage.removeItem('active_user_role');
         localStorage.removeItem('has_logged_in_once');
+        
+        // Swap UI back to Gateway
         document.getElementById('showroomHubDashboard').classList.add('hidden');
         document.getElementById('sessionLockOverlay').classList.add('hidden');
         document.getElementById('loginGatewayPanel').classList.remove('hidden');
+        
+        // Clear inputs
         document.getElementById('authPassword').value = '';
-    }).catch(err => console.error(err));
-}
+    }).catch((error) => {
+        console.error("Logout Error:", error);
+    });
+};
