@@ -9,32 +9,38 @@
     <meta name="theme-color" content="#064e3b">
     <link rel="apple-touch-icon" href="icon.png">
     
+    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     
+    <!-- Modular System Files -->
     <link rel="stylesheet" href="css/global.css">
     <script src="js/core/firebase-config.js"></script>
     <script src="js/core/security.js"></script>
+    <script src="js/core/utils.js"></script>
     <script src="js/modules/index.js" defer></script>
 </head>
 <body class="bg-gradient-to-br from-[#064e3b] via-[#022c22] to-gray-900 font-sans text-gray-800 min-h-screen w-full flex flex-col selection:bg-[#D4AF37] selection:text-gray-900 scroll-unlocked">
 
+    <!-- 15-MINUTE INACTIVITY SECURITY LOCK OVERLAY SHIELD -->
     <div id="sessionLockOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col justify-center items-center text-center p-6 transition-all duration-300 hidden">
         <h2 class="text-3xl font-black text-white tracking-tight mb-1">TERMINAL SECURED</h2>
         <p class="text-xs font-bold text-gray-400 tracking-widest uppercase mb-6">Jini Jewels Showroom Security Lock</p>
         <div class="w-full max-w-xs space-y-3">
-            <button type="button" onclick="unlockTerminalWithBiometrics()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
+            <button type="button" onclick="window.unlockTerminalWithBiometrics()" class="w-full bg-[#047857] hover:bg-[#064e3b] text-white font-black py-4 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 flex items-center justify-center gap-2">
                 <span>Verify Biometrics to Unlock</span>
             </button>
-            <button type="button" onclick="executeLogout()" class="w-full bg-red-900/50 hover:bg-red-900 text-red-200 font-bold py-3 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 text-xs">
+            <button type="button" onclick="window.executeLogout()" class="w-full bg-red-900/50 hover:bg-red-900 text-red-200 font-bold py-3 px-4 rounded-2xl uppercase tracking-widest transition-colors shadow-md active:scale-95 text-xs">
                 Force Logout
             </button>
         </div>
     </div>
 
+    <!-- 🔴 STATE 1: SECURE LOGIN GATEWAY PANEL -->
     <div id="loginGatewayPanel" class="flex-1 flex flex-col justify-center items-center px-6 py-12 w-full max-w-md mx-auto min-h-screen">
+        
         <div class="text-center mb-10">
             <div class="w-20 h-20 bg-white/10 rounded-full mx-auto flex items-center justify-center border border-[#D4AF37]/50 shadow-2xl mb-4 backdrop-blur-sm">
                 <span class="text-4xl">💎</span>
@@ -46,11 +52,12 @@
         <div class="bg-white/95 backdrop-blur-lg rounded-[2rem] p-8 shadow-2xl border border-white/20 w-full">
             <h2 class="text-lg font-black text-[#064e3b] uppercase mb-6 text-center tracking-wide border-b border-gray-200 pb-3">Staff Authentication</h2>
             
-            ⁠<form id="loginForm" class="space-y-5">
+            <form id="loginForm" onsubmit="window.executeLogin(event)" class="space-y-5">
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Registered Email</label>
                     <input type="email" id="authEmail" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 font-bold text-gray-800 outline-none focus:border-[#047857] transition-colors" placeholder="staff@jinijewels.com" required />
                 </div>
+                
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Secure Password</label>
                     <input type="password" id="authPassword" class="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 font-bold text-gray-800 outline-none focus:border-[#047857] transition-colors" placeholder="••••••••" required />
@@ -63,30 +70,36 @@
                 </button>
             </form>
         </div>
+        
         <p class="text-center text-white/40 text-[10px] font-bold uppercase tracking-wider mt-8">Secure 256-bit Encrypted Connection</p>
     </div>
 
+    <!-- 🟢 STATE 2: SHOWROOM HUB DASHBOARD (Hidden until authenticated) -->
     <div id="showroomHubDashboard" class="hidden flex-1 flex flex-col w-full min-h-screen">
         
+        <!-- DASHBOARD HEADER -->
         <div class="bg-[#064e3b]/95 backdrop-blur-md shadow-md border-b border-white/10 sticky top-0 z-20">
             <div class="flex items-center justify-between px-6 py-4 max-w-5xl mx-auto w-full">
                 <div>
                     <h1 class="text-xl md:text-2xl font-black text-white tracking-widest uppercase">Ecosystem Hub</h1>
                     <p class="text-[#D4AF37] text-[10px] font-black uppercase tracking-wider" id="hubUserEmail">Loading Profile...</p>
                 </div>
-                <button type="button" onclick="executeLogout()" class="bg-red-900/80 hover:bg-red-800 text-white text-[10px] font-black uppercase tracking-wider py-2 px-4 rounded-lg border border-red-500/50 shadow-sm transition-colors">
+                <button type="button" onclick="window.executeLogout()" class="bg-red-900/80 hover:bg-red-800 text-white text-[10px] font-black uppercase tracking-wider py-2 px-4 rounded-lg border border-red-500/50 shadow-sm transition-colors">
                     Logout
                 </button>
             </div>
         </div>
 
+        <!-- MODULE LAUNCHER GRID -->
         <div class="flex-1 w-full max-w-5xl mx-auto px-4 md:px-8 py-8 pb-24">
+            
             <div class="mb-6">
                 <h2 class="text-white text-lg font-black uppercase tracking-wide">Launch Application</h2>
                 <p class="text-gray-400 text-xs font-bold">Select a terminal module to begin operations.</p>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                
                 <a href="retail.html" class="hub-card bg-white/10 hover:bg-white/20 border border-white/10 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 shadow-lg backdrop-blur-md transition-all text-center group">
                     <div class="w-14 h-14 bg-emerald-500/20 rounded-full flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">✨</div>
                     <div>
@@ -151,6 +164,7 @@
                         <p class="text-red-400 text-[9px] font-bold uppercase tracking-wider mt-1">Staff Security</p>
                     </div>
                 </a>
+
             </div>
         </div>
     </div>
