@@ -18,20 +18,10 @@ if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// 🟢 CRITICAL ARCHITECTURE FIX: Attach to window for cross-file global access. 
-// This completely stops the "SYNCING..." freeze on the Billing screen.
+// 🟢 CRITICAL FIX: Attach to window for cross-file global access
 window.auth = firebase.auth();
 window.db = firebase.firestore();
 
-// 🟢 TRUE OFFLINE PERSISTENCE ENGINE
-window.db.enablePersistence()
-  .catch((err) => {
-      if (err.code == 'failed-precondition') {
-          console.warn("Offline sync failed: Multiple tabs open.");
-      } else if (err.code == 'unimplemented') {
-          console.warn("Offline sync failed: Browser not supported.");
-      }
-  });
-
-// Lock in local device storage persistence permanently
+// 🟢 OFFLINE PERSISTENCE ENGINE
+window.db.enablePersistence().catch((err) => console.warn(err));
 window.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
