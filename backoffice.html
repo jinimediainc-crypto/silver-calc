@@ -151,7 +151,79 @@
             <a href="admin.html" class="flex-shrink-0 w-[65px] py-3.5 hover:text-white flex flex-col items-center justify-center gap-0.5 text-[9px] font-black uppercase tracking-wider text-gray-400"><span class="text-base">🛡️</span><span>Admin</span></a>
         </div>
     </div>
-    <script src="js/modules/backoffice.js?v=4"></script>
+    <script>
+    // INLINE MATH ENGINE - Bypasses mobile caching and file sync issues
+    function runMath() {
+        // 1. Safely grab values
+        const getVal = id => parseFloat(document.getElementById(id)?.value) || 0;
+        const getChecked = id => document.getElementById(id)?.checked || false;
+        
+        const rate = getVal('boSilverRate');
+        const weight = getVal('boWeight');
+        const labour = getVal('boLabour');
+        const commPct = getVal('boCommPercent');
+        const gstOn = getChecked('boGstToggle');
+        const commOn = getChecked('boCommToggle');
+
+        // 2. Base Math
+        const silvVal = rate * weight;
+        const labVal = labour * weight;
+        const baseVal = silvVal + labVal;
+
+        // 3. Modifiers
+        let gstAmt = 0;
+        const rowGst = document.getElementById('rowGst');
+        if (gstOn) {
+            gstAmt = baseVal * 0.03;
+            if(rowGst) rowGst.classList.remove('hidden');
+        } else {
+            if(rowGst) rowGst.classList.add('hidden');
+        }
+
+        const subTotal = baseVal + gstAmt;
+
+        let commAmt = 0;
+        const rowComm = document.getElementById('rowComm');
+        if (commOn) {
+            commAmt = subTotal * (commPct / 100);
+            if(rowComm) rowComm.classList.remove('hidden');
+            const lblComm = document.getElementById('lblComm');
+            if(lblComm) lblComm.innerText = `Commission (${commPct}%)`;
+        } else {
+            if(rowComm) rowComm.classList.add('hidden');
+        }
+
+        const total = subTotal + commAmt;
+
+        // 4. Update UI
+        const fmt = num => Math.round(num).toLocaleString('en-IN');
+        const setTxt = (id, txt) => { 
+            const el = document.getElementById(id); 
+            if(el) el.innerText = txt; 
+        };
+
+        setTxt('valSilver', fmt(silvVal));
+        setTxt('valLabour', fmt(labVal));
+        setTxt('valGst', fmt(gstAmt));
+        setTxt('valComm', fmt(commAmt));
+        setTxt('boGrandTotal', fmt(total));
+    }
+
+    // 5. Attach Triggers
+    ['boSilverRate', 'boLabour', 'boWeight', 'boCommPercent'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.addEventListener('input', runMath);
+    });
+
+    ['boGstToggle', 'boCommToggle'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.addEventListener('change', runMath);
+    });
+
+    // Run once on load
+    setTimeout(runMath, 50);
+</script>
+l
 </body>
 </html>
 
