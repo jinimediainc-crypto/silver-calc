@@ -2,11 +2,11 @@
 // JINI JEWELS - GLOBAL SECURITY & RBAC ENGINE (js/core/security.js)
 // =================================================================
 
-function enforceTerminalSecurity() {
+window.enforceTerminalSecurity = function() {
     const currentPath = window.location.pathname;
     const isLoginPage = currentPath.endsWith('index.html') || currentPath === '/' || currentPath.endsWith('index.html/');
 
-    auth.onAuthStateChanged((user) => {
+    window.auth.onAuthStateChanged((user) => {
         if (!user) {
             // Kick unauthorized devices to login gate
             if (!isLoginPage) { window.location.replace('index.html'); }
@@ -25,25 +25,25 @@ function enforceTerminalSecurity() {
             // FETCH ROLE-BASED ACCESS CONTROL (RBAC)
             const userEmail = user.email.toLowerCase();
             
-            db.collection("team_members").doc(userEmail).get().then((doc) => {
+            window.db.collection("team_members").doc(userEmail).get().then((doc) => {
                 let assignedRole = "Sales"; // Default to lowest privilege
                 
                 if (doc.exists) {
                     assignedRole = doc.data().role;
                 } else if (userEmail === "jinijewelsco@gmail.com") {
                     assignedRole = "Owner";
-                    db.collection("team_members").doc(userEmail).set({ 
+                    window.db.collection("team_members").doc(userEmail).set({ 
                         email: userEmail, role: "Owner", addedTimestamp: new Date().toISOString() 
                     });
                 }
                 localStorage.setItem('active_user_role', assignedRole);
-                applyRoleBasedUI(assignedRole, currentPath);
+                window.applyRoleBasedUI(assignedRole, currentPath);
             }).catch(err => console.error("RBAC Security Fetch Error:", err.message));
         }
     });
-}
+};
 
-function applyRoleBasedUI(role, currentPath) {
+window.applyRoleBasedUI = function(role, currentPath) {
     if (role === "Sales") {
         if (currentPath.includes("accounting.html") || currentPath.includes("admin.html") || currentPath.includes("backoffice.html") || currentPath.includes("hisab.html")) {
             alert("Security Alert: Your 'Sales' role does not have permission to view this module.");
@@ -61,21 +61,21 @@ function applyRoleBasedUI(role, currentPath) {
         }
         document.querySelectorAll('a[href="admin.html"]').forEach(el => el.remove());
     }
-}
+};
 
 // ----------------------------------------------------
 // 15-MINUTE INACTIVITY LOCK TRACKER
 // ----------------------------------------------------
 let idleTrackerTimestamp = Date.now();
         
-function refreshInactivityHeartbeat() { 
+window.refreshInactivityHeartbeat = function() { 
     idleTrackerTimestamp = Date.now(); 
-}
+};
 
-document.addEventListener('click', refreshInactivityHeartbeat);
-document.addEventListener('touchstart', refreshInactivityHeartbeat);
-document.addEventListener('mousemove', refreshInactivityHeartbeat);
-document.addEventListener('keypress', refreshInactivityHeartbeat);
+document.addEventListener('click', window.refreshInactivityHeartbeat);
+document.addEventListener('touchstart', window.refreshInactivityHeartbeat);
+document.addEventListener('mousemove', window.refreshInactivityHeartbeat);
+document.addEventListener('keypress', window.refreshInactivityHeartbeat);
 
 setInterval(() => { 
     const currentPath = window.location.pathname;
@@ -94,7 +94,7 @@ setInterval(() => {
     }
 }, 10000);
 
-function unlockTerminalWithBiometrics() {
+window.unlockTerminalWithBiometrics = function() {
     if (window.crypto && navigator.credentials) { 
         navigator.credentials.get({ publicKey: { challenge: new Uint8Array([8,16,24,32]), timeout: 60000, allowCredentials: [] } })
         .then(() => {
@@ -108,4 +108,4 @@ function unlockTerminalWithBiometrics() {
         document.getElementById('sessionLockOverlay').classList.add('hidden'); 
         idleTrackerTimestamp = Date.now(); 
     }
-}
+};
