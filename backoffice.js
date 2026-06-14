@@ -3,45 +3,50 @@
 // =================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Enforce Security
-    if (typeof window.enforceTerminalSecurity === "function") {
-        window.enforceTerminalSecurity();
-    }
+    try {
+        // 1. Trigger global security if it exists on the window
+        if (typeof window.enforceTerminalSecurity === "function") {
+            window.enforceTerminalSecurity();
+        } else if (typeof enforceTerminalSecurity === "function") {
+            enforceTerminalSecurity();
+        }
 
-    // 2. Map Elements Safely
-    const els = {
-        rate: document.getElementById('boSilverRate'),
-        weight: document.getElementById('boWeight'),
-        labour: document.getElementById('boLabour'),
-        commToggle: document.getElementById('boCommToggle'),
-        commPercent: document.getElementById('boCommPercent'),
-        gstToggle: document.getElementById('boGstToggle'),
-        vSilv: document.getElementById('valSilver'),
-        vLab: document.getElementById('valLabour'),
-        vComm: document.getElementById('valComm'),
-        vGst: document.getElementById('valGst'),
-        rComm: document.getElementById('rowComm'),
-        rGst: document.getElementById('rowGst'),
-        lComm: document.getElementById('lblComm'),
-        total: document.getElementById('boGrandTotal')
-    };
+        // 2. Map Elements Safely
+        const els = {
+            rate: document.getElementById('boSilverRate'),
+            weight: document.getElementById('boWeight'),
+            labour: document.getElementById('boLabour'),
+            commToggle: document.getElementById('boCommToggle'),
+            commPercent: document.getElementById('boCommPercent'),
+            gstToggle: document.getElementById('boGstToggle'),
+            vSilv: document.getElementById('valSilver'),
+            vLab: document.getElementById('valLabour'),
+            vComm: document.getElementById('valComm'),
+            vGst: document.getElementById('valGst'),
+            rComm: document.getElementById('rowComm'),
+            rGst: document.getElementById('rowGst'),
+            lComm: document.getElementById('lblComm'),
+            total: document.getElementById('boGrandTotal')
+        };
 
-    // 3. Fallback formatter to prevent missing utils.js crashes
-    const formatMoney = (num) => {
-        return num.toLocaleString('en-IN', { maximumFractionDigits: 0 });
-    };
+        // UI DIAGNOSTIC: Ensure all elements were successfully found in the HTML
+        for (const [key, el] of Object.entries(els)) {
+            if (!el) throw new Error(`UI Element missing in HTML: ${key}`);
+        }
 
-    // 4. Load Saved State
-    els.rate.value = localStorage.getItem('bo_rate') || '';
-    els.commToggle.checked = localStorage.getItem('bo_commToggle') !== 'false';
-    els.gstToggle.checked = localStorage.getItem('bo_gstToggle') !== 'false';
-    if (localStorage.getItem('bo_commPercent')) {
-        els.commPercent.value = localStorage.getItem('bo_commPercent');
-    }
+        // 3. Independent Formatter
+        const formatMoney = (num) => num.toLocaleString('en-IN', { maximumFractionDigits: 0 });
 
-    // 5. Core Engine
-    function calculate() {
-        try {
+        // 4. Load Saved Parameters
+        els.rate.value = localStorage.getItem('bo_rate') || '';
+        els.commToggle.checked = localStorage.getItem('bo_commToggle') !== 'false';
+        els.gstToggle.checked = localStorage.getItem('bo_gstToggle') !== 'false';
+        if (localStorage.getItem('bo_commPercent')) {
+            els.commPercent.value = localStorage.getItem('bo_commPercent');
+        }
+
+        // 5. Core Math Engine
+        function calculate() {
             const r = parseFloat(els.rate.value) || 0;
             const w = parseFloat(els.weight.value) || 0;
             const l = parseFloat(els.labour.value) || 0;
@@ -77,18 +82,21 @@ document.addEventListener("DOMContentLoaded", () => {
             els.vGst.innerText = formatMoney(gstAmt);
             els.vComm.innerText = formatMoney(commAmt);
             els.total.innerText = formatMoney(finalTotal);
-        } catch(e) {
-            console.error("Critical Math Error:", e);
         }
+
+        // 6. Bind Real-Time Listeners
+        els.rate.addEventListener('input', (e) => { localStorage.setItem('bo_rate', e.target.value); calculate(); });
+        els.weight.addEventListener('input', calculate);
+        els.labour.addEventListener('input', calculate);
+        els.commPercent.addEventListener('input', (e) => { localStorage.setItem('bo_commPercent', e.target.value); calculate(); });
+        els.commToggle.addEventListener('change', (e) => { localStorage.setItem('bo_commToggle', e.target.checked); calculate(); });
+        els.gstToggle.addEventListener('change', (e) => { localStorage.setItem('bo_gstToggle', e.target.checked); calculate(); });
+
+        // 7. Run initial calculation to update zeros
+        calculate();
+
+    } catch (error) {
+        console.error("Initialization Failed:", error);
+        alert("Terminal Initialization Error: " + error.message);
     }
-
-    // 6. Bind Listeners
-    els.rate.addEventListener('input', (e) => { localStorage.setItem('bo_rate', e.target.value); calculate(); });
-    els.weight.addEventListener('input', calculate);
-    els.labour.addEventListener('input', calculate);
-    els.commPercent.addEventListener('input', (e) => { localStorage.setItem('bo_commPercent', e.target.value); calculate(); });
-    els.commToggle.addEventListener('change', (e) => { localStorage.setItem('bo_commToggle', e.target.checked); calculate(); });
-    els.gstToggle.addEventListener('change', (e) => { localStorage.setItem('bo_gstToggle', e.target.checked); calculate(); });
-
-    calculate();
 });
