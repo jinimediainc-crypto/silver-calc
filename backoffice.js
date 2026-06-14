@@ -3,12 +3,12 @@
 // =================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Enforce Security safely (bypasses crash if security.js is delayed)
+    // 1. Enforce Security
     if (typeof window.enforceTerminalSecurity === "function") {
         window.enforceTerminalSecurity();
     }
 
-    // 2. Map Elements INSIDE the loader to guarantee the HTML exists first
+    // 2. Map Elements Safely
     const els = {
         rate: document.getElementById('boSilverRate'),
         weight: document.getElementById('boWeight'),
@@ -26,12 +26,12 @@ document.addEventListener("DOMContentLoaded", () => {
         total: document.getElementById('boGrandTotal')
     };
 
-    // 3. Bulletproof currency formatter (Works even if utils.js is missing)
+    // 3. Fallback formatter to prevent missing utils.js crashes
     const formatMoney = (num) => {
         return num.toLocaleString('en-IN', { maximumFractionDigits: 0 });
     };
 
-    // 4. Load Previous User Settings from Device Storage
+    // 4. Load Saved State
     els.rate.value = localStorage.getItem('bo_rate') || '';
     els.commToggle.checked = localStorage.getItem('bo_commToggle') !== 'false';
     els.gstToggle.checked = localStorage.getItem('bo_gstToggle') !== 'false';
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
         els.commPercent.value = localStorage.getItem('bo_commPercent');
     }
 
-    // 5. The Live Math Engine
+    // 5. Core Engine
     function calculate() {
         try {
             const r = parseFloat(els.rate.value) || 0;
@@ -72,18 +72,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const finalTotal = Math.round(subTotalWithGst + commAmt);
 
-            // Update UI
             els.vSilv.innerText = formatMoney(silvVal);
             els.vLab.innerText = formatMoney(labVal);
             els.vGst.innerText = formatMoney(gstAmt);
             els.vComm.innerText = formatMoney(commAmt);
             els.total.innerText = formatMoney(finalTotal);
         } catch(e) {
-            console.error("Math Engine Error:", e);
+            console.error("Critical Math Error:", e);
         }
     }
 
-    // 6. Bind Event Listeners (Triggers calculate() instantly on typing)
+    // 6. Bind Listeners
     els.rate.addEventListener('input', (e) => { localStorage.setItem('bo_rate', e.target.value); calculate(); });
     els.weight.addEventListener('input', calculate);
     els.labour.addEventListener('input', calculate);
@@ -91,6 +90,5 @@ document.addEventListener("DOMContentLoaded", () => {
     els.commToggle.addEventListener('change', (e) => { localStorage.setItem('bo_commToggle', e.target.checked); calculate(); });
     els.gstToggle.addEventListener('change', (e) => { localStorage.setItem('bo_gstToggle', e.target.checked); calculate(); });
 
-    // Run initial calculation to sync the zeros
     calculate();
 });
